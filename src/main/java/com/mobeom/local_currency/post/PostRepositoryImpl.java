@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface PostRepository extends JpaRepository<Post, Long>, PostService {}
+interface PostRepository extends JpaRepository<Post, Long>, CustomedPostRepository {}
 
-interface PostService{}
+interface CustomedPostRepository{}
 
-public class PostRepositoryImpl extends QuerydslRepositorySupport implements PostService {
+public class PostRepositoryImpl extends QuerydslRepositorySupport implements CustomedPostRepository {
 
     public PostRepositoryImpl() {
         super(Post.class);

@@ -7,11 +7,11 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface BoardRepository extends JpaRepository<Board, Long>, BoardService{}
+interface BoardRepository extends JpaRepository<Board, Long>, CustomedBoardRepository{}
 
-interface BoardService{}
+interface CustomedBoardRepository{}
 
-public class BoardRepositoryImpl extends QuerydslRepositorySupport implements BoardService {
+public class BoardRepositoryImpl extends QuerydslRepositorySupport implements CustomedBoardRepository {
 
     public BoardRepositoryImpl() {
         super(Board.class);

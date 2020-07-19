@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface ImageRepository extends JpaRepository<Image, Long>, ImageService {}
+interface ImageRepository extends JpaRepository<Image, Long>, CustomedImageRepository {}
 
-interface ImageService{}
+interface CustomedImageRepository{}
 
-public class ImageRepositoryImpl extends QuerydslRepositorySupport implements ImageService {
+public class ImageRepositoryImpl extends QuerydslRepositorySupport implements CustomedImageRepository {
 
     public ImageRepositoryImpl() {
         super(Image.class);
