@@ -3,6 +3,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
 	id 'war'
+	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
 }
 
 group = 'com.mobeom'
@@ -29,6 +30,15 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.6.0'
+
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
+	compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.3.0'
+	compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.3.0'
+	compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.744'
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -38,4 +48,26 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+def querydslSrcDir = 'src/main/generated'
+
+querydsl{
+	library = 'com.querydsl:querydsl-apt'
+	jpa = true
+	querydslSourcesDir = querydslSrcDir
+}
+
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+	querydsl.extendsFrom compileClasspath
+}
+sourceSets{
+	main{
+		java{
+			srcDirs = ['src/main/java', querydslSrcDir]
+		}
+	}
 }
