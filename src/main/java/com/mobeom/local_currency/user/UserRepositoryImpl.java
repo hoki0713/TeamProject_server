@@ -4,10 +4,17 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
 
 
-interface UserRepository extends JpaRepository<User, Long>, CustomedUserRepository { }
-interface CustomedUserRepository { }
+interface CustomedUserRepository {
+
+}
+
+@Component
 public class UserRepositoryImpl extends QuerydslRepositorySupport implements CustomedUserRepository  {
     @Autowired
     JPAQueryFactory query;
@@ -15,4 +22,5 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Cus
     UserRepositoryImpl() {
         super(User.class);
     }
+
 }
