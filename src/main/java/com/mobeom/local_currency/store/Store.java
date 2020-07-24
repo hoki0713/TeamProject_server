@@ -12,20 +12,26 @@ import javax.persistence.*;
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "store_no") private Long id;
+    @Column(name = "id") private Long id;
 
     @Column(name = "store_name",nullable = false) private String storeName;
 
-    @Column(name = "store_type") private String storeType;
+    @Column(name = "store_type_code",nullable = false) private int storeTypeCode;
 
-    @Column(name = "road_adress") private String address;
+    @Column(name = "store_type", nullable = false) private String storeType;
 
-    @Column(name = "store_phone") private String storePhone;
+    @Column(name = "local_name", nullable = false) private String localName;
 
-    @Column(name = "latitude") private int latitude;
+    @Column(name = "road_address", nullable = false) private String address;
 
-    @Column(name = "longitude") private int longitude;
+    @Column(name = "store_phone", nullable = false) private String storePhone;
 
-    @Column(name = "star_ranking") private int starRanking;
+    @Column(name = "latitude",nullable = false) private int latitude;
+
+    @Column(name = "logitude", nullable = false) private int longitude;
+
+    @Column(name = "star_ranking",nullable = false) private int starRanking;
+
+    @Column(name = "search_result_count",nullable = false) private int searchResultCount;
 
 }

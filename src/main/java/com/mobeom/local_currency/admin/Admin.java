@@ -12,11 +12,13 @@ import javax.persistence.*;
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "industry_code") private Long id;
+    @Column(name = "admin_id") private Long id;
 
-    @Column(name = "amount_used") private int amountUsed;
+    @Column(name = "industry_code", nullable = false) private int industryCode;
 
-    @Column(name = "city") private String city;
+    @Column(name = "amount_used", nullable = false) private int amountUsed;
 
-    @Column(name = "store_type") private String storeType;
+    @Column(name = "city", nullable = false,length = 20) private String city;
+
+    @Column(name = "classify_industry", nullable = false,length = 20) private String storeType;
 }
