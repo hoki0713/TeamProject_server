@@ -22,6 +22,6 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public List<User> getAllList() {
-        return userRepository.findAll();
+        return adminRepository.List();
     }
 }

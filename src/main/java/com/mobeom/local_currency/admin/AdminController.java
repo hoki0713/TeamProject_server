@@ -21,6 +21,13 @@ public class AdminController {
     public ResponseEntity<List<User>> getAllList(){
         System.out.println("왔다");
         List<User> userList = adminService.getAllList();
+      //  System.out.println(userList.toString());
         return ResponseEntity.ok(userList);
     }
+   /* @GetMapping("/list")
+    public List<User> getAllList(){
+        System.out.println("list Test2");
+        List<User> userList = adminService.getAllList();
+        return userList;
+    }*/
 }
