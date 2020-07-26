@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 interface StoreRepository extends JpaRepository<Store,Long> , CustomedStoreRepository{}
 
+
 interface CustomedStoreRepository
 {
     public List<Store> findAll();
