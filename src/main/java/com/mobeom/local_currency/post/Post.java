@@ -2,6 +2,8 @@ package com.mobeom.local_currency.post;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mobeom.local_currency.board.Board;
+import com.mobeom.local_currency.recommend.Recommend;
+import com.mobeom.local_currency.user.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,8 +24,7 @@ public class Post {
     @Column(name="post_id", nullable = false)
     private Long postId;
 
-    @CreationTimestamp
-    @Column(name="reg_date", nullable = false)
+    @Column(name="reg_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private DateTime regDate;
 
     @Column(name="category", nullable = false)
@@ -38,8 +39,7 @@ public class Post {
     @Column(name="read_count", nullable = false)
     private Integer readCount;
 
-    @CreationTimestamp
-    @Column(name="modi_date", nullable = false)
+    @Column(name="modi_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private DateTime modiDate;
 
     @Column(name="notice_yn", nullable = false)
@@ -57,18 +57,15 @@ public class Post {
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name="board_id")
-    @Column(name="board_id", nullable = false)
     private Board board;
 
-//    @JsonIgnore
-//    @ManyToOne
-//    @JoinColumn(name="recommend_id")
-//    @Column(name="recommend_id", nullable = false)
-//    private Recommend recommend;
-//
-//    @JsonIgnore
-//    @ManyToOne
-//    @JoinColumn(name="user_id")
-//    @Column(name="user_id", nullable = false)
-//    private User user;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="recommend_id")
+    private Recommend recommend;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
 }
