@@ -10,6 +10,8 @@ import java.util.Optional;
 interface UserService {
 
     Optional<User> findUser(String user);
+
+    User update(User selectUser);
 }
 
 @Service
@@ -21,6 +23,11 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findUser(String user) {
         Optional<User> idCheck = userRepository.findByUserId(user);
         return idCheck;
+    }
+
+    @Override
+    public User update(User selectUser) {
+        return userRepository.save(selectUser);
     }
 
 }

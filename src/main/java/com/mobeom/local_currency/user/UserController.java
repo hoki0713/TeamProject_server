@@ -34,4 +34,16 @@ public class UserController {
 
     }
 
+    @PostMapping(value = "/updatePassword")
+    public ResponseEntity<User> updatePassword(@RequestBody User user) {
+        Optional<User> findUser = userService.findUser(user.getUserId());
+        if(findUser.isPresent()) {
+            User selectUser = findUser.get();
+            selectUser.setPassword(user.getPassword());
+            return ResponseEntity.ok(userService.update(selectUser));
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
