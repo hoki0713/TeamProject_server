@@ -1,13 +1,15 @@
 package com.mobeom.local_currency.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Component
 interface UserService {
 
-    Optional<User> idCheck(String user);
+    Optional<User> findUser(String user);
 }
 
 @Service
@@ -16,8 +18,9 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
 
     @Override
-    public Optional<User> idCheck(String user) {
+    public Optional<User> findUser(String user) {
         Optional<User> idCheck = userRepository.findByUserId(user);
         return idCheck;
     }
+
 }

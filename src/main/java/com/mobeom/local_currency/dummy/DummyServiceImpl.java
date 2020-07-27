@@ -11,7 +11,6 @@ import java.util.List;
 
 @Component
 interface DummyService {
-
     List<User> createRandomUser();
 }
 
