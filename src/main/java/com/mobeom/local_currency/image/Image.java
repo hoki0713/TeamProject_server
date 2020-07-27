@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.joda.time.DateTime;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 
@@ -26,8 +25,7 @@ public class Image {
     @Column(name="image_url", nullable=false)
     private String imageUrl;
 
-    @CreationTimestamp
-    @Column(name="update_date", nullable=false)
+    @Column(name="update_date", nullable=false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private DateTime updateDate;
 
     @Column(name="image_cate", nullable=false)
@@ -37,12 +35,10 @@ public class Image {
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name="post_id")
-    @Column(name="post_id", nullable=false)
     private Post post;
 
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name="board_id")
-    @Column(name="board_id", nullable=false)
     private Board board;
 }

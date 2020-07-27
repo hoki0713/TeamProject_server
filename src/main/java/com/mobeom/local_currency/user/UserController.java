@@ -13,12 +13,21 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @ResponseBody
     @PostMapping(value = "/idCheck")
     public ResponseEntity<User> idCheck(@RequestBody User user) {
-        Optional<User> idCheckResult = userService.idCheck(user.getUserId());
+        Optional<User> idCheckResult = userService.findUser(user.getUserId());
         if(idCheckResult.isPresent()) {
             return ResponseEntity.ok(idCheckResult.get());
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping(value = "/account-info/{userId}")
+    public ResponseEntity<User> getOneInfo(@PathVariable String userId) {
+        Optional<User> user = userService.findUser(userId);
+        if(user.isPresent()) {
+            return ResponseEntity.ok(user.get());
         } else {
             return ResponseEntity.badRequest().build();
         }
