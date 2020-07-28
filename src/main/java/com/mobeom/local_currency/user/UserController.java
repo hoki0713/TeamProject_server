@@ -13,13 +13,13 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @PostMapping(value = "/idCheck")
-    public ResponseEntity<User> idCheck(@RequestBody User user) {
-        Optional<User> idCheckResult = userService.findUserbyUserId(user.getUserId());
+    @GetMapping(value = "/idCheck/{userId}")
+    public ResponseEntity<User> idCheck(@PathVariable String userId) {
+        Optional<User> idCheckResult = userService.findUserbyUserId(userId);
         if(idCheckResult.isPresent()) {
             return ResponseEntity.ok(idCheckResult.get());
         } else {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -56,6 +56,21 @@ public class UserController {
             User selectUser = findUser.get();
             userService.delete(selectUser);
             return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value = "/login")
+    public ResponseEntity<User> login(@RequestBody User user) {
+        Optional<User> findUser = userService.findUserbyUserId(user.getUserId());
+        if(findUser.isPresent()) {
+            User requestLoginUser = findUser.get();
+            if(user.getPassword().equals(requestLoginUser.getPassword())) {
+                return ResponseEntity.ok(requestLoginUser);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
         } else {
             return ResponseEntity.notFound().build();
         }
