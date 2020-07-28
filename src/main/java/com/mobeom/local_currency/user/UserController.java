@@ -61,4 +61,19 @@ public class UserController {
         }
     }
 
+    @PostMapping(value = "/login")
+    public ResponseEntity<User> login(@RequestBody User user) {
+        Optional<User> findUser = userService.findUserbyUserId(user.getUserId());
+        if(findUser.isPresent()) {
+            User requestLoginUser = findUser.get();
+            if(user.getPassword().equals(requestLoginUser.getPassword())) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

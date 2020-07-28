@@ -16,6 +16,7 @@ interface UserService {
     void delete(User selectUser);
 
     Optional<User> findUser(Long id);
+
 }
 
 @Service
