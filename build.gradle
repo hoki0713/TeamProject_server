@@ -41,6 +41,7 @@ test {
 
 def querydslDir = "$buildDir/generated/querydsl"
 
+
 querydsl{
     library = 'com.querydsl:querydsl-apt'
     jpa = true
