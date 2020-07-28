@@ -3,10 +3,7 @@ package com.mobeom.local_currency.admin;
 import com.mobeom.local_currency.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,9 +14,10 @@ public class AdminController {
 
     @Autowired AdminService adminService;
 
-    @GetMapping("/list")
-    public ResponseEntity<List<User>> getAllList(){
-        System.out.println("왔다");
+    @GetMapping("/list/{searchWord}")
+    public ResponseEntity<List<User>> getAllList(@PathVariable String searchWord){
+
+        System.out.println("왔다"+searchWord);
         List<User> userList = adminService.getAllList();
       //  System.out.println(userList.toString());
         return ResponseEntity.ok(userList);
