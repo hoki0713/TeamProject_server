@@ -63,6 +63,7 @@ public class UserController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<User> login(@RequestBody User user) {
+        System.out.println(">>>>"+user.toString());
         Optional<User> findUser = userService.findUserbyUserId(user.getUserId());
         if(findUser.isPresent()) {
             User requestLoginUser = findUser.get();
@@ -73,6 +74,16 @@ public class UserController {
             }
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value ="/")
+    public ResponseEntity<User> create(@RequestBody User user) {
+        Optional<User> createUser = userService.createUser(user);
+        if(createUser.isPresent()) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
         }
     }
 
