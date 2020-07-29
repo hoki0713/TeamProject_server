@@ -22,6 +22,10 @@ interface UserService {
     Optional<User> findUser(Long id);
 
     Optional<User> createUser(User user);
+
+    Optional<User> findUserbyNameAndEmail(String name, String email);
+
+    Optional<User> findUserForResetPassword(String userId, String name, String email);
 }
 
 @Service
@@ -63,10 +67,22 @@ public class UserServiceImpl implements UserService {
         createUser.setJoinDate(LocalDate.now());
         createUser.setDefaultAddr(user.getDefaultAddr());
         createUser.setOptionalAddr(user.getOptionalAddr());
-        
+
         System.out.println(createUser);
         User savedUser = userRepository.save(createUser);
         return Optional.of(savedUser);
+    }
+
+    @Override
+    public Optional<User> findUserbyNameAndEmail(String name, String email) {
+        Optional<User> findUser = userRepository.findByUserNameAndEmail(name, email);
+        return findUser;
+    }
+
+    @Override
+    public Optional<User> findUserForResetPassword(String userId, String name, String email) {
+        Optional<User> findUser = userRepository.findByUserIdNameEmail(userId, name, email);
+        return findUser;
     }
 
 }
