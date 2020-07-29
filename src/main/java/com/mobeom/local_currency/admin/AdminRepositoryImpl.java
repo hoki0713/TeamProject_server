@@ -17,7 +17,7 @@ import java.util.List;
 
 @Repository
 interface CustomedAdminRepository {
-    public List<User> List();
+    public List<User> List(String searchWord);
 }
 
 @Component
@@ -27,12 +27,17 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     public AdminRepositoryImpl() { super(Admin.class);}
 
     @Override
-    public List<User> List() {
+    public List<User> List(String searchWord) {
         QUser user = QUser.user;
         JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
         List<User> list = new ArrayList<>();
 
-        list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name)).from(user).fetch();
+        if(!searchWord.equals("null")) {
+            list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name)).from(user).where(user.userId.like("%" + searchWord + "%")).fetch();
+        }else {
+            list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name)).from(user).fetch();
+        }
+
 
 
 

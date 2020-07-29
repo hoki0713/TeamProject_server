@@ -18,14 +18,9 @@ public class AdminController {
     public ResponseEntity<List<User>> getAllList(@PathVariable String searchWord){
 
         System.out.println("왔다"+searchWord);
-        List<User> userList = adminService.getAllList();
-      //  System.out.println(userList.toString());
+        List<User> userList = adminService.getAllList(searchWord);
+         System.out.println(adminService.getAllList(searchWord).toString());
         return ResponseEntity.ok(userList);
     }
-   /* @GetMapping("/list")
-    public List<User> getAllList(){
-        System.out.println("list Test2");
-        List<User> userList = adminService.getAllList();
-        return userList;
-    }*/
+
 }

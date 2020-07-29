@@ -13,6 +13,7 @@ import java.util.Optional;
 interface CustomedUserRepository {
     Optional<User> findByUserId(String userId);
 
+
 }
 
 public class UserRepositoryImpl extends QuerydslRepositorySupport implements CustomedUserRepository  {

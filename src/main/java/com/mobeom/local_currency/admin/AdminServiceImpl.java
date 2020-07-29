@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 interface AdminService{
-    List<User> getAllList();
+    List<User> getAllList(String searchWord);
 }
 
 @Service
@@ -21,7 +21,7 @@ public class AdminServiceImpl implements AdminService{
 
 
     @Override
-    public List<User> getAllList() {
-        return adminRepository.List();
+    public List<User> getAllList(String searchWord) {
+        return adminRepository.List(searchWord);
     }
 }
