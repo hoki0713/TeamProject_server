@@ -6,9 +6,6 @@ spring:
   jpa:
     show-sql: true
     database: mysql
-    hibernate:
-      ddl-auto: update
-    generate-ddl: true
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
