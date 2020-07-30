@@ -6,12 +6,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 interface StatisticService {
 
-    Optional<List<Map<?,?>>> getUserRegionStat(List<String> listOfRegion);
+    Map<String, Long> getUserRegionStat(List<String> listOfRegion);
 }
 
 @Service
@@ -20,8 +19,8 @@ public class StatisticServiceImpl implements StatisticService{
     StatisticRepository statisticRepository;
 
     @Override
-    public Optional<List<Map<?, ?>>> getUserRegionStat(List<String> listOfRegion) {
-        Optional<List<Map<?,?>>> resultList = statisticRepository.getUserRegionStat(listOfRegion);
+    public Map<String, Long> getUserRegionStat(List<String> listOfRegion) {
+        Map<String, Long> resultList = statisticRepository.getUserRegionStat(listOfRegion);
         return resultList;
     }
 }

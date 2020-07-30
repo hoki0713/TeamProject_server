@@ -19,12 +19,8 @@ public class StatisticController {
     StatisticSources statisticSources;
 
     @GetMapping(value ="")
-    public ResponseEntity<List<Map<?,?>>> getUserRegionStat() {
-        Optional<List<Map<?,?>>> resultList = statisticService.getUserRegionStat(statisticSources.getListOfRegion());
-        if(resultList.isPresent()) {
-            return ResponseEntity.ok(resultList.get());
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Map<String, Long>> getUserRegionStat() {
+        Map<String, Long> resultList = statisticService.getUserRegionStat(statisticSources.getListOfRegion());
+        return ResponseEntity.ok(resultList);
     }
 }

@@ -10,7 +10,7 @@ import java.util.*;
 
 interface CustomedStatisticRepository {
 
-    Optional<List<Map<?,?>>> getUserRegionStat(List<String> listOfRegion);
+    Map<String, Long> getUserRegionStat(List<String> listOfRegion);
 }
 
 public class StatisticRepositoryImpl extends QuerydslRepositorySupport implements CustomedStatisticRepository {
@@ -22,15 +22,16 @@ public class StatisticRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override
-    public Optional<List<Map<?, ?>>> getUserRegionStat(List<String> listOfRegion) {
+    public Map<String, Long> getUserRegionStat(List<String> listOfRegion) {
         QUser qUser = QUser.user;
-        List<Map<?,?>> resultList = new ArrayList<>();
-        for (int i = 0; i < listOfRegion.size(); i++) {
-            Map<String, Integer> regionAndCount = new HashMap<>();
-            List<?> listOfUser = queryFactory.selectFrom(qUser).where(qUser.defaultAddr.like("%"+listOfRegion.get(i)+"%")).fetch();
-            regionAndCount.put(listOfRegion.get(i), listOfUser.size());
-            resultList.add(regionAndCount);
-        }
-        return Optional.of(resultList);
+        Map<String,Long> result = new HashMap<>();
+        listOfRegion.forEach(regionName -> {
+            Long numOfUser = queryFactory.selectFrom(qUser)
+                    .where(qUser.defaultAddr.like("%"+regionName+"%"))
+                    .fetchCount();
+            result.put(regionName, numOfUser);
+        });
+        System.out.println(result);
+        return result;
     }
 }
