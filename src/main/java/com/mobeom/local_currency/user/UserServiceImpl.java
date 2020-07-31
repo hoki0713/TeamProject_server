@@ -1,9 +1,13 @@
 package com.mobeom.local_currency.user;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 
 @Component
@@ -17,6 +21,11 @@ interface UserService {
 
     Optional<User> findUser(Long id);
 
+    Optional<User> createUser(User user);
+
+    Optional<User> findUserbyNameAndEmail(String name, String email);
+
+    Optional<User> findUserForResetPassword(String userId, String name, String email);
 }
 
 @Service
@@ -43,6 +52,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findUser(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    public Optional<User> createUser(User user) {
+        User createUser = new User();
+        createUser.setUserId(user.getUserId());
+        createUser.setPassword(user.getPassword());
+        createUser.setName(user.getName());
+        createUser.setBirthDate(user.getBirthDate());
+        createUser.setGender(user.getGender());
+        createUser.setEmail(user.getEmail());
+        createUser.setAdminKey(0);
+        createUser.setJoinDate(LocalDate.now());
+        createUser.setDefaultAddr(user.getDefaultAddr());
+        createUser.setOptionalAddr(user.getOptionalAddr());
+
+        System.out.println(createUser);
+        User savedUser = userRepository.save(createUser);
+        return Optional.of(savedUser);
+    }
+
+    @Override
+    public Optional<User> findUserbyNameAndEmail(String name, String email) {
+        Optional<User> findUser = userRepository.findByUserNameAndEmail(name, email);
+        return findUser;
+    }
+
+    @Override
+    public Optional<User> findUserForResetPassword(String userId, String name, String email) {
+        Optional<User> findUser = userRepository.findByUserIdNameEmail(userId, name, email);
+        return findUser;
     }
 
 }

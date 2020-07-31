@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.user;
 
+import com.amazonaws.services.kendra.model.DatabaseEngineType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Getter @Setter @ToString @NoArgsConstructor
@@ -36,7 +38,7 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "join_date", nullable = false)
+    @Column(name = "join_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP" )
     private LocalDate joinDate;
 
     @Column(name = "withdraw_date")
