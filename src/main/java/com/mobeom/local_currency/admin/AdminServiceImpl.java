@@ -10,6 +10,7 @@ import java.util.List;
 
 interface AdminService{
     List<User> getAllList(String searchWord);
+    List<Long> chart2();
 }
 
 @Service
@@ -24,4 +25,11 @@ public class AdminServiceImpl implements AdminService{
     public List<User> getAllList(String searchWord) {
         return adminRepository.List(searchWord);
     }
+
+    @Override
+    public List<Long> chart2() {
+       return adminRepository.chart();
+    }
+
+
 }

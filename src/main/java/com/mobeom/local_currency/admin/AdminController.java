@@ -22,5 +22,16 @@ public class AdminController {
          System.out.println(adminService.getAllList(searchWord).toString());
         return ResponseEntity.ok(userList);
     }
+    
+    @GetMapping("/chart/ratio-of-user-region")
+    public List<Long> ratioOfUserRegion(){
+        System.out.println("실행");
+
+        System.out.println(adminService.chart2());
+        return adminService.chart2();
+
+
+
+    }
 
 }
