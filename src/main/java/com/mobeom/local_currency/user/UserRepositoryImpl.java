@@ -9,9 +9,7 @@ import java.util.Optional;
 @Repository
 interface CustomedUserRepository {
     Optional<User> findByUserId(String userId);
-
     Optional<User> findByUserNameAndEmail(String name, String email);
-
     Optional<User> findByUserIdNameEmail(String userId, String name, String email);
 }
 
