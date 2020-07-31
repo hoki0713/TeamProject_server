@@ -31,7 +31,6 @@ public class StatisticRepositoryImpl extends QuerydslRepositorySupport implement
                     .fetchCount();
             result.put(regionName, numOfUser);
         });
-        System.out.println(result);
         return result;
     }
 }
