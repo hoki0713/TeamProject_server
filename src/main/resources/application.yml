@@ -12,6 +12,6 @@ spring:
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://127.0.0.1:3306/mariadb
+    url: jdbc:mariadb://127.0.0.1:3306/teamproject
     username: mariadb
     password: mariadb
