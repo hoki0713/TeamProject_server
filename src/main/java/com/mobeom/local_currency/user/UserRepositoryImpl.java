@@ -7,13 +7,13 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-interface CustomedUserRepository {
+interface CustomUserRepository {
     Optional<User> findByUserId(String userId);
     Optional<User> findByUserNameAndEmail(String name, String email);
     Optional<User> findByUserIdNameEmail(String userId, String name, String email);
 }
 
-public class UserRepositoryImpl extends QuerydslRepositorySupport implements CustomedUserRepository  {
+public class UserRepositoryImpl extends QuerydslRepositorySupport implements CustomUserRepository {
     @Autowired
     JPAQueryFactory queryFactory;
 

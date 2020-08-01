@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface LocalCurrencyVoucherRepository extends JpaRepository<LocalCurrencyVoucher, Long>, CustomedLocalCurrencyVoucherRepository {
+public interface LocalCurrencyVoucherRepository extends JpaRepository<LocalCurrencyVoucher, Long>, CustomLocalCurrencyVoucherRepository {
 
 }

@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-interface CustomedAdminRepository {
+interface CustomAdminRepository {
     public List<User> List(String searchWord);
     public List<Long> chart();
 }
 
 @Component
-public class AdminRepositoryImpl extends QuerydslRepositorySupport implements CustomedAdminRepository {
+public class AdminRepositoryImpl extends QuerydslRepositorySupport implements CustomAdminRepository {
         //@Autowired AdminRepository adminRepository;
 
     public AdminRepositoryImpl() { super(Admin.class);}

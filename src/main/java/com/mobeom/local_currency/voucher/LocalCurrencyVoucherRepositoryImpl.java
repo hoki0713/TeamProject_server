@@ -4,11 +4,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
-interface CustomedLocalCurrencyVoucherRepository {
+interface CustomLocalCurrencyVoucherRepository {
 
 }
 
-public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySupport implements CustomedLocalCurrencyVoucherRepository {
+public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySupport implements CustomLocalCurrencyVoucherRepository {
     @Autowired
     JPAQueryFactory queryFactory;
 
