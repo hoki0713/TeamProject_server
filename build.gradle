@@ -38,12 +38,14 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-def querydslSrcDir = '$buildDir/generated/querydsl'
+
+def querydslDir = "$buildDir/generated/querydsl"
+
 
 querydsl{
     library = 'com.querydsl:querydsl-apt'
     jpa = true
-    querydslSourcesDir = querydslSrcDir
+    querydslSourcesDir = querydslDir
 }
 
 compileQuerydsl{
@@ -55,7 +57,7 @@ configurations {
 sourceSets{
     main{
         java{
-            srcDirs = ['src/main/java', querydslSrcDir]
+            srcDirs = ['src/main/java', querydslDir]
         }
     }
 }
