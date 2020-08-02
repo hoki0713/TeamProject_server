@@ -1,6 +1,6 @@
 package com.mobeom.local_currency.voucher;
 
-import com.mobeom.local_currency.currency.Currency;
+import com.mobeom.local_currency.voucher.Voucher;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
