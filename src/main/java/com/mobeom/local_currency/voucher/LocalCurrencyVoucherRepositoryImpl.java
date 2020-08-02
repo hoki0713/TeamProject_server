@@ -4,9 +4,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
+import java.util.List;
+
 interface CustomLocalCurrencyVoucherRepository {
 
-    String findbyDefaultAddr(String defaultAddr);
+    List<LocalCurrencyVoucher> findAllByDefaultAddr(String defaultAddr);
 }
 
 public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySupport implements CustomLocalCurrencyVoucherRepository {
@@ -18,13 +20,10 @@ public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySuppor
     }
 
     @Override
-    public String findbyDefaultAddr(String defaultAddr) {
+    public List<LocalCurrencyVoucher> findAllByDefaultAddr(String defaultAddr) {
         QLocalCurrencyVoucher qLocalCurrencyVoucher = QLocalCurrencyVoucher.localCurrencyVoucher;
-        LocalCurrencyVoucher findOne =
-                queryFactory.selectFrom(qLocalCurrencyVoucher)
-                        .where(qLocalCurrencyVoucher.localName.eq(defaultAddr))
-                        .fetchOne();
-        String findLocalCurrencyName = findOne.getLocalCurrencyName();
-        return findLocalCurrencyName;
+        List<LocalCurrencyVoucher> list =
+                queryFactory.selectFrom(qLocalCurrencyVoucher).where(qLocalCurrencyVoucher.localName.like(defaultAddr)).fetch();
+        return list;
     }
 }

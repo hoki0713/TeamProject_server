@@ -55,8 +55,7 @@ public class DummyServiceImpl implements DummyService{
     public List<Sales> createRandomPurchaseHistory() {
         List<Sales> purchaseHistoryList = new ArrayList<>();
         List<User> userList = userRepository.findAll();
-        List<LocalCurrencyVoucher> localCurrencyVoucherList = localCurrencyVoucherRepository.findAll();
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < 100000; i++) {
             Sales purchaseHistory = new Sales();
             purchaseHistory.setSalesDate(RandomPurchaseHistoryGenerator.generateRandomDate());
             purchaseHistory.setGiftYn(RandomPurchaseHistoryGenerator.generateRandomBoolean());
@@ -76,9 +75,17 @@ public class DummyServiceImpl implements DummyService{
                 purchaseHistory.setCancelDate(null);
             }
             purchaseHistory.setPaymentName(RandomPurchaseHistoryGenerator.generateRandomPaymentCompany());
-            purchaseHistory.setUser(userList.get((int)(Math.random()*userList.size())));
-            purchaseHistory.setLocalCurrencyVoucher(localCurrencyVoucherList.get((int)(Math.random()*localCurrencyVoucherList.size())));
-            purchaseHistory.setUnitPrice(purchaseHistory.getLocalCurrencyVoucher().getVoucherValue());
+            purchaseHistory.setUser(userList.get((int)(Math.random()*userList.size()-1)));
+            purchaseHistory.setUnitPrice(RandomPurchaseHistoryGenerator.generateRandomVoucherPrice());
+
+            String address = purchaseHistory.getUser().getDefaultAddr();
+
+            List<LocalCurrencyVoucher> selectedLocalCurrencyList =
+                    localCurrencyVoucherRepository.findAllByDefaultAddr(address);
+
+            purchaseHistory.setLocalCurrencyVoucher(
+                    selectedLocalCurrencyList.get((int)(Math.random()*2)));
+
             purchaseHistoryList.add(purchaseHistory);
 
         }

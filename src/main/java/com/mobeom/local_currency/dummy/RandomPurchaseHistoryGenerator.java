@@ -47,6 +47,14 @@ public class RandomPurchaseHistoryGenerator {
         return listOfState.get(0);
     }
 
+    public static List<Integer> listOfPrice =
+            Arrays.asList(5000,10000,15000);
+
+    public static int generateRandomVoucherPrice() {
+        Collections.shuffle(listOfPrice);
+        return listOfPrice.get(0);
+    }
+
     public static List<String> paymentCompanies =
             Arrays.asList("삼성카드", "신한카드", "롯데카드", "우리카드", "국민카드", "비씨카드", "하나카드");
 
