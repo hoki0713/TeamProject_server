@@ -56,26 +56,29 @@ public class DummyServiceImpl implements DummyService{
         List<Sales> purchaseHistoryList = new ArrayList<>();
         List<User> userList = userRepository.findAll();
         List<LocalCurrencyVoucher> localCurrencyVoucherList = localCurrencyVoucherRepository.findAll();
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 100; i++) {
             Sales purchaseHistory = new Sales();
-            int randomUserIndex = (int)(Math.random()*userList.size());
-            int randomLocalCurrencyVoucherIndex = (int)(Math.random()*localCurrencyVoucherList.size());
-            purchaseHistory.setSalesDate(RandomUserGenerator.generateRandomJoinDate());
-            purchaseHistory.setCurrencyState(RandomPurchaseHistoryGenerator.generateRandomCurrencyState());
+            purchaseHistory.setSalesDate(RandomPurchaseHistoryGenerator.generateRandomDate());
             purchaseHistory.setGiftYn(RandomPurchaseHistoryGenerator.generateRandomBoolean());
-            if(purchaseHistory.getCurrencyState().equals("사용완료") || purchaseHistory.isGiftYn()) {
-                purchaseHistory.setUseDate(RandomUserGenerator.generateRandomJoinDate());
+            if(purchaseHistory.isGiftYn()) {
+                purchaseHistory.setCurrencyState("사용완료");
+            } else {
+                purchaseHistory.setCurrencyState(RandomPurchaseHistoryGenerator.generateRandomCurrencyState());
+            }
+            if(purchaseHistory.getCurrencyState().equals("사용완료")) {
+                purchaseHistory.setUseDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*31)));
             } else {
                 purchaseHistory.setUseDate(null);
             }
             if(purchaseHistory.getCurrencyState().equals("취소완료")) {
-                purchaseHistory.setCancelDate(RandomUserGenerator.generateRandomJoinDate());
+                purchaseHistory.setCancelDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*7)));
             } else {
                 purchaseHistory.setCancelDate(null);
             }
-            purchaseHistory.setPaymentName(localCurrencyVoucherList.get(randomLocalCurrencyVoucherIndex).getLocalCurrencyName());
-            purchaseHistory.setUnitPrice(RandomPurchaseHistoryGenerator.generateRandomVoucherPrice());
-            purchaseHistory.setUser(userList.get(randomUserIndex));
+            purchaseHistory.setPaymentName(RandomPurchaseHistoryGenerator.generateRandomPaymentCompany());
+            purchaseHistory.setUser(userList.get((int)(Math.random()*userList.size())));
+            purchaseHistory.setLocalCurrencyVoucher(localCurrencyVoucherList.get((int)(Math.random()*localCurrencyVoucherList.size())));
+            purchaseHistory.setUnitPrice(purchaseHistory.getLocalCurrencyVoucher().getVoucherValue());
             purchaseHistoryList.add(purchaseHistory);
 
         }

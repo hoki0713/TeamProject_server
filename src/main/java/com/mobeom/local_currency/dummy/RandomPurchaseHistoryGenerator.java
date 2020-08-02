@@ -31,54 +31,6 @@ public class RandomPurchaseHistoryGenerator {
         return randomDate;
     }
 
-    public static LocalDate sendRandomSalesDate() {
-        Collections.shuffle(month);
-        Collections.shuffle(date);
-        String monthDigit = month.get(0);
-        String dateDigit = date.get(0);
-
-        if(parseInt(monthDigit) == 4 || parseInt(monthDigit) == 6 && parseInt(dateDigit) > 30) {
-            dateDigit = "30";
-        }
-        if(parseInt(monthDigit) == 2 && parseInt(dateDigit) > 29) {
-            dateDigit = "29";
-        }
-        LocalDate randomDate = LocalDate.of(2020, parseInt(monthDigit), parseInt(dateDigit));
-        return randomDate;
-    }
-
-    public static LocalDate sendRandomUseDate() {
-        Collections.shuffle(month);
-        Collections.shuffle(date);
-        String monthDigit = month.get(0);
-        String dateDigit = date.get(0);
-
-        if(parseInt(monthDigit) == 4 || parseInt(monthDigit) == 6 && parseInt(dateDigit) > 30) {
-            dateDigit = "30";
-        }
-        if(parseInt(monthDigit) == 2 && parseInt(dateDigit) > 29) {
-            dateDigit = "29";
-        }
-        LocalDate randomDate = LocalDate.of(2020, parseInt(monthDigit), parseInt(dateDigit));
-        return randomDate;
-    }
-
-    public static LocalDate sendRandomCancelDate() {
-        Collections.shuffle(month);
-        Collections.shuffle(date);
-        String monthDigit = month.get(0);
-        String dateDigit = date.get(0);
-
-        if(parseInt(monthDigit) == 4 || parseInt(monthDigit) == 6 && parseInt(dateDigit) > 30) {
-            dateDigit = "30";
-        }
-        if(parseInt(monthDigit) == 2 && parseInt(dateDigit) > 29) {
-            dateDigit = "29";
-        }
-        LocalDate randomDate = LocalDate.of(2020, parseInt(monthDigit), parseInt(dateDigit));
-        return randomDate;
-    }
-
     public static List<Boolean> booleanList =
             Arrays.asList(true, false, false, false, false);
 
@@ -95,11 +47,12 @@ public class RandomPurchaseHistoryGenerator {
         return listOfState.get(0);
     }
 
-    public static List<Integer> listOfPrice =
-            Arrays.asList(5000,10000,15000);
+    public static List<String> paymentCompanies =
+            Arrays.asList("삼성카드", "신한카드", "롯데카드", "우리카드", "국민카드", "비씨카드", "하나카드");
 
-    public static int generateRandomVoucherPrice() {
-        Collections.shuffle(listOfPrice);
-        return listOfPrice.get(0);
+    public static String generateRandomPaymentCompany() {
+        Collections.shuffle(paymentCompanies);
+        return paymentCompanies.get(0);
     }
+
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 interface CustomLocalCurrencyVoucherRepository {
 
+    String findbyDefaultAddr(String defaultAddr);
 }
 
 public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySupport implements CustomLocalCurrencyVoucherRepository {
@@ -14,5 +15,16 @@ public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySuppor
 
     LocalCurrencyVoucherRepositoryImpl() {
         super(LocalCurrencyVoucher.class);
+    }
+
+    @Override
+    public String findbyDefaultAddr(String defaultAddr) {
+        QLocalCurrencyVoucher qLocalCurrencyVoucher = QLocalCurrencyVoucher.localCurrencyVoucher;
+        LocalCurrencyVoucher findOne =
+                queryFactory.selectFrom(qLocalCurrencyVoucher)
+                        .where(qLocalCurrencyVoucher.localName.eq(defaultAddr))
+                        .fetchOne();
+        String findLocalCurrencyName = findOne.getLocalCurrencyName();
+        return findLocalCurrencyName;
     }
 }
