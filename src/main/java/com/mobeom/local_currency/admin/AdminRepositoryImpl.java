@@ -25,6 +25,7 @@ import java.util.Map;
 interface CustomAdminRepository {
     public List<User> List(String searchWord);
     public Map<String,Long> chart();
+    public Map<String,Long> userLocalChart(String localSelect);
 }
 
 @Component
@@ -32,6 +33,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         //@Autowired AdminRepository adminRepository;
 
     public AdminRepositoryImpl() { super(Admin.class);}
+
     @Autowired JPAQueryFactory query;
 
     @Override
@@ -70,6 +72,22 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
        return localChart;
+    }
+
+    @Override
+    public Map<String, Long> userLocalChart(String localSelect) {
+
+        QUser user = QUser.user;
+        Map<String,Long> userLocal = new HashMap<>();
+
+
+        Long man = query.selectFrom(user).where(user.defaultAddr.like("%"+localSelect+"%").and(user.gender.like("M"))).fetchCount();
+        Long woman =  query.selectFrom(user).where(user.defaultAddr.like("%"+localSelect+"%").and(user.gender.like("F"))).fetchCount();
+        
+
+        userLocal.put("남",man);
+        userLocal.put("여",woman);
+        return userLocal;
     }
 
 

@@ -30,8 +30,13 @@ public class AdminController {
 
         System.out.println(adminService.chart());
         return adminService.chart();
+    }
 
-
+    @GetMapping("/userTotal-chart/{localSelect}")
+    public void chart(@PathVariable String localSelect){
+        System.out.println("들어왓음"+localSelect);
+        adminService.userTotal(localSelect);
+        System.out.println(adminService.userTotal(localSelect).toString());
 
     }
 
