@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admins")
@@ -24,11 +25,11 @@ public class AdminController {
     }
     
     @GetMapping("/chart/ratio-of-user-region")
-    public List<Long> ratioOfUserRegion(){
+    public Map<String,Long> ratioOfUserRegion(){
         System.out.println("실행");
 
-        System.out.println(adminService.chart2());
-        return adminService.chart2();
+        System.out.println(adminService.chart());
+        return adminService.chart();
 
 
 

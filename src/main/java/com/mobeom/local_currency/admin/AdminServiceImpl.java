@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 interface AdminService{
     List<User> getAllList(String searchWord);
-    List<Long> chart2();
+    Map<String,Long> chart();
 }
 
 @Service
@@ -27,7 +28,7 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<Long> chart2() {
+    public Map<String,Long> chart() {
        return adminRepository.chart();
     }
 

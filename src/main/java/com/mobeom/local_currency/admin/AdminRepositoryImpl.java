@@ -17,12 +17,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 interface CustomedAdminRepository {
     public List<User> List(String searchWord);
-    public List<Long> chart();
+    public Map<String,Long> chart();
 }
 
 @Component
@@ -30,11 +32,12 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         //@Autowired AdminRepository adminRepository;
 
     public AdminRepositoryImpl() { super(Admin.class);}
+    @Autowired JPAQueryFactory query;
 
     @Override
     public List<User> List(String searchWord) {
         QUser user = QUser.user;
-        JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
+
         List<User> list = new ArrayList<>();
 
         if(!searchWord.equals("null")) {
@@ -48,21 +51,21 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
    @Override
-    public List<Long> chart() {
+    public Map<String,Long> chart() {
+       QUser user = QUser.user;
+       String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
+               "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
+               "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
+               "광명시", "성남시", "시흥시"};
 
-       String[] local ={"김포","용인","양평"};
-        QUser user = QUser.user;
-        JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
-        List<Long> localChart = new ArrayList<>();
+        Map<String,Long> localChart = new HashMap<>();
 
         for(int i=0;i<local.length;i++){
-            localChart.add(query.from(user).select(user).where(user.defaultAddr.like("%"+local[i]+"%")).fetchCount());
+            Long num = query.selectFrom(user).where(user.defaultAddr.like("%"+local[i]+"%")).fetchCount();
+            localChart.put(local[i],num);
+        }
 
-            //localch = query.from(user).select(user.count()).where(user.defaultAddr.like("%"+local[i]+"%")).fetch();
-           //System.out.println(localChart);
-                }
-
-        //List<?> kimpo =query.from(user).select(user.count()).where(user.defaultAddr.like("%김포%")).fetch();
+       System.out.println(localChart);
 
 
 
