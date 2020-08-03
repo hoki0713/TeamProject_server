@@ -25,19 +25,29 @@ public class AdminController {
     }
     
     @GetMapping("/chart/ratio-of-user-region")
-    public Map<String,Long> ratioOfUserRegion(){
+    public ResponseEntity<Map<String,Long>> ratioOfUserRegion(){
         System.out.println("실행");
-
+        Map<String,Long> userResion = adminService.chart();
         System.out.println(adminService.chart());
-        return adminService.chart();
+        return ResponseEntity.ok(userResion);
     }
 
     @GetMapping("/userTotal-chart/{localSelect}")
-    public void chart(@PathVariable String localSelect){
+    public ResponseEntity<Map<String,Long>> chart(@PathVariable String localSelect){
         System.out.println("들어왓음"+localSelect);
-        adminService.userTotal(localSelect);
-        System.out.println(adminService.userTotal(localSelect).toString());
+        Map<String,Long> userLocal = adminService.userLocalTotal(localSelect);
 
+        System.out.println(adminService.userLocalTotal(localSelect).toString());
+
+        return ResponseEntity.ok(userLocal);
     }
+
+    @GetMapping("/userAge-chart/{localSelect}")
+    public ResponseEntity<Map<String,Integer>> chart2(@PathVariable String localSelect){
+        Map<String,Integer> userAge = adminService.userAgeTotal(localSelect);
+        System.out.println(adminService.userAgeTotal(localSelect).toString());
+        return ResponseEntity.ok(userAge);
+    }
+
 
 }

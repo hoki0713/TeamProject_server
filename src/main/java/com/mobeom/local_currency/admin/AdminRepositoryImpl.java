@@ -4,28 +4,24 @@ package com.mobeom.local_currency.admin;
 
 import com.mobeom.local_currency.user.QUser;
 import com.mobeom.local_currency.user.User;
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Repository
 interface CustomAdminRepository {
     public List<User> List(String searchWord);
     public Map<String,Long> chart();
     public Map<String,Long> userLocalChart(String localSelect);
+    public Map<String,Integer> userAgeChart(String localSelect);
 }
 
 @Component
@@ -78,16 +74,94 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     public Map<String, Long> userLocalChart(String localSelect) {
 
         QUser user = QUser.user;
-        Map<String,Long> userLocal = new HashMap<>();
+        Map<String, Long> userLocal = new HashMap<>();
+
+
 
 
         Long man = query.selectFrom(user).where(user.defaultAddr.like("%"+localSelect+"%").and(user.gender.like("M"))).fetchCount();
         Long woman =  query.selectFrom(user).where(user.defaultAddr.like("%"+localSelect+"%").and(user.gender.like("F"))).fetchCount();
-        
+
+
+
+
+
+
+//        list.forEach((one) -> {
+//            String[] strDate = one.toString().split("-");
+//            int year = Integer.parseInt(strDate[0]);
+//            int b=date-year;
+//
+//
+//
+//            System.out.println(b);
+//
+//        });
+
+
+
 
         userLocal.put("남",man);
         userLocal.put("여",woman);
+
         return userLocal;
+    }
+
+    @Override
+    public Map<String, Integer> userAgeChart(String localSelect) {
+
+        QUser user = QUser.user;
+
+        Map<String,Integer> userAge = new HashMap<>();
+
+        String formatDate= LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
+
+
+
+
+        int date = Integer.parseInt(formatDate);
+
+
+
+
+        List<?> list = new ArrayList<>();
+
+        list=query.select(user.birthDate).from(user).where(user.defaultAddr.like("%" +localSelect +"%")).fetch();
+
+        int ten=0,twenties=0,thirties=0,forties=0,fifties=0,sixties=0,old=0;
+
+        for(int i=0;i<list.size();i++){
+            String[] birthdayYear =list.get(i).toString().split("-");
+            int year = Integer.parseInt(birthdayYear[0]);
+            int age = date-year;
+
+            switch (age/10){
+                case 0 : case 1: ten+=1; break;
+                case 2: twenties+=1; break;
+                case 3: thirties+=1; break;
+                case 4: forties+=1; break;
+                case 5: fifties+=1; break;
+                case 6: sixties+=1; break;
+                default: old+=1;break;
+            }
+
+        }
+
+       // System.out.println("모든숫자의 합:"+(ten+twenties+thirties+forties+fifties+sixties+old));
+
+
+        userAge.put("ten",ten);
+        userAge.put("twenties",twenties);
+        userAge.put("thirties",thirties);
+        userAge.put("forties",forties);
+        userAge.put("fifties",fifties);
+        userAge.put("sixties",sixties);
+        userAge.put("old",old);
+
+
+
+
+        return userAge;
     }
 
 

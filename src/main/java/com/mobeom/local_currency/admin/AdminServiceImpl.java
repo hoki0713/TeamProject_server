@@ -14,7 +14,8 @@ import java.util.Map;
 interface AdminService{
     List<User> getAllList(String searchWord);
     Map<String,Long> chart();
-    Map<String,Long> userTotal(String localSelect);
+    Map<String,Long> userLocalTotal(String localSelect);
+    Map<String,Integer> userAgeTotal(String localSelect);
 }
 
 @Service
@@ -36,8 +37,13 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public Map<String, Long> userTotal(String localSelect) {
+    public Map<String, Long> userLocalTotal(String localSelect) {
         return adminRepository.userLocalChart(localSelect);
+    }
+
+    @Override
+    public Map<String, Integer> userAgeTotal(String localSelect) {
+        return adminRepository.userAgeChart(localSelect);
     }
 
 
