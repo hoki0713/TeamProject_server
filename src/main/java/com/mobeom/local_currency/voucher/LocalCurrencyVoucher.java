@@ -1,7 +1,18 @@
 package com.mobeom.local_currency.voucher;
 
-import javax.persistence.*;
+import com.mobeom.local_currency.sales.Sales;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+import javax.persistence.*;
+import java.util.List;
+
+@NoArgsConstructor
+@ToString
+@Setter
+@Getter
 @Entity
 @Table(name = "local_currency_voucher")
 public class LocalCurrencyVoucher {
@@ -18,4 +29,5 @@ public class LocalCurrencyVoucher {
 
     @Column(name = "voucher_value")
     private int voucherValue;
+
 }
