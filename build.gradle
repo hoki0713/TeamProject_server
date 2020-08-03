@@ -29,11 +29,15 @@ dependencies {
     compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.3.0'
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.744'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+    compile group: 'org.apache.mahout', name: 'mahout-mr', version: '0.13.0'
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 }
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}// mahout 라이브러리가 double-binding warning을 일으킬 때 사용합니다
 
 test {
     useJUnitPlatform()
