@@ -11,6 +11,7 @@ import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,16 +19,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/recommends")
 public class RecommendController {
+    @Autowired
+    RecommendService recommendService;
 
     @GetMapping("/individual")
-    public String Home() throws IOException, TasteException {
-
+    public void Home() throws IOException, TasteException {
 
 
         DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_store.csv"));
@@ -40,15 +43,17 @@ public class RecommendController {
         LogLikelihoodSimilarity similarUser = new LogLikelihoodSimilarity(model);
 
         List<RecommendedItem> recommendations = recommender.recommend(21036, 10);
-
+        List<String> recommendItemIds = new ArrayList<>();
         for (RecommendedItem recommendation : recommendations) {
-            System.out.println(recommendation);
+            System.out.println(recommendation.getItemID());
+            recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
+        System.out.println("배열의 갯수" + recommendItemIds.size());
+
+        recommendService.recommendStore(recommendItemIds);
+
         System.out.println("-------------");
         System.out.println("????" + similarUser.userSimilarity(21036, 21431));
-
-
-        return "홈홈홈";
 
     }
 }
