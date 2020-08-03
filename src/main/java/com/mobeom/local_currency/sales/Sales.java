@@ -11,7 +11,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Entity @Getter @Setter @ToString @NoArgsConstructor
+@Entity @Getter @Setter @NoArgsConstructor
 @Table(name="sales")
 public class Sales {
 

@@ -1,6 +1,5 @@
 package com.mobeom.local_currency.user;
 
-import com.amazonaws.services.kendra.model.DatabaseEngineType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Getter @Setter @ToString @NoArgsConstructor
+@Getter @Setter @NoArgsConstructor
 @Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id"})})
 public class User {
 
