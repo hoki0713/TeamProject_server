@@ -7,16 +7,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-interface StoreRepository extends JpaRepository<Store,Long> , CustomedStoreRepository{}
+interface StoreRepository extends JpaRepository<Store,Long> , CustomStoreRepository {}
 
 
-interface CustomedStoreRepository
+interface CustomStoreRepository
 {
     public List<Store> findAll();
 }
 
 
-public class StoreRepositoryImpl extends QuerydslRepositorySupport implements CustomedStoreRepository {
+public class StoreRepositoryImpl extends QuerydslRepositorySupport implements CustomStoreRepository {
 
     public StoreRepositoryImpl() {
         super(Store.class);

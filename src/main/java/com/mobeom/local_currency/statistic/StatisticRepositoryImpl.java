@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 import java.util.*;
 
-interface CustomedStatisticRepository {
+interface CustomStatisticRepository {
 
     Map<String, Long> getUserRegionStat(List<String> listOfRegion);
 }
 
-public class StatisticRepositoryImpl extends QuerydslRepositorySupport implements CustomedStatisticRepository {
+public class StatisticRepositoryImpl extends QuerydslRepositorySupport implements CustomStatisticRepository {
     @Autowired
     JPAQueryFactory queryFactory;
 

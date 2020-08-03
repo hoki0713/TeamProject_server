@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 
-public interface AdminRepository extends JpaRepository<Admin,Long>,CustomedAdminRepository {
+public interface AdminRepository extends JpaRepository<Admin,Long>,CustomAdminRepository {
 
 }
