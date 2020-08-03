@@ -17,15 +17,30 @@ public class UserController {
     public ResponseEntity<User> idCheck(@PathVariable String userId) {
         Optional<User> idCheckResult = userService.findUserbyUserId(userId);
         if(idCheckResult.isPresent()) {
-            return ResponseEntity.ok(idCheckResult.get());
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping(value = "/account-info/{userId}")
-    public ResponseEntity<User> getOneInfo(@PathVariable String userId) {
-        Optional<User> user = userService.findUserbyUserId(userId);
+    @PostMapping(value = "/{id}")
+    public ResponseEntity<User> checkCurrentPassword(@PathVariable String id, @RequestBody User user) {
+        Optional<User> findUser = userService.findUser(Long.valueOf(id));
+        if(findUser.isPresent()) {
+            User targetUser = findUser.get();
+            if(user.getPassword().equals(targetUser.getPassword())) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<User> getOneInfo(@PathVariable String id) {
+        Optional<User> user = userService.findUser(Long.valueOf(id));
         if(user.isPresent()) {
             return ResponseEntity.ok(user.get());
         } else {
@@ -51,7 +66,7 @@ public class UserController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<User> deleteUser(@PathVariable String id) {
-        Optional<User> findUser = userService.findUserbyUserId(id);
+        Optional<User> findUser = userService.findUser(Long.valueOf(id));
         if(findUser.isPresent()) {
             User selectUser = findUser.get();
             userService.delete(selectUser);
@@ -71,6 +86,37 @@ public class UserController {
             } else {
                 return ResponseEntity.badRequest().build();
             }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value ="/")
+    public ResponseEntity<User> create(@RequestBody User user) {
+        Optional<User> createUser = userService.createUser(user);
+        if(createUser.isPresent()) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping(value = "/findId")
+    public ResponseEntity<User> findId(@RequestParam String name, @RequestParam String email) {
+        Optional<User> findUser = userService.findUserbyNameAndEmail(name, email);
+        if(findUser.isPresent()) {
+            return ResponseEntity.ok(findUser.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(value = "/checkUserForResetPassword")
+    public ResponseEntity<User> checkUserForResetPassword(@RequestParam String userId,
+                                                          @RequestParam String name, @RequestParam String email) {
+        Optional<User> findUser = userService.findUserForResetPassword(userId, name, email);
+        if(findUser.isPresent()) {
+            return ResponseEntity.ok(findUser.get());
         } else {
             return ResponseEntity.notFound().build();
         }

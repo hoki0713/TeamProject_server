@@ -1,6 +1,8 @@
 package com.mobeom.local_currency.user;
 
+import com.amazonaws.services.kendra.model.DatabaseEngineType;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,11 +10,13 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter @Setter @ToString @NoArgsConstructor
 @Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id"})})
 public class User {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
@@ -36,7 +40,7 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "join_date", nullable = false)
+    @Column(name = "join_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP" )
     private LocalDate joinDate;
 
     @Column(name = "withdraw_date")
@@ -53,4 +57,7 @@ public class User {
 
     @Column(name = "optional_addr")
     private String optionalAddr;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Sales> salesList;
 }

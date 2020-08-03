@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-interface CustomedAdminRepository {
+interface CustomAdminRepository {
     public List<User> List(String searchWord);
     public Map<String,Long> chart();
 }
 
 @Component
-public class AdminRepositoryImpl extends QuerydslRepositorySupport implements CustomedAdminRepository {
+public class AdminRepositoryImpl extends QuerydslRepositorySupport implements CustomAdminRepository {
         //@Autowired AdminRepository adminRepository;
 
     public AdminRepositoryImpl() { super(Admin.class);}
