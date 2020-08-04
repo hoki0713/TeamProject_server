@@ -11,21 +11,23 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import java.util.ArrayList;
 import java.util.List;
 
-interface CustomRecommendRepository{
+interface CustomRecommendRepository {
     Store recommendStores(String searchWord);
+
+    List<Store> bestStores(String searchWord);
 
 }
 
-public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository{
+public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
     @Autowired
     JPAQueryFactory query;
 
-    RecommendRepositoryImpl(){
+    RecommendRepositoryImpl() {
         super(Recommend.class);
     }
 
     @Override
-    public Store recommendStores(String searchWord){
+    public Store recommendStores(String searchWord) {
         QStore store = QStore.store;
         JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
         Store recommendStore = new Store();
@@ -33,6 +35,19 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 (Store.class, store.storeName, store.storeType, store.starRanking, store.id)).from(store)
                 .where(store.id.like(searchWord)).fetchOne();
         return recommendStore;
+    }
+
+    @Override
+    public List<Store> bestStores(String searchWord) {
+        QStore store = QStore.store;
+        JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
+        List<Store> bestStores;
+        bestStores = query.select(Projections.fields(Store.class, store.storeName, store.storeType, store.starRanking))
+                .from(store).where(store.address.like("%" + searchWord + "%"))
+                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+
+
+        return bestStores;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.recommend;
 
+import com.mobeom.local_currency.store.Store;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -12,10 +13,7 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +28,13 @@ public class RecommendController {
     RecommendService recommendService;
 
     @GetMapping("/individual")
-    public void Home() throws IOException, TasteException {
+    public void individual() throws IOException, TasteException {
 
 
         DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_store.csv"));
 
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.2,
+        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7,
                 similarity, model);
         UserBasedRecommender recommender = new GenericUserBasedRecommender(
                 model, neighborhood, similarity);
@@ -54,6 +52,17 @@ public class RecommendController {
 
         System.out.println("-------------");
         System.out.println("????" + similarUser.userSimilarity(21036, 21431));
+
+    }
+
+    @GetMapping("bestStore/{searchWord}")
+    public void bestStore(@PathVariable String searchWord){
+        System.out.println("베스트가맹점 진입");
+        List<Store> stores = recommendService.bestStores(searchWord);
+
+        for(Store bestStore : stores){
+            System.out.println(bestStore.getStoreName());
+        }
 
     }
 }
