@@ -39,7 +39,8 @@ public class SalesRepositoryImpl extends QuerydslRepositorySupport implements Cu
                         oneSalesRecord.getCancelDate(),
                         oneSalesRecord.getCurrencyState(),
                         oneSalesRecord.getPaymentName(),
-                        oneSalesRecord.getLocalCurrencyVoucher().getLocalCurrencyName()
+                        oneSalesRecord.getLocalCurrencyVoucher().getLocalCurrencyName(),
+                        oneSalesRecord.getRecipientEmail()
                 )));
         return resultMap;
     }

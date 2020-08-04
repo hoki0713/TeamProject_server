@@ -63,4 +63,29 @@ public class RandomPurchaseHistoryGenerator {
         return paymentCompanies.get(0);
     }
 
+    public static String generateRandomEmailId() {
+        String randomEmailId = "";
+        String ran = "abcdefghijklmnopqrstuvwxyz1234567890";
+        for(int i = 0; i < 6; i++) {
+            randomEmailId += ran.charAt((int)(Math.random() * ran.length()));
+        }
+        return randomEmailId;
+    }
+    public static String generateRandomEmail() {
+        String randomEmail = "";
+        String ran = "abcdefghijklmnopqrstuvwxyz";
+        for(int i = 0; i < 6; i++) {
+            randomEmail += ran.charAt((int)(Math.random() * ran.length()));
+        }
+        return randomEmail;
+    }
+
+    public static String generateRandomEmailEnd() {
+        String randomEmailEnd = "";
+        String[] ran = {".kr",".com",".ac.kr",".co.kr",".net"};
+        int ranIndex = (int)(Math.random() * ran.length);
+        randomEmailEnd += ran[ranIndex];
+        return randomEmailEnd;
+    }
+
 }

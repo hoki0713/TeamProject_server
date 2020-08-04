@@ -41,6 +41,9 @@ public class Sales {
     @Column(name = "payment_name", nullable = false)
     private String paymentName;
 
+    @Column(name = "recipient_email")
+    private String recipientEmail;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id")
