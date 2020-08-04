@@ -11,7 +11,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Entity @Getter @Setter @ToString @NoArgsConstructor
+@Entity @Getter @Setter @NoArgsConstructor
 @Table(name="sales")
 public class Sales {
 
@@ -40,6 +40,9 @@ public class Sales {
 
     @Column(name = "payment_name", nullable = false)
     private String paymentName;
+
+    @Column(name = "recipient_email")
+    private String recipientEmail;
 
     @JsonIgnore
     @ManyToOne
