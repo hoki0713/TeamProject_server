@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +51,16 @@ public class AdminController {
         System.out.println(adminService.userAgeTotal(localSelect).toString());
         return ResponseEntity.ok(userAge);
     }
+
+    @GetMapping("/joinDate-chart/{startDate}/{endDate}")
+    public void joinChart(@PathVariable String startDate, @PathVariable String endDate){
+        System.out.println("들어옴 start:"+startDate+",end:"+endDate);
+        LocalDate start_date = LocalDate.parse(startDate,DateTimeFormatter.ISO_DATE);
+        LocalDate end_date = LocalDate.parse(endDate,DateTimeFormatter.ISO_DATE);
+        System.out.println(start_date+","+end_date);
+        adminService.joinChart(start_date,end_date);
+    }
+
 
 
 }

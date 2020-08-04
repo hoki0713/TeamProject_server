@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,9 @@ interface AdminService{
     Map<String,Long> chart();
     Map<String,Long> userLocalTotal(String localSelect);
     Map<String,Integer> userAgeTotal(String localSelect);
+    Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
+
+
 }
 
 @Service
@@ -45,6 +50,15 @@ public class AdminServiceImpl implements AdminService{
     public Map<String, Integer> userAgeTotal(String localSelect) {
         return adminRepository.userAgeChart(localSelect);
     }
+
+
+
+    @Override
+    public Map<?, ?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate) {
+        return adminRepository.joinDateChart(joinStartDate,joinEndDate);
+    }
+
+
 
 
 }

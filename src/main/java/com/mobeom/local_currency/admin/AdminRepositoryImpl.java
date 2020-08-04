@@ -13,15 +13,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Repository
 interface CustomAdminRepository {
-    public List<User> List(String searchWord);
-    public Map<String,Long> chart();
-    public Map<String,Long> userLocalChart(String localSelect);
-    public Map<String,Integer> userAgeChart(String localSelect);
+     List<User> List(String searchWord);
+     Map<String,Long> chart();
+     Map<String,Long> userLocalChart(String localSelect);
+     Map<String,Integer> userAgeChart(String localSelect);
+     Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
 }
 
 @Component
@@ -54,7 +56,8 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
        String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
                "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
                "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
-               "광명시", "성남시", "시흥시"};
+               "광명시", "성남시", "시흥시"}; //enum으로처리
+
 
         Map<String,Long> localChart = new HashMap<>();
 
@@ -163,6 +166,34 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
         return userAge;
     }
+
+    @Override
+    public Map<?, ?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate) { //객체 vo 달 /mm값 으로요
+        QUser user =QUser.user;
+
+
+        for(int i=1;i<=3;i++){
+            Long a =query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinStartDate.plusMonths(i))).fetchCount();
+            List<?> userList = query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinStartDate.plusMonths(i))).fetch();
+            System.out.println("userList for문안=>"+i+"/"+userList.toString());
+            System.out.println("a=>"+i+"/"+a.toString());
+        }
+
+        Long b =query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinEndDate)).fetchCount();
+        List<?> userList = query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinEndDate)).fetch();
+        System.out.println("userList for문 밖=>"+userList.toString());
+
+        System.out.println("b=>"+b.toString());
+
+
+
+       // List<?> userList = query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinStartDate.plusMonths(1))).fetch();
+       // System.out.println("userList=>"+userList.toString());
+
+        return null;
+    }
+
+
 
 
 }
