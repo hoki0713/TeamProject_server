@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 interface RecommendService {
-    void recommendStore(List<String> recommendItemIds);
+    List<Store> recommendStore(List<String> recommendItemIds);
     List<Store> bestStores(String searchWord);
 }
 
@@ -19,12 +19,14 @@ public class RecommendServiceImpl implements RecommendService {
     RecommendRepository recommendRepository;
 
     @Override
-    public void recommendStore(List<String> recommendItemIds) {
+    public List<Store> recommendStore(List<String> recommendItemIds) {
         for (String searchStoreId : recommendItemIds) {
             recommendRepository.recommendStores(searchStoreId);
 
-            System.out.println(recommendRepository.recommendStores(searchStoreId).getStoreName());
+            recommendRepository.recommendStores(searchStoreId).getStoreName();
         }
+
+        return null;
     }
 
     @Override

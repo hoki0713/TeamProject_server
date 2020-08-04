@@ -27,20 +27,20 @@ public class RecommendController {
     @Autowired
     RecommendService recommendService;
 
-    @GetMapping("/individual")
-    public void individual() throws IOException, TasteException {
+    @GetMapping("/individual/{id}")
+    public List<Store> individual(@PathVariable String id) throws IOException, TasteException {
 
 
-        DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_store.csv"));
+        DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_dataset.csv"));
 
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7,
+        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.6,
                 similarity, model);
         UserBasedRecommender recommender = new GenericUserBasedRecommender(
                 model, neighborhood, similarity);
         LogLikelihoodSimilarity similarUser = new LogLikelihoodSimilarity(model);
 
-        List<RecommendedItem> recommendations = recommender.recommend(21036, 10);
+        List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 30);
         List<String> recommendItemIds = new ArrayList<>();
         for (RecommendedItem recommendation : recommendations) {
             System.out.println(recommendation.getItemID());
@@ -51,7 +51,7 @@ public class RecommendController {
         recommendService.recommendStore(recommendItemIds);
 
         System.out.println("-------------");
-        System.out.println("????" + similarUser.userSimilarity(21036, 21431));
+        return recommendService.recommendStore(recommendItemIds);
 
     }
 
