@@ -10,8 +10,7 @@ import java.util.Map;
 
 @Component
 interface StoreService{
-    Map<String,Long> storeLocalsChart(String localSelect);
-    Map<String,Long> storeTypeChart();
+
 }
 
 
@@ -20,15 +19,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Autowired StoreRepository storeRepository;
 
-    @Override
-    public Map<String, Long> storeLocalsChart(String localSelect) {
-        return storeRepository.localsTotal(localSelect);
-    }
 
-    @Override
-    public Map<String, Long> storeTypeChart() {
-        return storeRepository.storeTypeLocal();
-    }
 
 
 }

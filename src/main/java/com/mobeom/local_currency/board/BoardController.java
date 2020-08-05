@@ -1,4 +1,6 @@
 package com.mobeom.local_currency.board;
 
-public class BoardController {}
+public class BoardController {
+
+}
 

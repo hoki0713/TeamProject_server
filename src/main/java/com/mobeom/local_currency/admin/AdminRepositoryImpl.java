@@ -2,11 +2,14 @@ package com.mobeom.local_currency.admin;
 
 
 
+import com.mobeom.local_currency.store.QStore;
+import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.QUser;
 import com.mobeom.local_currency.user.User;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.swagger.models.auth.In;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,9 @@ interface CustomAdminRepository {
      Map<String,Long> userLocalChart(String localSelect);
      Map<String,Integer> userAgeChart(String localSelect);
      Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
+    List<Store> findAll();
+    Map<String,Long> localsTotal(String localSelect);
+    Map<String,Long> storeTypeLocal();
 }
 
 @Component
@@ -41,6 +47,22 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         List<User> list = new ArrayList<>();
 
         if(!searchWord.equals("null")) {
+            list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name,user.joinDate,user.defaultAddr)).from(user).where(user.userId.like("%" + searchWord + "%")).fetch();
+        }else {
+            list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name,user.joinDate,user.defaultAddr)).limit(5).from(user).fetch();
+        }
+
+
+        return list;
+    }
+
+    /*
+      public List<User> List(String searchWord) {
+        QUser user = QUser.user;
+
+        List<User> list = new ArrayList<>();
+
+        if(!searchWord.equals("null")) {
             list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name)).from(user).where(user.userId.like("%" + searchWord + "%")).fetch();
         }else {
             list = query.select(Projections.fields(User.class,user.userId,user.email,user.gender,user.name)).from(user).fetch();
@@ -49,6 +71,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
         return list;
     }
+     */
 
    @Override
     public Map<String,Long> chart() {
@@ -58,11 +81,14 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
                "광명시", "성남시", "시흥시"}; //enum으로처리
 
+       System.out.println("로컬네임"+LocalName.values());
+
+
 
         Map<String,Long> localChart = new HashMap<>();
 
         for(int i=0;i<local.length;i++){
-            Long num = query.selectFrom(user).where(user.defaultAddr.like("%"+local[i]+"%")).fetchCount();
+            Long num = query.selectFrom(user).where(user.defaultAddr.like("%"+ LocalName.class +"%")).fetchCount();
             localChart.put(local[i],num);
         }
 
@@ -191,6 +217,51 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
        // System.out.println("userList=>"+userList.toString());
 
         return null;
+    }
+
+    @Override
+    public List<Store> findAll() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Long> localsTotal(String localSelect) {
+        QStore store = QStore.store;
+        Map<String,Long> localStoreChart = new HashMap<>();
+
+
+
+
+        Long num = query.selectFrom(store).where(store.address.like("%"+localSelect+"%")).fetchCount();
+//        for(int i=0;i<local.length;i++){
+//            Long num = query.selectFrom(store).where(store.address.like("%"+local[i]+"%")).fetchCount();
+//            localStoreChart.put(local[i],num);
+//        }
+
+        System.out.println(localStoreChart);
+
+        localStoreChart.put("local",num);
+
+        return localStoreChart;
+    }
+
+    @Override
+    public Map<String, Long> storeTypeLocal() {
+
+        QStore store = QStore.store;
+
+        Map<String,Long> storeType = new HashMap<>();
+
+
+        Long storeNum= query.selectFrom(store).where(store.storeTypeCode.like("3099").and(store.address.like("%"+"고양"+"%"))).fetchCount();
+        List<?> list = query.selectFrom(store).where(store.storeTypeCode.like("3099").and(store.address.like("%"+"고양"+"%"))).fetch();
+
+        System.out.println("storenum-"+storeNum);
+        System.out.println(list.toString());
+
+        storeType.put("a",storeNum);
+
+        return storeType;
     }
 
 

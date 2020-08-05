@@ -11,17 +11,5 @@ public class StoreController {
 
     @Autowired StoreService storeService;
 
-    @GetMapping("/localChart/{localSelect}")
-    public void localChart(@PathVariable String localSelect){
-        System.out.println("들어옴"+localSelect);
-        //String localSelect ="고양";
-        storeService.storeLocalsChart(localSelect);
-        System.out.println(storeService.storeLocalsChart(localSelect).toString());
-    }
 
-
-    @GetMapping("/storeTypeChart")
-    public void storeTypeChart(){
-        storeService.storeTypeChart();
-    }
 }

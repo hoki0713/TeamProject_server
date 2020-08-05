@@ -19,6 +19,8 @@ interface AdminService{
     Map<String,Long> userLocalTotal(String localSelect);
     Map<String,Integer> userAgeTotal(String localSelect);
     Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
+    Map<String,Long> storeLocalsChart(String localSelect);
+    Map<String,Long> storeTypeChart();
 
 
 }
@@ -56,6 +58,16 @@ public class AdminServiceImpl implements AdminService{
     @Override
     public Map<?, ?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate) {
         return adminRepository.joinDateChart(joinStartDate,joinEndDate);
+    }
+
+    @Override
+    public Map<String, Long> storeLocalsChart(String localSelect) {
+        return adminRepository.localsTotal(localSelect);
+    }
+
+    @Override
+    public Map<String, Long> storeTypeChart() {
+        return adminRepository.storeTypeLocal();
     }
 
 

@@ -61,6 +61,19 @@ public class AdminController {
         adminService.joinChart(start_date,end_date);
     }
 
+    @GetMapping("/localChart/{localSelect}")
+    public void localChart(@PathVariable String localSelect){
+        System.out.println("들어옴"+localSelect);
+        //String localSelect ="고양";
+        adminService.storeLocalsChart(localSelect);
+        System.out.println(adminService.storeLocalsChart(localSelect).toString());
+    }
+
+
+    @GetMapping("/storeTypeChart")
+    public void storeTypeChart(){
+        adminService.storeTypeChart();
+    }
 
 
 }
