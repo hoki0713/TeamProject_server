@@ -1,7 +1,6 @@
 package com.mobeom.local_currency.board;
 
 import com.mobeom.local_currency.post.Post;
-import com.sun.javafx.beans.IDProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
