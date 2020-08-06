@@ -1,7 +1,11 @@
 package com.mobeom.local_currency.dummy;
 
+import com.mobeom.local_currency.favorites.Favorites;
+import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.sales.SalesRepository;
+import com.mobeom.local_currency.store.Store;
+import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
@@ -18,6 +22,8 @@ interface DummyService {
     List<User> createRandomUser();
 
     List<Sales> createRandomPurchaseHistory();
+
+    List<Favorites> createRandomFavorites();
 }
 
 @Service
@@ -31,10 +37,19 @@ public class DummyServiceImpl implements DummyService{
     @Autowired
     LocalCurrencyVoucherRepository localCurrencyVoucherRepository;
 
+    @Autowired
+    StoreRepository storeRepository;
+
+    private final FavoritesRepository favoritesRepository;
+
+    public DummyServiceImpl(FavoritesRepository favoritesRepository) {
+        this.favoritesRepository = favoritesRepository;
+    }
+
     @Override
     public List<User> createRandomUser() {
         List<User> userList = new ArrayList<>();
-        for(int i = 0; i < 10000; i++) {
+        for(int i = 0; i < 5; i++) {
             User user = new User();
             user.setUserId(RandomUserGenerator.generateRandomId()+RandomUserGenerator.generateRandomNo2());
             user.setPassword(RandomUserGenerator.generateRandomPw()+RandomUserGenerator.generateRandomPwNum());
@@ -99,5 +114,27 @@ public class DummyServiceImpl implements DummyService{
             purchaseHistoryList.add(purchaseHistory);
         }
         return salesRepository.saveAll(purchaseHistoryList);
+    }
+
+    @Override
+    public List<Favorites> createRandomFavorites() {
+        List<Favorites> favorites = new ArrayList<>();
+        List<User> userList = userRepository.findAll();
+        userList.forEach(user -> {
+            if(user.getDefaultAddr().equals("경기도 의정부시 ") || user.getDefaultAddr().equals("경기도 고양시 ")) {
+                //System.out.println(user.getId()+"/"+user.getDefaultAddr());
+                if(RandomFavoritesGenerator.hasFavorites()) {
+                    int numOfFavorites = RandomFavoritesGenerator.getRandomNumOfFavorites();
+                    List<Store> findAllStoreByUserDefaultAddr = storeRepository.findAllStoreByUserDefaultAddr(user.getDefaultAddr());
+                    for(int i = 0; i < numOfFavorites; i++) {
+                        Favorites favorite = new Favorites();
+                        favorite.setUser(user);
+                        favorite.setStore(findAllStoreByUserDefaultAddr.get((int) (Math.random() * findAllStoreByUserDefaultAddr.size()+1)));
+                        favorites.add(favorite);
+                    }
+                }
+            }
+        });
+        return favoritesRepository.saveAll(favorites);
     }
 }

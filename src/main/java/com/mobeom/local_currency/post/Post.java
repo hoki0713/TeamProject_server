@@ -12,10 +12,7 @@ import org.joda.time.DateTime;
 
 import javax.persistence.*;
 
-@Entity
-@Getter
-@Setter
-@ToString
+@Entity @Getter @Setter @ToString
 @Table(name="post")
 public class Post {
 
@@ -24,7 +21,7 @@ public class Post {
     @Column(name="post_id", nullable = false)
     private Long postId;
 
-    @Column(name="reg_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name="reg_date", nullable = false)
     private DateTime regDate;
 
     @Column(name="category", nullable = false)
@@ -39,7 +36,7 @@ public class Post {
     @Column(name="read_count", nullable = false)
     private Integer readCount;
 
-    @Column(name="modi_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name="modi_date")
     private DateTime modiDate;
 
     @Column(name="notice_yn", nullable = false)
