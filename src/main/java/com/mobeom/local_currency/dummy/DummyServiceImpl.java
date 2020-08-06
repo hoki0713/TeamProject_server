@@ -10,7 +10,6 @@ import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -28,22 +27,26 @@ interface DummyService {
 
 @Service
 public class DummyServiceImpl implements DummyService{
-    @Autowired
-    UserRepository userRepository;
 
-    @Autowired
-    SalesRepository salesRepository;
-
-    @Autowired
-    LocalCurrencyVoucherRepository localCurrencyVoucherRepository;
-
-    @Autowired
-    StoreRepository storeRepository;
-
+    private final UserRepository userRepository;
+    private final SalesRepository salesRepository;
+    private final LocalCurrencyVoucherRepository localCurrencyVoucherRepository;
+    private final StoreRepository storeRepository;
     private final FavoritesRepository favoritesRepository;
+    private final RandomFavoritesGenerator randomFavoritesGenerator;
 
-    public DummyServiceImpl(FavoritesRepository favoritesRepository) {
+    public DummyServiceImpl(UserRepository userRepository,
+                            SalesRepository salesRepository,
+                            LocalCurrencyVoucherRepository localCurrencyVoucherRepository,
+                            StoreRepository storeRepository,
+                            FavoritesRepository favoritesRepository,
+                            RandomFavoritesGenerator randomFavoritesGenerator) {
+        this.userRepository = userRepository;
+        this.salesRepository = salesRepository;
+        this.localCurrencyVoucherRepository = localCurrencyVoucherRepository;
+        this.storeRepository = storeRepository;
         this.favoritesRepository = favoritesRepository;
+        this.randomFavoritesGenerator = randomFavoritesGenerator;
     }
 
     @Override
@@ -123,13 +126,13 @@ public class DummyServiceImpl implements DummyService{
         userList.forEach(user -> {
             if(user.getDefaultAddr().equals("경기도 의정부시 ") || user.getDefaultAddr().equals("경기도 고양시 ")) {
                 //System.out.println(user.getId()+"/"+user.getDefaultAddr());
-                if(RandomFavoritesGenerator.hasFavorites()) {
+                if(randomFavoritesGenerator.hasFavorites()) {
                     int numOfFavorites = RandomFavoritesGenerator.getRandomNumOfFavorites();
                     List<Store> findAllStoreByUserDefaultAddr = storeRepository.findAllStoreByUserDefaultAddr(user.getDefaultAddr());
                     for(int i = 0; i < numOfFavorites; i++) {
                         Favorites favorite = new Favorites();
                         favorite.setUser(user);
-                        favorite.setStore(findAllStoreByUserDefaultAddr.get((int) (Math.random() * findAllStoreByUserDefaultAddr.size()+1)));
+                        favorite.setStore(findAllStoreByUserDefaultAddr.get((int) (Math.random() * findAllStoreByUserDefaultAddr.size())));
                         favorites.add(favorite);
                     }
                 }
