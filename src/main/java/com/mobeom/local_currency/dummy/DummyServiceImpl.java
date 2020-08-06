@@ -68,6 +68,7 @@ public class DummyServiceImpl implements DummyService{
                         RandomPurchaseHistoryGenerator.generateRandomEmailId()+"@"+
                         RandomPurchaseHistoryGenerator.generateRandomEmail()+
                         RandomPurchaseHistoryGenerator.generateRandomEmailEnd());
+                purchaseHistory.setUseDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*31)));
             } else {
                 purchaseHistory.setCurrencyState(RandomPurchaseHistoryGenerator.generateRandomCurrencyState());
                 if(purchaseHistory.getCurrencyState().equals("사용완료")) {
