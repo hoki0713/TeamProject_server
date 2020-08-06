@@ -28,4 +28,11 @@ public class StoreController {
         box.put("list", storeList);
         return box.get();
     }
+
+    @GetMapping("/ui")
+    public Map<?,?> getuiList(){
+        logger.info("getuiList()");
+        box.put("list",storeRepository.uiList());
+        return box.get();
+    }
 }
