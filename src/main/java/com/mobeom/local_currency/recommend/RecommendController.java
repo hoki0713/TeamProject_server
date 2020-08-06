@@ -31,27 +31,7 @@ public class RecommendController {
     public List<Store> individual(@PathVariable String id) throws IOException, TasteException {
 
 
-        DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_dataset.csv"));
-
-        UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.6,
-                similarity, model);
-        UserBasedRecommender recommender = new GenericUserBasedRecommender(
-                model, neighborhood, similarity);
-        LogLikelihoodSimilarity similarUser = new LogLikelihoodSimilarity(model);
-
-        List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 30);
-        List<String> recommendItemIds = new ArrayList<>();
-        for (RecommendedItem recommendation : recommendations) {
-            System.out.println(recommendation.getItemID());
-            recommendItemIds.add(Long.toString(recommendation.getItemID()));
-        }
-        System.out.println("배열의 갯수" + recommendItemIds.size());
-
-        recommendService.recommendStore(recommendItemIds);
-
-        System.out.println("-------------");
-        return recommendService.recommendStore(recommendItemIds);
+        return recommendService.recommendStore(recommendService.mahout(id));
 
     }
 
