@@ -64,8 +64,6 @@ public class RecommendServiceImpl implements RecommendService {
 
     public List<String> mahout(String id) throws IOException, TasteException {
         DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_dataset.csv"));
-        DataModel model = new AbstractDataModel() {
-        }
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
         UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.6,
                 similarity, model);
