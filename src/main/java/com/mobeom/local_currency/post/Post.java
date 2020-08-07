@@ -13,10 +13,7 @@ import org.joda.time.DateTime;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Entity
-@Getter
-@Setter
-@ToString
+@Entity @Getter @Setter @ToString
 @Table(name="post")
 public class Post {
 
