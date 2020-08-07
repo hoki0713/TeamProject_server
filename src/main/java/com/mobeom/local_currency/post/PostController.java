@@ -1,14 +1,17 @@
 package com.mobeom.local_currency.post;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/posts")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class PostController {
 
     @Autowired
@@ -22,6 +25,5 @@ public class PostController {
         System.out.println(postService.findAll(searchWord).toString());
         return ResponseEntity.ok(noticeList);
     }
-
 
 }

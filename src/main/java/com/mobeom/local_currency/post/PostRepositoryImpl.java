@@ -4,27 +4,26 @@ import com.mobeom.local_currency.board.Board;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-interface CustomedPostRepository{
-    public List<Post> List(String searchWord);
+interface CustomPostRepository {
+    List<Post> List(String searchWord);
 }
 
-public class PostRepositoryImpl extends QuerydslRepositorySupport implements CustomedPostRepository {
-
+@Repository
+public class PostRepositoryImpl extends QuerydslRepositorySupport implements CustomPostRepository {
     @Autowired
-    JPAQueryFactory query;
+    JPAQueryFactory queryFactory;
 
     PostRepositoryImpl() {
         super(Post.class);
     }
-
 
     @Override
     public List<Post> List(String searchWord) {
@@ -38,7 +37,6 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
                     .fetch();
         }
         return list;
-
 
     }
 }
