@@ -1,6 +1,9 @@
 package com.mobeom.local_currency.post;
 
 
+
+
+
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
+@Repository
 interface CustomPostRepository {
 
     NoticeVO findByPostId(long postId);
@@ -51,7 +54,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         QPost post = QPost.post;
         List<Post> list = query.select(post).from(post).fetch();
 
-       // List<NoticeVO> resultList = list.
+        // List<NoticeVO> resultList = list.
         return null;
     }
 }

@@ -43,3 +43,4 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Cus
     }
 
 }
+

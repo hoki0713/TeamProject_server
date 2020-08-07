@@ -57,37 +57,46 @@ public class DummyServiceImpl implements DummyService{
         List<User> userList = userRepository.findAll();
         for(int i = 0; i < 100000; i++) {
             Sales purchaseHistory = new Sales();
+
+            purchaseHistory.setUser(userList.get((int)(Math.random()*userList.size()-1)));
             purchaseHistory.setSalesDate(RandomPurchaseHistoryGenerator.generateRandomDate());
             purchaseHistory.setGiftYn(RandomPurchaseHistoryGenerator.generateRandomBoolean());
+
             if(purchaseHistory.isGiftYn()) {
                 purchaseHistory.setCurrencyState("사용완료");
-            } else {
-                purchaseHistory.setCurrencyState(RandomPurchaseHistoryGenerator.generateRandomCurrencyState());
-            }
-            if(purchaseHistory.getCurrencyState().equals("사용완료")) {
+                purchaseHistory.setRecipientEmail(
+                        RandomPurchaseHistoryGenerator.generateRandomEmailId()+"@"+
+                        RandomPurchaseHistoryGenerator.generateRandomEmail()+
+                        RandomPurchaseHistoryGenerator.generateRandomEmailEnd());
                 purchaseHistory.setUseDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*31)));
             } else {
-                purchaseHistory.setUseDate(null);
+                purchaseHistory.setCurrencyState(RandomPurchaseHistoryGenerator.generateRandomCurrencyState());
+                if(purchaseHistory.getCurrencyState().equals("사용완료")) {
+                    purchaseHistory.setUseDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*31)));
+                    purchaseHistory.setRecipientEmail(purchaseHistory.getUser().getEmail());
+                } else {
+                    purchaseHistory.setUseDate(null);
+                }
+                if(purchaseHistory.getCurrencyState().equals("취소완료")) {
+                    purchaseHistory.setCancelDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*7)));
+                    purchaseHistory.setRecipientEmail(null);
+                } else {
+                    purchaseHistory.setCancelDate(null);
+                }
+                if(purchaseHistory.getCurrencyState().equals("미사용")) {
+                    purchaseHistory.setRecipientEmail(null);
+                }
             }
-            if(purchaseHistory.getCurrencyState().equals("취소완료")) {
-                purchaseHistory.setCancelDate(purchaseHistory.getSalesDate().plusDays((int)(Math.random()*7)));
-            } else {
-                purchaseHistory.setCancelDate(null);
-            }
+
             purchaseHistory.setPaymentName(RandomPurchaseHistoryGenerator.generateRandomPaymentCompany());
-            purchaseHistory.setUser(userList.get((int)(Math.random()*userList.size()-1)));
             purchaseHistory.setUnitPrice(RandomPurchaseHistoryGenerator.generateRandomVoucherPrice());
 
             String address = purchaseHistory.getUser().getDefaultAddr();
-
             List<LocalCurrencyVoucher> selectedLocalCurrencyList =
                     localCurrencyVoucherRepository.findAllByDefaultAddr(address);
-
             purchaseHistory.setLocalCurrencyVoucher(
                     selectedLocalCurrencyList.get((int)(Math.random()*2)));
-
             purchaseHistoryList.add(purchaseHistory);
-
         }
         return salesRepository.saveAll(purchaseHistoryList);
     }
