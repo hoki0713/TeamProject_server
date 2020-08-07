@@ -41,6 +41,7 @@ interface CustomAdminRepository {
      //List<Store> findAll();
     Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
+
 }
 
 

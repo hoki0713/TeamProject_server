@@ -14,7 +14,6 @@ public class NoticeVO {
     private int readCount;
     private String contents;
 
-    public NoticeVO() {}
 
     public NoticeVO(Long postId, String category, String postTitle, LocalDate regDate, int readCount,String contents) {
         this.postId = postId;

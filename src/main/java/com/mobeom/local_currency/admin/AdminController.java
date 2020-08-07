@@ -1,12 +1,12 @@
 package com.mobeom.local_currency.admin;
 
+import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,11 @@ public class AdminController {
 
     @Autowired AdminService adminService;
     @Autowired AdminRepository adminRepository;
+    private final Box box;
 
+    public AdminController(Box box) {
+        this.box = box;
+    }
 
 
     @GetMapping("/list")
@@ -45,14 +49,22 @@ public class AdminController {
 
     }
     
+
+
+    @GetMapping("/userTotal-chart/{localSelect}")
+    public Map<?,?> userLocalGenderChart(@PathVariable String localSelect){
+        Map<String,Long> testChart1 = adminService.userLocalGenderChart(localSelect);
+        Map<String,Integer> testChart2 = adminService.userAgeTotal(localSelect);
+       box.put("test1",testChart1);
+        box.put("test2",testChart2);
+
+        //return adminService.userLocalGenderChart(localSelect);
+        return box.get();
+    }
+
     @GetMapping("/chart/ratio-of-user-region")
     public Map<String,Long> ratioOfUserRegion(){
         return adminService.localTotalChart();
-    }
-
-    @GetMapping("/userTotal-chart/{localSelect}")
-    public Map<String,Long> userLocalGenderChart(@PathVariable String localSelect){
-        return adminService.userLocalGenderChart(localSelect);
     }
 
     @GetMapping("/userAge-chart/{localSelect}")
