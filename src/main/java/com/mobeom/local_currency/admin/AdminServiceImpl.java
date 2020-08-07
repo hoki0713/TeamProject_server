@@ -11,18 +11,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 interface AdminService{
-    List<User> getAllList(String searchWord);
-    Map<String,Long> chart();
-    Map<String,Long> userLocalTotal(String localSelect);
+    
+    Map<String,Long> localTotalChart();
+    Map<String,Long> userLocalGenderChart(String localSelect);
     Map<String,Integer> userAgeTotal(String localSelect);
     Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
     Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeChart();
 
 
+    List<User> getAllUserList();
+
+    Optional<User> findOneUser(String userId);
 }
 
 @Service
@@ -34,18 +38,13 @@ public class AdminServiceImpl implements AdminService{
 
 
     @Override
-    public List<User> getAllList(String searchWord) {
-        return adminRepository.List(searchWord);
+    public Map<String,Long> localTotalChart() {
+       return adminRepository.localTotalChart();
     }
 
     @Override
-    public Map<String,Long> chart() {
-       return adminRepository.chart();
-    }
-
-    @Override
-    public Map<String, Long> userLocalTotal(String localSelect) {
-        return adminRepository.userLocalChart(localSelect);
+    public Map<String, Long> userLocalGenderChart(String localSelect) {
+        return adminRepository.userLocalGenderChart(localSelect);
     }
 
     @Override
@@ -62,7 +61,7 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public Map<String, Long> storeLocalsChart(String localSelect) {
-        return adminRepository.localsTotal(localSelect);
+        return adminRepository.storeLocalsChart(localSelect);
     }
 
     @Override
@@ -70,7 +69,15 @@ public class AdminServiceImpl implements AdminService{
         return adminRepository.storeTypeLocal();
     }
 
+    @Override
+    public List<User> getAllUserList() {
+        return userRepository.findAll(); //페이지네이션
+    }
 
+    @Override
+    public Optional<User> findOneUser(String userId) {
+        return userRepository.findByUserId(userId);
+    }
 
 
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admins")
@@ -17,62 +18,67 @@ import java.util.Map;
 public class AdminController {
 
     @Autowired AdminService adminService;
+    @Autowired AdminRepository adminRepository;
 
-    @GetMapping("/list/{searchWord}")
-    public ResponseEntity<List<User>> getAllList(@PathVariable String searchWord){
 
-        System.out.println("왔다"+searchWord);
-        List<User> userList = adminService.getAllList(searchWord);
-         System.out.println(adminService.getAllList(searchWord).toString());
+
+    @GetMapping("/list")
+    public ResponseEntity<List<User>> getAllUserList(){
+        List<User> userList = adminService.getAllUserList();
         return ResponseEntity.ok(userList);
+    }
+
+
+
+
+
+    @GetMapping("/list/{userId}")
+    public ResponseEntity<Optional<User>> getOneUser(@PathVariable String userId) {
+        Optional<User> findOne = adminService.findOneUser(userId);
+//        if(findOne.isPresent()) {
+//            return ResponseEntity.ok(findOne);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+        return ResponseEntity.ok(findOne);
+
+
     }
     
     @GetMapping("/chart/ratio-of-user-region")
-    public ResponseEntity<Map<String,Long>> ratioOfUserRegion(){
-        System.out.println("실행");
-        Map<String,Long> userResion = adminService.chart();
-        System.out.println(adminService.chart());
-        return ResponseEntity.ok(userResion);
+    public Map<String,Long> ratioOfUserRegion(){
+        return adminService.localTotalChart();
     }
 
     @GetMapping("/userTotal-chart/{localSelect}")
-    public ResponseEntity<Map<String,Long>> chart(@PathVariable String localSelect){
-        System.out.println("들어왓음"+localSelect);
-        Map<String,Long> userLocal = adminService.userLocalTotal(localSelect);
-
-        System.out.println(adminService.userLocalTotal(localSelect).toString());
-
-        return ResponseEntity.ok(userLocal);
+    public Map<String,Long> userLocalGenderChart(@PathVariable String localSelect){
+        return adminService.userLocalGenderChart(localSelect);
     }
 
     @GetMapping("/userAge-chart/{localSelect}")
-    public ResponseEntity<Map<String,Integer>> chart2(@PathVariable String localSelect){
+    public Map<String,Integer> userAgeChart(@PathVariable String localSelect){
         Map<String,Integer> userAge = adminService.userAgeTotal(localSelect);
-        System.out.println(adminService.userAgeTotal(localSelect).toString());
-        return ResponseEntity.ok(userAge);
+
+        return userAge;
     }
 
-    @GetMapping("/joinDate-chart/{startDate}/{endDate}")
+    @GetMapping("/joinDate-chart/{startDate}/{endDate}") //* 아직 구현 xx
     public void joinChart(@PathVariable String startDate, @PathVariable String endDate){
-        System.out.println("들어옴 start:"+startDate+",end:"+endDate);
         LocalDate start_date = LocalDate.parse(startDate,DateTimeFormatter.ISO_DATE);
         LocalDate end_date = LocalDate.parse(endDate,DateTimeFormatter.ISO_DATE);
-        System.out.println(start_date+","+end_date);
         adminService.joinChart(start_date,end_date);
     }
 
     @GetMapping("/localChart/{localSelect}")
-    public void localChart(@PathVariable String localSelect){
-        System.out.println("들어옴"+localSelect);
-        //String localSelect ="고양";
-        adminService.storeLocalsChart(localSelect);
-        System.out.println(adminService.storeLocalsChart(localSelect).toString());
+    public Map<String,Long> storeLocalChart(@PathVariable String localSelect){
+        return adminService.storeLocalsChart(localSelect);
+
     }
 
 
     @GetMapping("/storeTypeChart")
-    public void storeTypeChart(){
-        adminService.storeTypeChart();
+    public Map<String,Long> storeTypeChart(){
+        return adminService.storeTypeChart();
     }
 
 
