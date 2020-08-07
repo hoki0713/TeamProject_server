@@ -35,10 +35,10 @@ public class RecommendController {
 
     }
 
-    @GetMapping("bestStore/{searchWord}")
+    @GetMapping("bestStores/{searchWord}")
     public void bestStore(@PathVariable String searchWord){
         System.out.println("베스트가맹점 진입");
-        List<Store> stores = recommendService.bestStores(searchWord);
+        List<Store> stores = recommendService.selectBestStores(searchWord);
 
         for(Store bestStore : stores){
             System.out.println(bestStore.getStoreName());

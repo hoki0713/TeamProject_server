@@ -35,7 +35,7 @@ import java.util.List;
 interface RecommendService {
     List<Store> recommendStore(List<String> recommendItemIds);
 
-    List<Store> bestStores(String searchWord);
+    List<Store> selectBestStores(String searchWord);
     List<String> mahout(String id) throws IOException, TasteException;
 
 
@@ -57,8 +57,8 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<Store> bestStores(String searchWord) {
-        return recommendRepository.bestStores(searchWord);
+    public List<Store> selectBestStores(String searchWord) {
+        return recommendRepository.fetchByBestStore(searchWord);
     }
 
 

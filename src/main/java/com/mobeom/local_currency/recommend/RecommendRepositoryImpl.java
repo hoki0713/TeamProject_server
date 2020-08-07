@@ -1,29 +1,39 @@
 package com.mobeom.local_currency.recommend;
 
+import static com.mobeom.local_currency.store.QStore.store;
+import com.mobeom.local_currency.consume.QConsume;
+import com.mobeom.local_currency.industry.QIndustry;
 import com.mobeom.local_currency.store.QStore;
 import com.mobeom.local_currency.store.Store;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
-import java.util.ArrayList;
+import javax.sql.DataSource;
 import java.util.List;
 
 interface CustomRecommendRepository {
     Store recommendStores(String searchWord);
-
-    List<Store> bestStores(String searchWord);
+    List<Store> fetchByBestStore(String searchWord);
 
 }
 
 public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
-    @Autowired
-    JPAQueryFactory query;
+    private final JPAQueryFactory queryFactory;
+    private final DataSource dataSource;
 
-    RecommendRepositoryImpl() {
+
+    RecommendRepositoryImpl(JPAQueryFactory queryFactory, DataSource dataSource) {
         super(Recommend.class);
+        this.queryFactory = queryFactory;
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public List<Store> fetchByBestStore(String searchWord){
+        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType, store.starRanking))
+                .from(store).where(store.address.like("%" + searchWord + "%"))
+                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
     }
 
     @Override
@@ -37,17 +47,15 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
         return recommendStore;
     }
 
-    @Override
-    public List<Store> bestStores(String searchWord) {
+
+
+    public List<Store> genderRecommend(){
         QStore store = QStore.store;
+        QConsume consume = QConsume.consume;
+        QIndustry industry = QIndustry.industry;
+
         JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
-        List<Store> bestStores;
-        bestStores = query.select(Projections.fields(Store.class, store.storeName, store.storeType, store.starRanking))
-                .from(store).where(store.address.like("%" + searchWord + "%"))
-                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
-
-
-        return bestStores;
+        return null;
     }
 
 }
