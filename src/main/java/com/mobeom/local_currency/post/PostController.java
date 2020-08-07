@@ -9,21 +9,25 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import java.util.Map;
+import java.util.Optional;
+
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/posts")
 public class PostController {
+    @Autowired PostRepository postRepository;
+    @Autowired PostService postService;
 
-    @Autowired
-    PostService postService;
-
-    @GetMapping("/notice/list/{searchWord}")
-    public ResponseEntity<List<Post>> getAllList(@PathVariable String searchWord){
-
-        System.out.println("왔다"+searchWord);
-        List<Post> noticeList = postService.findAll(searchWord);
-        System.out.println(postService.findAll(searchWord).toString());
-        return ResponseEntity.ok(noticeList);
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<Optional<NoticeVO>> oneNoticePost(@PathVariable String postId){
+        Optional<NoticeVO> findOne = postService.findOne(Long.parseLong(postId));
+       return ResponseEntity.ok(findOne);
     }
 
+    @GetMapping("/postlist")
+    public ResponseEntity<List<Post>> postList(){
+        List<Post> list = postRepository.findAll();
+        return ResponseEntity.ok(list);
+    }
 }

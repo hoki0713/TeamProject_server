@@ -2,16 +2,18 @@ package com.mobeom.local_currency.store;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
 
 import static java.util.stream.Collectors.toList;
 
 
 interface CustomStoreRepository {
-
     List<Store> findAllStoreByUserDefaultAddr(String defaultAddr);
 }
 
@@ -23,7 +25,7 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements Cu
     StoreRepositoryImpl() {
         super(Store.class);
     }
-
+  
     @Override
     public List<Store> findAllStoreByUserDefaultAddr(String defaultAddr) {
         QStore qStore = QStore.store;
