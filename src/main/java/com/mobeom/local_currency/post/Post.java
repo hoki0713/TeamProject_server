@@ -11,11 +11,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
-@Entity
-@Getter
-@Setter
-@ToString
+@Entity @Getter @Setter @ToString
 @Table(name="post")
 public class Post {
 
@@ -24,8 +22,8 @@ public class Post {
     @Column(name="post_id", nullable = false)
     private Long postId;
 
-    @Column(name="reg_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private DateTime regDate;
+    @Column(name="reg_date", nullable = false)
+    private LocalDate regDate;
 
     @Column(name="category", nullable = false)
     private String category;
@@ -39,8 +37,8 @@ public class Post {
     @Column(name="read_count", nullable = false)
     private Integer readCount;
 
-    @Column(name="modi_date", nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private DateTime modiDate;
+    @Column(name="modi_date", nullable = false)
+    private LocalDate modiDate;
 
     @Column(name="notice_yn", nullable = false)
     private Boolean noticeYn;

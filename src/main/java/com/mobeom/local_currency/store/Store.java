@@ -26,9 +26,9 @@ public class Store {
 
     @Column(name = "store_phone", nullable = false) private String storePhone;
 
-    @Column(name = "latitude",nullable = false) private int latitude;
+    @Column(name = "latitude",nullable = false) private double latitude;
 
-    @Column(name = "logitude", nullable = false) private int longitude;
+    @Column(name = "logitude", nullable = false) private double longitude;
 
     @Column(name = "star_ranking",nullable = false) private int starRanking;
 

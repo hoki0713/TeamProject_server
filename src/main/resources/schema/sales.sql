@@ -25,7 +25,7 @@ CREATE TABLE sales
     `cancel_date`   DATETIME,
     `currency_state`    VARCHAR(4) NOT NULL,
     `payment_name`  VARCHAR(30) NOT NULL,
-    `id` INT              NOT NULL,
+    `user_id` INT              NOT NULL,
     `local_currency_voucher_id` INT              NOT NULL,
     `recipient_email` VARCHAR(50),
     PRIMARY KEY (sales_id)
