@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.dummy;
 
+import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,12 @@ public class DummyController {
     public ResponseEntity<List<Sales>> createRandomPurchaseHistory() {
         List<Sales> randomPurchaseHistoryList = dummyService.createRandomPurchaseHistory();
         return ResponseEntity.ok(randomPurchaseHistoryList);
+    }
+
+    @PostMapping("/favorites")
+    public ResponseEntity<List<Favorites>> createRandomFavorites() {
+        List<Favorites> randomFavoritesList = dummyService.createRandomFavorites();
+        return ResponseEntity.ok(randomFavoritesList);
     }
 
 }

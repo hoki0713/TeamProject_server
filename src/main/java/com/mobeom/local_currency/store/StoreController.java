@@ -15,8 +15,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/stores")
 public class StoreController {
+
     static Logger logger = LoggerFactory.getLogger(StoreController.class);
 
+    @Autowired StoreService storeService;
     @Autowired StoreRepository storeRepository;
     @Autowired Box box;
 
