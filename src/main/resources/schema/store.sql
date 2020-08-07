@@ -6,8 +6,8 @@ CREATE TABLE `store` (
 	`local_name` VARCHAR(10),
 	`road_address` VARCHAR(200),
 	`store_phone` VARCHAR(15),
-	`latitude` FLOAT,
-	`logitude` FLOAT,
+	`latitude` VARCHAR(20) ,
+	`logitude` VARCHAR(20) ,
 	`star_ranking` INT,
 	`search_result_count` INT,
 	PRIMARY KEY (`id`)
