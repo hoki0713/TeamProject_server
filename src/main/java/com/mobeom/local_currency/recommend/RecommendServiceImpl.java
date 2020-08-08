@@ -1,5 +1,7 @@
 package com.mobeom.local_currency.recommend;
 
+import com.mobeom.local_currency.consume.Gender;
+import com.mobeom.local_currency.post.Post;
 import com.mobeom.local_currency.store.Store;
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -37,7 +39,9 @@ interface RecommendService {
 
     List<Store> selectBestStores(String searchWord);
     List<String> mahout(String id) throws IOException, TasteException;
-
+    List<StoreVo> testRecommend(String storeName, String storeType);
+    List<Store> genderRecommend();
+    List<Gender> industryByGender(String searchWord);
 
 }
 
@@ -62,6 +66,7 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
 
+    @Override
     public List<String> mahout(String id) throws IOException, TasteException {
         DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_dataset.csv"));
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
@@ -79,6 +84,21 @@ public class RecommendServiceImpl implements RecommendService {
         }
         System.out.println("배열의 갯수" + recommendItemIds.size());
         return recommendItemIds;
+    }
+
+    @Override
+    public List<StoreVo> testRecommend(String storeName, String storeType) {
+        return recommendRepository.testRecommend(storeName, storeType);
+    }
+
+    @Override
+    public List<Store> genderRecommend() {
+        return recommendRepository.genderRecommend();
+    }
+
+    @Override
+    public List<Gender> industryByGender(String searchWord){
+        return recommendRepository.industryByGender(searchWord);
     }
 }
 
