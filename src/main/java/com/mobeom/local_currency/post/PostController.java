@@ -30,4 +30,16 @@ public class PostController {
         List<Post> list = postRepository.findAll();
         return ResponseEntity.ok(list);
     }
+
+    @PostMapping("/review/{storeId}")
+    public ResponseEntity<Post> createReview(@PathVariable String storeId,
+                                             @RequestBody Post review) {
+        Optional<Post> userReview = postService.createReview(storeId, review);
+        if(userReview.isPresent()) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
