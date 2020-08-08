@@ -16,34 +16,33 @@ import java.time.LocalDate;
 @Entity @Getter @Setter @ToString
 @Table(name="post")
 public class Post {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="post_id", nullable = false)
     private Long postId;
 
-    @Column(name="reg_date", nullable = false)
-    private LocalDate regDate;
+    @Column(name="reg_date")
+    private LocalDate regDate = LocalDate.now();
 
-    @Column(name="category", nullable = false)
+    @Column(name="category")
     private String category;
 
-    @Column(name="post_title", nullable = false)
+    @Column(name="post_title")
     private String postTitle;
 
-    @Column(name="contents", nullable = false)
+    @Column(name="contents")
     private String contents;
 
-    @Column(name="read_count", nullable = false)
+    @Column(name="read_count")
     private Integer readCount;
 
-    @Column(name="modi_date", nullable = false)
+    @Column(name="modi_date")
     private LocalDate modiDate;
 
-    @Column(name="notice_yn", nullable = false)
+    @Column(name="notice_yn")
     private Boolean noticeYn;
 
-    @Column(name="delete_yn", nullable = false)
+    @Column(name="delete_yn")
     private Boolean deleteYn;
 
     @Column(name="star_rating")

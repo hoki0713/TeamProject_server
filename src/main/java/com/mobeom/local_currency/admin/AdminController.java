@@ -2,7 +2,6 @@ package com.mobeom.local_currency.admin;
 
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +16,12 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
 
-    @Autowired AdminService adminService;
-    @Autowired AdminRepository adminRepository;
+
+    private final AdminService adminService;
     private final Box box;
 
-    public AdminController(Box box) {
+    public AdminController(AdminService adminService, Box box) {
+        this.adminService = adminService;
         this.box = box;
     }
 
@@ -82,7 +82,7 @@ public class AdminController {
     }
 
     @GetMapping("/localChart/{localSelect}")
-    public Map<String,Long> storeLocalChart(@PathVariable String localSelect){
+    public Long storeLocalChart(@PathVariable String localSelect){
         return adminService.storeLocalsChart(localSelect);
 
     }

@@ -3,58 +3,56 @@ package com.mobeom.local_currency.post;
 
 
 
-
-import com.querydsl.core.Tuple;
+import static com.mobeom.local_currency.post.QPost.post;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 
 interface CustomPostRepository {
-    NoticeVO findByPostId(long postId);
-    List<Post> List(String searchWord);
+    Post findByPostId(long postId);
+    List<NoticeVO> noticeList();
+    NoticeVO update(String id,Post post);
+
 }
 
 @Repository
 public class PostRepositoryImpl extends QuerydslRepositorySupport implements CustomPostRepository {
-    @Autowired
-    JPAQueryFactory queryFactory;
+
+    private final JPAQueryFactory query;
 
 
-    public PostRepositoryImpl() {
+    public PostRepositoryImpl(JPAQueryFactory query) {
         super(Post.class);
+        this.query = query;
     }
 
     @Override
-    public NoticeVO findByPostId(long postId) {
-        QPost post = QPost.post;
+    public Post findByPostId(long postId) {
+
         Post findOne = query.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
-        //int postId, String category, String postTitle, LocalDate regDate, int readCount
-        NoticeVO resultVO = new NoticeVO(
-                findOne.getPostId(),
-                findOne.getCategory(),
-                findOne.getPostTitle(),
-                findOne.getRegDate(),
-                findOne.getReadCount(),
-                findOne.getContents()
-        );
-        return resultVO;
+
+        return findOne;
     }
 
     public List<NoticeVO> noticeList(){
-        QPost post = QPost.post;
+
         List<Post> list = query.select(post).from(post).fetch();
 
         // List<NoticeVO> resultList = list.
         return null;
     }
+
+    @Override
+    public NoticeVO update(String id, Post post) {
+
+
+
+        return null;
+
+    }
+
+
 }

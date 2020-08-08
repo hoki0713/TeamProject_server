@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 
+
 public interface AdminRepository extends JpaRepository<Admin,Long>,CustomAdminRepository {
 
 

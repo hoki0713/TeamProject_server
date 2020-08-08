@@ -1,8 +1,6 @@
 package com.mobeom.local_currency.post;
 
-import com.querydsl.core.Tuple;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -10,16 +8,29 @@ import java.util.Optional;
 @Component
 interface PostService {
 
-    Optional<NoticeVO> findOne(long postId);
+    Optional<Post> findOne(long postId);
+    Post insertNotice(Post notice);
 }
 
 @Service
 public class PostServiceImpl implements PostService {
-    @Autowired PostRepository postRepository;
+    private final PostRepository postRepository;
+
+    public PostServiceImpl(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
 
     @Override
-    public Optional<NoticeVO> findOne(long postId) {
-        NoticeVO findOne = postRepository.findByPostId(postId);
-        return Optional.of(findOne);
+    public Optional<Post> findOne(long postId) {
+        Optional<Post> findOne = postRepository.findById(postId);
+        return Optional.of(findOne.get());
     }
+
+    @Override
+    public Post insertNotice(Post notice) {
+        return postRepository.save(notice);
+
+    }
+
+
 }
