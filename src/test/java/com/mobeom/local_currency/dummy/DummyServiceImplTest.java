@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 class DummyServiceImplTest {
     @Test
-    void name() {
+    void createRandomFavorites() {
         FavoritesRepository favoritesRepository = Mockito.mock(FavoritesRepository.class);
         UserRepository userRepository = Mockito.mock(UserRepository.class);
         SalesRepository salesRepository = Mockito.mock(SalesRepository.class);
@@ -50,6 +50,5 @@ class DummyServiceImplTest {
         Mockito.verify(userRepository).findAll();
         Mockito.verify(storeRepository).findAllStoreByUserDefaultAddr(Mockito.any());
         Mockito.verify(favoritesRepository).saveAll(Mockito.any());
-
     }
 }

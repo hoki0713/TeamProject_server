@@ -49,11 +49,11 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements Cu
     public List<Store> findAllStoreByUserDefaultAddr(String defaultAddr) {
         QStore qStore = QStore.store;
         //System.out.println(defaultAddr.chars().boxed().collect(toList()));
-        String fixedAddr = defaultAddr.replace((char)160, (char)32).trim();
+        //String fixedAddr = defaultAddr.replace((char)160, (char)32).trim();
         //System.out.println(fixedAddr.chars().boxed().collect(toList()));
-        String[] defaultAddrArr = fixedAddr.split(" ");
+        //String[] defaultAddrArr = fixedAddr.split(" ");
         //System.out.println(Arrays.asList(defaultAddrArr));
-        List<Store> resultList = queryFactory.selectFrom(qStore).where(qStore.localName.like(defaultAddrArr[1])).fetch();
+        List<Store> resultList = queryFactory.selectFrom(qStore).where(qStore.localName.like(defaultAddr)).fetch();
         return resultList;
     }
 }
