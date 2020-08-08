@@ -37,7 +37,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     @Override
     public NoticeVO findByPostId(long postId) {
         QPost post = QPost.post;
-        Post findOne = query.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
+        Post findOne = queryFactory.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
         //int postId, String category, String postTitle, LocalDate regDate, int readCount
         NoticeVO resultVO = new NoticeVO(
                 findOne.getPostId(),
@@ -50,9 +50,14 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         return resultVO;
     }
 
+    @Override
+    public List<Post> List(String searchWord) {
+        return null;
+    }
+
     public List<NoticeVO> noticeList(){
         QPost post = QPost.post;
-        List<Post> list = query.select(post).from(post).fetch();
+        List<Post> list = queryFactory.select(post).from(post).fetch();
 
         // List<NoticeVO> resultList = list.
         return null;

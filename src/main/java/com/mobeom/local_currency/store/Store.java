@@ -28,7 +28,7 @@ public class Store {
 
     @Column(name = "latitude",nullable = false) private double latitude;
 
-    @Column(name = "logitude", nullable = false) private double longitude;
+    @Column(name = "longitude", nullable = false) private double longitude;
 
     @Column(name = "star_ranking",nullable = false) private int starRanking;
 
