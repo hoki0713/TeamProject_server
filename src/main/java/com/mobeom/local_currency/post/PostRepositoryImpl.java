@@ -45,7 +45,6 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         return resultVO;
     }
 
-
     public List<NoticeVO> noticeList(){
         QPost post = QPost.post;
         List<Post> list = queryFactory.select(post).from(post).fetch();

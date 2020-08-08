@@ -7,7 +7,7 @@ CREATE TABLE `store` (
 	`road_address` VARCHAR(200),
 	`store_phone` VARCHAR(15),
 	`latitude` VARCHAR(20) ,
-	`logitude` VARCHAR(20) ,
+	`longitude` VARCHAR(20) ,
 	`star_ranking` INT,
 	`search_result_count` INT,
 	PRIMARY KEY (`id`)
