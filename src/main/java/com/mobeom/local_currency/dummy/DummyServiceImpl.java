@@ -52,7 +52,7 @@ public class DummyServiceImpl implements DummyService{
     @Override
     public List<User> createRandomUser() {
         List<User> userList = new ArrayList<>();
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < 10000; i++) {
             User user = new User();
             user.setUserId(RandomUserGenerator.generateRandomId()+RandomUserGenerator.generateRandomNo2());
             user.setPassword(RandomUserGenerator.generateRandomPw()+RandomUserGenerator.generateRandomPwNum());
@@ -75,7 +75,6 @@ public class DummyServiceImpl implements DummyService{
         List<User> userList = userRepository.findAll();
         for(int i = 0; i < 100000; i++) {
             Sales purchaseHistory = new Sales();
-
             purchaseHistory.setUser(userList.get((int)(Math.random()*userList.size()-1)));
             purchaseHistory.setSalesDate(RandomPurchaseHistoryGenerator.generateRandomDate());
             purchaseHistory.setGiftYn(RandomPurchaseHistoryGenerator.generateRandomBoolean());
@@ -124,11 +123,13 @@ public class DummyServiceImpl implements DummyService{
         List<Favorites> favorites = new ArrayList<>();
         List<User> userList = userRepository.findAll();
         userList.forEach(user -> {
-            if(user.getDefaultAddr().equals("경기도 의정부시 ") || user.getDefaultAddr().equals("경기도 고양시 ")) {
+            String[] splitUserAddress = user.getDefaultAddr().split(" ");
+            String targetAddress = splitUserAddress[0]+" "+splitUserAddress[1];
+            if(targetAddress.equals("경기도 의정부시") || targetAddress.equals("경기도 고양시")) {
                 //System.out.println(user.getId()+"/"+user.getDefaultAddr());
                 if(randomFavoritesGenerator.hasFavorites()) {
                     int numOfFavorites = RandomFavoritesGenerator.getRandomNumOfFavorites();
-                    List<Store> findAllStoreByUserDefaultAddr = storeRepository.findAllStoreByUserDefaultAddr(user.getDefaultAddr());
+                    List<Store> findAllStoreByUserDefaultAddr = storeRepository.findAllStoreByUserDefaultAddr(splitUserAddress[1]);
                     for(int i = 0; i < numOfFavorites; i++) {
                         Favorites favorite = new Favorites();
                         favorite.setUser(user);
