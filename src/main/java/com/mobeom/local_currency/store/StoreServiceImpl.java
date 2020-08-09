@@ -12,7 +12,6 @@ import java.util.Optional;
 @Component
 interface StoreService extends JpaService<Store> {
 
-    List<Store> getAll();
 
     Object getUi();
 }
@@ -20,47 +19,42 @@ interface StoreService extends JpaService<Store> {
 
 @Service
 public class StoreServiceImpl implements StoreService {
-    private final StoreRepository storeRepository;
+    private final StoreRepository repository;
     private final Box<List<Store>> stores;
 
-    public StoreServiceImpl(StoreRepository storeRepository, Box<List<Store>> stores) {
-        this.storeRepository = storeRepository;
+    public StoreServiceImpl(StoreRepository repository, Box<List<Store>> stores) {
+        this.repository = repository;
         this.stores = stores;
     }
 
 
     @Override
     public Optional<Store> findById(String id) {
-        return Optional.empty();
+        return repository.findById(Long.parseLong(id));
     }
 
     @Override
     public Iterable<Store> findAll() {
-        return null;
+        return repository.findAll();
     }
 
     @Override
     public int count() {
-        return 0;
+        return (int) repository.count();
     }
 
     @Override
     public void delete(String id) {
-
+        repository.delete(findById(id).orElse(new Store()));
     }
 
     @Override
     public boolean exists(String id) {
-        return false;
-    }
-
-    @Override
-    public List<Store> getAll() {
-        return storeRepository.findAll();
+        return repository.existsById(Long.parseLong(id));
     }
 
     @Override
     public Object getUi() {
-        return storeRepository.uiList();
+        return repository.uiList();
     }
 }
