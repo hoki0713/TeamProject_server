@@ -1,23 +1,16 @@
 package com.mobeom.local_currency.recommend;
 
-import com.mobeom.local_currency.consume.Gender;
-import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.consume.GenderAge;
+import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.Store;
-import org.apache.mahout.cf.taste.common.Refreshable;
+import it.unimi.dsi.fastutil.Hash;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
-import org.apache.mahout.cf.taste.impl.common.FastIDSet;
-import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
-import org.apache.mahout.cf.taste.impl.model.AbstractDataModel;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
-import org.apache.mahout.cf.taste.model.JDBCDataModel;
-import org.apache.mahout.cf.taste.model.PreferenceArray;
-import org.apache.mahout.cf.taste.impl.model.MySQLJDBCIDMigrator;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
@@ -26,12 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 interface RecommendService {
@@ -40,8 +33,10 @@ interface RecommendService {
     List<Store> selectBestStores(String searchWord);
     List<String> mahout(String id) throws IOException, TasteException;
     List<StoreVo> testRecommend(String storeName, String storeType);
-    List<Store> genderRecommend();
-    List<Gender> industryByGender(String searchWord);
+    List<IndustryStore> fetchByIndustry(String searchIndustry);
+    List<GenderAge> industryByGenderAndAge(String searchWord, int age);
+    List<GenderAge> industryByAge(int age);
+    Box<List<IndustryStore>> fetchStores(String searchWord, int age);
 
 }
 
@@ -92,13 +87,37 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<Store> genderRecommend() {
-        return recommendRepository.genderRecommend();
+    public List<IndustryStore> fetchByIndustry(String searchIndustry) {
+        return recommendRepository.fetchByIndustry(searchIndustry);
     }
 
     @Override
-    public List<Gender> industryByGender(String searchWord){
-        return recommendRepository.industryByGender(searchWord);
+    public List<GenderAge> industryByGenderAndAge(String searchWord, int age){
+        return recommendRepository.industryByGenderAndAge(searchWord, age);
+    }
+
+    @Override
+    public List<GenderAge> industryByAge(int age) {
+//        Box<List<GenderAge>> box= new Box<>();
+//
+//        for(int i=1; i<7; i++){
+//            box.put(String.valueOf(i), recommendRepository.industryByAge(i));
+//        }
+        return recommendRepository.industryByAge(age);
+
+    }
+
+    @Override
+    public Box<List<IndustryStore>> fetchStores(String searchWord, int age) {
+        Box<List<IndustryStore>> box= new Box<>();
+        List<GenderAge> industryList= recommendRepository.industryByGenderAndAge(searchWord, age);
+        for(int i=0; i<industryList.size(); i++){
+            box.put(industryList.get(i).getIndustryName()
+                    ,recommendRepository.fetchByIndustry(industryList.get(i).getIndustryName()
+                    ));
+        }
+
+        return box;
     }
 }
 

@@ -1,26 +1,15 @@
 package com.mobeom.local_currency.recommend;
 
-import com.mobeom.local_currency.consume.Gender;
-import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.consume.GenderAge;
+import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.Store;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
-import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
-import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
-import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
-import org.apache.mahout.cf.taste.model.DataModel;
-import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
-import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.Path;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -58,32 +47,49 @@ public class RecommendController {
         }
     }
 
-    @GetMapping("/gender")
-    public void gender(){
-        System.out.println("성별추천");
-        List<Store> genderlists=recommendService.genderRecommend();
-        System.out.println(genderlists.size());
-        for(Store store : genderlists){
-            System.out.println(store.toString());
+    @GetMapping("/industry/{searchWord}")
+    public void selectStoreByIndustry(@PathVariable String searchWord){
+        System.out.println("업종으로 가게 검색");
+        List<IndustryStore> storeList=recommendService.fetchByIndustry(searchWord);
+        System.out.println(storeList.size());
+        for(IndustryStore store : storeList){
+            System.out.println(store.getStoreName()+store.getImgUrl());
         }
     }
 
-    @GetMapping("/gender/{searchWord}")
-    public void rankingByGender(@PathVariable String searchWord){
-        List<Gender> list;
+    @GetMapping("/gender/{searchWord}/{age}")
+    public void industryByGenderAndAge(@PathVariable String searchWord, @PathVariable int age){
+        List<GenderAge> list;
         if(searchWord.equals("남성")){
-            searchWord="M";
-            list= recommendService.industryByGender(searchWord);
+            list= recommendService.industryByGenderAndAge("M", age);
         } else if(searchWord.equals("여성")){
-            searchWord="F";
-            list=recommendService.industryByGender(searchWord);
+            list=recommendService.industryByGenderAndAge("F", age);
         } else
-
         {
-            searchWord="";
-            list=  recommendService.industryByGender(searchWord);}
-        for(Gender gender : list){
-            System.out.println(gender.getIndustryName());
+            list=  recommendService.industryByGenderAndAge("%", age);}
+        for(GenderAge genderAge : list){
+            System.out.println(genderAge.getIndustryName());
         }
+    }
+
+    @GetMapping("/age/{age}")
+    public void rankingByAge(@PathVariable int age){
+
+        List<GenderAge> list = recommendService.industryByAge(age);
+        for(GenderAge genderAge : list ){
+            System.out.println(genderAge.getIndustryName());
+        }
+
+
+    }
+
+    @GetMapping("/resultStore/{gender}/{age}")
+    public void resultStores(@PathVariable String gender, @PathVariable int age){
+        Box<?> box=recommendService.fetchStores(gender, age);
+        List<IndustryStore> lists= (List<IndustryStore>) box.get(recommendService.industryByGenderAndAge(gender, age).get(2).getIndustryName());
+        for(IndustryStore store : lists) {
+            System.out.println(store.getStoreName() + store.getImgUrl());
+        }
+
     }
 }

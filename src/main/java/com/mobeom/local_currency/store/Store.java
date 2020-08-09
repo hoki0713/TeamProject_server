@@ -16,9 +16,11 @@ public class Store {
 
     @Column(name = "store_name",nullable = false) private String storeName;
 
-    @Column(name = "store_type_code",nullable = false) private int storeTypeCode;
+    @Column(name = "main_code",nullable = false) private String mainCode;
 
     @Column(name = "store_type", nullable = false) private String storeType;
+
+    @Column(name = "store_type_code",nullable = false) private int storeTypeCode;
 
     @Column(name = "local_name", nullable = false) private String localName;
 

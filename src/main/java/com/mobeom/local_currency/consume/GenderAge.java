@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Table(name="consume")
-public class Gender {
+public class GenderAge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="consume_id", nullable = false)
@@ -23,10 +23,13 @@ public class Gender {
     @Column(name="gender_code", nullable = false)
     private String genderCode;
 
+    @Column(name="age_group", nullable = false)
+    private int ageGroup;
+
     @Column(name="industry_name", nullable = false)
     private String industryName;
 
     @Column(name="amount", nullable = false)
-    private String amount;
+    private long amount;
 
 }
