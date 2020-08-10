@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.ws.rs.Path;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.Map;
+
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
