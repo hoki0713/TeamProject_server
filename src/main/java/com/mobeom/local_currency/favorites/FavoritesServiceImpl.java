@@ -31,7 +31,6 @@ public class FavoritesServiceImpl implements FavoritesService{
             oneFavoriteStore.setStoreName(store.getStoreName());
             oneFavoriteStore.setStoreAddr(store.getAddress());
             oneFavoriteStore.setStorePhoneNumber(store.getStorePhone());
-            oneFavoriteStore.setStoreStarRating(store.getStarRanking());
             favorites.put(store.getId(), oneFavoriteStore);
         });
         return Optional.of(favorites);
