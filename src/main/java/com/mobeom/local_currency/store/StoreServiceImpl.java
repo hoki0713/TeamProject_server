@@ -1,25 +1,67 @@
 package com.mobeom.local_currency.store;
 
 
-import com.amazonaws.services.dynamodbv2.xspec.L;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mobeom.local_currency.proxy.Box;
+import com.mobeom.local_currency.proxy.JpaService;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 @Component
-interface StoreService{
+interface StoreService extends JpaService<Store> {
 
+
+    Object getUi();
+
+    Object getMap(String clickedState);
 }
 
 
 @Service
 public class StoreServiceImpl implements StoreService {
+    private final StoreRepository repository;
+    private final Box<List<Store>> stores;
 
-    @Autowired StoreRepository storeRepository;
+    public StoreServiceImpl(StoreRepository repository, Box<List<Store>> stores) {
+        this.repository = repository;
+        this.stores = stores;
+    }
 
 
+    @Override
+    public Optional<Store> findById(String id) {
+        return repository.findById(Long.parseLong(id));
+    }
 
+    @Override
+    public Iterable<Store> findAll() {
+        return repository.findAll();
+    }
 
+    @Override
+    public int count() {
+        return (int) repository.count();
+    }
+
+    @Override
+    public void delete(String id) {
+        repository.delete(findById(id).orElse(new Store()));
+    }
+
+    @Override
+    public boolean exists(String id) {
+        return repository.existsById(Long.parseLong(id));
+    }
+
+    @Override
+    public Object getUi() {
+        return repository.uiList();
+    }
+
+    @Override
+    public Object getMap(String clickedState) {
+        return (clickedState!="")?repository.findByLocal(clickedState):findAll();
+    }
 }

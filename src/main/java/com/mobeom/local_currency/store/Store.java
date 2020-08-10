@@ -1,13 +1,10 @@
 package com.mobeom.local_currency.store;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Entity @Getter @Setter @ToString @NoArgsConstructor
+@Entity @Getter @Setter @ToString
 @Table(name = "store")
 public class Store {
     @Id
@@ -34,4 +31,30 @@ public class Store {
 
     @Column(name = "search_result_count",nullable = false) private int searchResultCount;
 
+    public Store(){}
+    @Builder
+    public Store(
+            String storeName,
+            int storeTypeCode,
+            String storeType,
+            String localName,
+            String address,
+            String storePhone,
+            double latitude,
+            double longitude,
+            int starRanking,
+            int searchResultCount
+    ){
+        this.storeName = storeName;
+        this.storeTypeCode = storeTypeCode;
+        this.storeType = storeType;
+        this.localName = localName;
+        this.address = address;
+        this.storePhone = storePhone;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.starRanking = starRanking;
+        this.searchResultCount = searchResultCount;
+
+    }
 }
