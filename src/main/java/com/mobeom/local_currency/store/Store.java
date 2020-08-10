@@ -16,9 +16,11 @@ public class Store {
 
     @Column(name = "store_name",nullable = false) private String storeName;
 
-    @Column(name = "store_type_code",nullable = false) private int storeTypeCode;
+    @Column(name = "main_code",nullable = false) private String mainCode;
 
     @Column(name = "store_type", nullable = false) private String storeType;
+
+    @Column(name = "store_type_code",nullable = false) private int storeTypeCode;
 
     @Column(name = "local_name", nullable = false) private String localName;
 
@@ -28,9 +30,7 @@ public class Store {
 
     @Column(name = "latitude",nullable = false) private double latitude;
 
-    @Column(name = "logitude", nullable = false) private double longitude;
-
-    @Column(name = "star_ranking",nullable = false) private int starRanking;
+    @Column(name = "longitude", nullable = false) private double longitude;
 
     @Column(name = "search_result_count",nullable = false) private int searchResultCount;
 
