@@ -42,7 +42,6 @@ public class Store {
             String storePhone,
             double latitude,
             double longitude,
-            int starRanking,
             int searchResultCount
     ){
         this.storeName = storeName;
@@ -53,7 +52,6 @@ public class Store {
         this.storePhone = storePhone;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.starRanking = starRanking;
         this.searchResultCount = searchResultCount;
 
     }
