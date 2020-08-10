@@ -9,6 +9,7 @@ import java.util.function.Function;
 @Component
 @Lazy
 public class Box<T> {
+
     private HashMap<String,T> box;
 
     public Box(){box =new HashMap<>();}
@@ -21,4 +22,5 @@ public class Box<T> {
     public int size(){return box.size();}
     public void clear(){box.clear();}
     public void newBox(){box=new HashMap<String, T>();}
+
 }
