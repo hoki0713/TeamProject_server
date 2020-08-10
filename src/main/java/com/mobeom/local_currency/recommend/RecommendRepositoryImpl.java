@@ -50,14 +50,14 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
         JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
         Store recommendStore = new Store();
         recommendStore = query.select(Projections.fields
-                (Store.class, store.storeName, store.storeType, store.starRanking, store.id)).from(store)
-                .where(store.id.like(searchWord)).fetchOne();
+                (Store.class, store.storeName, store.storeType, store.id)).from(store)
+                .where(store.id.like(searchWord)).fetchOne(); // , store.starRanking
         return recommendStore;
     }
 
     @Override
     public List<Store> fetchByBestStore(String searchWord){
-        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType, store.starRanking))
+        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType)) // , store.starRanking
                 .from(store).where(store.address.like("%" + searchWord + "%"))
                 .orderBy(store.searchResultCount.desc()).limit(10).fetch();
     }

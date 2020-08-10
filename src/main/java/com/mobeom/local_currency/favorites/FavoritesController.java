@@ -19,6 +19,7 @@ public class FavoritesController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<Map<Long, FavoritesVO>> getFavoritesList(@PathVariable String userId) {
+        System.out.println(userId+"  favorite controller");
         Optional<Map<Long, FavoritesVO>> favorites = favoritesService.getFavoritesList(Long.parseLong(userId));
         if(favorites.isPresent()) {
             return ResponseEntity.ok(favorites.get());
