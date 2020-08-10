@@ -16,9 +16,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
-import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +27,6 @@ interface PostService {
     Post updatePost(Post notice);
     void deleteNotice(Post notice);
     List<Post> inquiryList();
-    Optional<NoticeVO> findOne(long postId);
     Optional<Post> createReview(String storeId, ReviewVO review);
 }
 
@@ -42,12 +38,17 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
 
-    public PostServiceImpl(PostRepository postRepository, RatingRepository ratingRepository, StoreRepository storeRepository, UserRepository userRepository, BoardRepository boardRepository) {
+    public PostServiceImpl(PostRepository postRepository,
+                           RatingRepository ratingRepository,
+                           StoreRepository storeRepository,
+                           UserRepository userRepository,
+                           BoardRepository boardRepository) {
         this.postRepository = postRepository;
         this.ratingRepository = ratingRepository;
         this.storeRepository = storeRepository;
         this.userRepository = userRepository;
         this.boardRepository = boardRepository;
+    }
 
     @Override
     public List<Post> postList() {
@@ -93,14 +94,6 @@ public class PostServiceImpl implements PostService {
         newRating.setStarRating(review.getStarRating());
         Rating savedRating = ratingRepository.save(newRating);
 
-        SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
-        Date today = new Date();
-        int year = Integer.parseInt(date.format(today).split("/")[0]);
-        int month = Integer.parseInt(date.format(today).split("/")[1]);
-        int day = Integer.parseInt(date.format(today).split("/")[2]);
-        System.out.println(date.format(today));
-        System.out.println(year + month + day);
-
 
         Post newPost = new Post();
         newPost.setBoard(board.get());
@@ -109,7 +102,7 @@ public class PostServiceImpl implements PostService {
         newPost.setNoticeYn(false);
         newPost.setRating(savedRating);
         newPost.setUser(user.get());
-        newPost.setRegDate(LocalDate.of(year, month, day));
+        newPost.setRegDate(newPost.getRegDate());
         return Optional.of(postRepository.save(newPost));
     }
 
