@@ -16,13 +16,12 @@ import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
 
+import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.sales.Sales;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -37,8 +36,9 @@ interface CustomAdminRepository {
      //List<Store> findAll();
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
-    List<Integer> currencyChart();
-    Integer test();
+    List<Sales> salesMonthChart();
+    SalesVoucher voucherNameChart(String voucherName);
+    Integer useChart(String useSelect , String localName);
 
 }
 
@@ -203,20 +203,40 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public List<Integer> currencyChart() {
-        return query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).fetch();
+    public List<Sales> salesMonthChart() {
+        return  query.select(Projections.fields(Sales.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
+                .from(sales).groupBy(sales.salesDate.month()).fetch();
     }
 
+
+
+
     @Override
-    public Integer test() {
-     Integer list= query.select(sales.unitPrice.sum())
+    public SalesVoucher voucherNameChart(String voucherName) {
+     SalesVoucher list= query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),localCurrencyVoucher.localCurrencyName))
                .from(sales)
                .innerJoin(sales.localCurrencyVoucher, localCurrencyVoucher)
                .groupBy(localCurrencyVoucher.localName)
-               .having(localCurrencyVoucher.localName.like("%"+"가평"+"%")).fetchOne();
+               .having(localCurrencyVoucher.localName.like("%"+voucherName+"%")).fetchOne();
 
         return list;
 
+    }
+
+    /*
+
+SELECT SUM(unit_price),local_currency_voucher.local_name FROM sales inner JOIN local_currency_voucher ON sales.local_currency_voucher_id = local_currency_voucher.local_currency_voucher_id
+WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.local_name LIKE '%가평%'
+     */
+    @Override
+    public Integer useChart(String useSelect , String localName) {
+        Integer useTest = query.select(sales.unitPrice.sum())
+                        .from(sales)
+                        .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                        .where(sales.currencyState.like("%"+useSelect+"%").and(localCurrencyVoucher.localName.like("%"+localName+"%"))).fetchOne();
+
+
+        return useTest;
     }
 
 

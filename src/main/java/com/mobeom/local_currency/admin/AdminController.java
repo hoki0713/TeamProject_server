@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.admin;
 
+import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
@@ -94,13 +95,20 @@ public class AdminController {
 
 
     @GetMapping("/currency/month/total")
-    public List<Integer> currencySalesMonthTotalChart(){
-       return adminService.currencySalesTotalChart();
+    public ResponseEntity<List<Sales>> currencySalesMonthTotalChart(){
+        List<Sales> monthList = adminService.salesMonthChart();
+       return ResponseEntity.ok(monthList);
     }
 
-    @GetMapping("/test/list")
-    public Integer test2(){
-        System.out.println(adminRepository.test().toString());
-        return adminRepository.test();
+    @GetMapping("/voucher/name-list/{voucherName}")
+    public SalesVoucher voucherNameChart(@PathVariable String voucherName){ //SalesVoucher voucherNameChart(String voucherName)
+        System.out.println(adminService.voucherNameChart(voucherName).toString());
+        return adminRepository.voucherNameChart(voucherName);
+    }
+
+    @GetMapping("/useChart/test/{useSelect}/{localName}")
+    public Integer test3(@PathVariable String useSelect, @PathVariable String localName){
+        System.out.println(adminService.useChartTest(useSelect,localName));
+        return adminService.useChartTest(useSelect,localName);
     }
 }
