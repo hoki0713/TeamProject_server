@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class IndustryStore {
     private String storeName, mainCode, industry_type, imgUrl;
-    private int starRanking;
 }

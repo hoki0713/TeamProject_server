@@ -4,7 +4,6 @@ import com.mobeom.local_currency.consume.GenderAge;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.Store;
-import it.unimi.dsi.fastutil.Hash;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -31,12 +30,19 @@ interface RecommendService {
     List<Store> recommendStore(List<String> recommendItemIds);
 
     List<Store> selectBestStores(String searchWord);
+
     List<String> mahout(String id) throws IOException, TasteException;
-    List<StoreVo> testRecommend(String storeName, String storeType);
-    List<IndustryStore> fetchByIndustry(String searchIndustry);
+
+    //    List<StoreVo> testRecommend(String storeName, String storeType);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
+
     List<GenderAge> industryByGenderAndAge(String searchWord, int age);
+
     List<GenderAge> industryByAge(int age);
-    Box<List<IndustryStore>> fetchStores(String searchWord, int age);
+
+    List<GenderAge> industryByGender(String gender);
+
+    Map<String, List<IndustryStore>>  fetchStores(String searchWord, int age);
 
 }
 
@@ -81,18 +87,18 @@ public class RecommendServiceImpl implements RecommendService {
         return recommendItemIds;
     }
 
+//    @Override
+//    public List<StoreVo> testRecommend(String storeName, String storeType) {
+//        return recommendRepository.testRecommend(storeName, storeType);
+//    }
+
     @Override
-    public List<StoreVo> testRecommend(String storeName, String storeType) {
-        return recommendRepository.testRecommend(storeName, storeType);
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
+        return recommendRepository.fetchStoreByIndustry(searchIndustry);
     }
 
     @Override
-    public List<IndustryStore> fetchByIndustry(String searchIndustry) {
-        return recommendRepository.fetchByIndustry(searchIndustry);
-    }
-
-    @Override
-    public List<GenderAge> industryByGenderAndAge(String searchWord, int age){
+    public List<GenderAge> industryByGenderAndAge(String searchWord, int age) {
         return recommendRepository.industryByGenderAndAge(searchWord, age);
     }
 
@@ -108,16 +114,22 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public Box<List<IndustryStore>> fetchStores(String searchWord, int age) {
-        Box<List<IndustryStore>> box= new Box<>();
-        List<GenderAge> industryList= recommendRepository.industryByGenderAndAge(searchWord, age);
-        for(int i=0; i<industryList.size(); i++){
-            box.put(industryList.get(i).getIndustryName()
-                    ,recommendRepository.fetchByIndustry(industryList.get(i).getIndustryName()
-                    ));
+    public List<GenderAge> industryByGender(String gender) {
+        return recommendRepository.industryByGender(gender);
+    }
+
+    @Override
+    public Map<String, List<IndustryStore>> fetchStores(String searchWord, int age) {
+        Box<List<IndustryStore>> storeList = new Box<>();
+        Map<String, List<IndustryStore>> list = new HashMap<>();
+        List<GenderAge> industryList = recommendRepository.industryByGenderAndAge(searchWord, age);
+        for (GenderAge genderAge : industryList) {
+            list.put(genderAge.getIndustryName(),recommendRepository.fetchStoreByIndustry(genderAge.getIndustryName()));
+            //storeList.put(genderAge.getIndustryName(), recommendRepository.fetchStoreByIndustry(genderAge.getIndustryName()));
         }
 
-        return box;
+        return list;
+
     }
 }
 

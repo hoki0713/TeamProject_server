@@ -32,8 +32,6 @@ public class Store {
 
     @Column(name = "longitude", nullable = false) private double longitude;
 
-    @Column(name = "star_ranking",nullable = false) private int starRanking;
-
     @Column(name = "search_result_count",nullable = false) private int searchResultCount;
 
 }
