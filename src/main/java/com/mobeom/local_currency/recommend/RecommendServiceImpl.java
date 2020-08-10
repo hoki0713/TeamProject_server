@@ -2,7 +2,6 @@ package com.mobeom.local_currency.recommend;
 
 import com.mobeom.local_currency.consume.GenderAge;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.Store;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
@@ -21,9 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 interface RecommendService {
@@ -34,7 +31,7 @@ interface RecommendService {
     List<String> mahout(String id) throws IOException, TasteException;
 
     //    List<StoreVo> testRecommend(String storeName, String storeType);
-    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
 
     List<GenderAge> industryByGenderAndAge(String searchWord, int age);
 
@@ -42,7 +39,7 @@ interface RecommendService {
 
     List<GenderAge> industryByGender(String gender);
 
-    Map<String, List<IndustryStore>>  fetchStores(String searchWord, int age);
+    List<List<IndustryStore>> fetchStores(String searchWord, int age, String town);
 
 }
 
@@ -93,8 +90,8 @@ public class RecommendServiceImpl implements RecommendService {
 //    }
 
     @Override
-    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
-        return recommendRepository.fetchStoreByIndustry(searchIndustry);
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town) {
+        return recommendRepository.fetchStoreByIndustry(searchIndustry, town);
     }
 
     @Override
@@ -119,16 +116,13 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public Map<String, List<IndustryStore>> fetchStores(String searchWord, int age) {
-        Box<List<IndustryStore>> storeList = new Box<>();
-        Map<String, List<IndustryStore>> list = new HashMap<>();
-        List<GenderAge> industryList = recommendRepository.industryByGenderAndAge(searchWord, age);
-        for (GenderAge genderAge : industryList) {
-            list.put(genderAge.getIndustryName(),recommendRepository.fetchStoreByIndustry(genderAge.getIndustryName()));
-            //storeList.put(genderAge.getIndustryName(), recommendRepository.fetchStoreByIndustry(genderAge.getIndustryName()));
+    public List<List<IndustryStore>> fetchStores(String searchWord, int age, String town) {
+        List<List<IndustryStore>> resultList = new ArrayList<>();
+        for(GenderAge industryName : industryByGenderAndAge(searchWord, age)){
+            resultList.add(recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), town));
         }
 
-        return list;
+        return resultList;
 
     }
 }
