@@ -18,11 +18,11 @@ CREATE TABLE sales
 CREATE TABLE sales
 (
     `sales_id`      INT NOT NULL AUTO_INCREMENT,
-    `sales_date`    DATETIME    NOT NULL,
+    `sales_date`    DATE    NOT NULL,
     `unit_price`    INT NOT NULL,
-    `use_date`      DATETIME,
+    `use_date`      DATE,
     `gift_yn`       BOOLEAN NOT NULL,
-    `cancel_date`   DATETIME,
+    `cancel_date`   DATE,
     `currency_state`    VARCHAR(4) NOT NULL,
     `payment_name`  VARCHAR(30) NOT NULL,
     `user_id` INT              NOT NULL,
