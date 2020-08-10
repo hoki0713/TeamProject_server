@@ -12,11 +12,9 @@ import com.mobeom.local_currency.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -27,7 +25,9 @@ interface PostService {
     Post updatePost(Post notice);
     void deleteNotice(Post notice);
     List<Post> inquiryList();
-    Optional<Post> createReview(String storeId, ReviewVO review);
+    Post createReview(String storeId, ReviewVO review);
+
+    Map<Long, ReviewVO> getAllReviewsByUserId(long userId);
 }
 
 @Service
@@ -83,7 +83,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Optional<Post> createReview(String storeId, ReviewVO review) {
+    public Post createReview(String storeId, ReviewVO review) {
         Optional<Store> store = storeRepository.findById(Long.parseLong(storeId));
         Optional<User> user = userRepository.findById(review.getUserId());
         Optional<Board> board = boardRepository.findById((long) 3);
@@ -103,7 +103,22 @@ public class PostServiceImpl implements PostService {
         newPost.setRating(savedRating);
         newPost.setUser(user.get());
         newPost.setRegDate(newPost.getRegDate());
-        return Optional.of(postRepository.save(newPost));
+        return postRepository.save(newPost);
+    }
+
+    @Override
+    public Map<Long, ReviewVO> getAllReviewsByUserId(long userId) {
+        Map<Long, ReviewVO> resultMap = new HashMap<>();
+        List<Post> usersReviews = postRepository.findAllReviewsByUserIdAndBoardId(userId, (long)3);
+        usersReviews.forEach(review -> {
+           ReviewVO oneReview = new ReviewVO();
+           oneReview.setStoreId(review.getRating().getStore().getId());
+           oneReview.setStoreName(review.getRating().getStore().getStoreName());
+           oneReview.setContents(review.getContents());
+           oneReview.setStarRating(review.getRating().getStarRating());
+           resultMap.put(review.getPostId(), oneReview);
+        });
+        return resultMap;
     }
 
 }

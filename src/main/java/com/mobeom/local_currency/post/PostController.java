@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -90,12 +91,14 @@ public class PostController {
    @PostMapping("/reviews/{storeId}")
     public ResponseEntity<Post> createReview(@PathVariable String storeId,
                                              @RequestBody ReviewVO review) {
-        Optional<Post> userReview = postService.createReview(storeId, review);
-        if(userReview.isPresent()) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+        Post userReview = postService.createReview(storeId, review);
+        return ResponseEntity.ok(userReview);
+    }
+
+    @GetMapping("/reviews/{userId}")
+    public ResponseEntity<Map<Long, ReviewVO>> getAllReviewsByUserId(@PathVariable String userId) {
+        Map<Long,ReviewVO> reviews = postService.getAllReviewsByUserId(Long.parseLong(userId));
+        return ResponseEntity.ok(reviews);
     }
 
 }

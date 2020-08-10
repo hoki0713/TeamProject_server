@@ -7,6 +7,7 @@ import java.time.LocalDate;
 @Data
 public class ReviewVO {
     private Long storeId;
+    private String storeName;
     private LocalDate regDate;
     private String contents;
     private LocalDate modiDate;
