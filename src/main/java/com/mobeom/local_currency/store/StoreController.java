@@ -33,4 +33,11 @@ public class StoreController {
         box.put("list",storeService.getUi());
         return box.get();
     }
+
+    @GetMapping("/mapClick/{clickedState}")
+    public Map<?,?> getMapClick(@PathVariable String clickedState){
+        logger.info("getMapClick()");
+        box.put("list",storeService.getMap(clickedState));
+        return box.get();
+    }
 }

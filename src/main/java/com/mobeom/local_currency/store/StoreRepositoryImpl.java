@@ -11,9 +11,8 @@ import java.util.List;
 
 interface IStoreRepository {
     List<Store> findAllStoreByUserDefaultAddr(String defaultAddr);
-    Optional<Store> findByAll(String searchWD);
     List<Store> uiList();
-    // by store_name, store_type, local_name, road_address, store_phone
+    List<Store> findByLocal(String clickedState);
 }
 
 @Repository
@@ -28,16 +27,20 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         this.dataSource = dataSource;
     }
 
-    @Override
-    public Optional<Store> findByAll(String searchWD) {
-        return Optional.empty();
-    }
 
     @Override
     public List<Store> uiList() {
         QStore qStore = QStore.store;
         JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         return queryFactory.select(qStore).from(qStore).where(qStore.localName.like("의정부시")).limit(200).fetch();
+    }
+
+    @Override
+    public List<Store> findByLocal(String clickedState) {
+        QStore qStore = QStore.store;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
+        return queryFactory.select(qStore).from(qStore).where(qStore.localName.like('%'+clickedState+'%')).limit(200).fetch();
+
     }
 
     @Override
