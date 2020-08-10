@@ -43,7 +43,7 @@ public class User {
     private LocalDate joinDate;
 
     @Column(name = "withdraw_date")
-    private LocalDate withdrawDate;
+    private String withdrawDate;
 
     @Column(name = "admin_key", nullable = false, columnDefinition = "boolean default 0")
     private Integer adminKey;

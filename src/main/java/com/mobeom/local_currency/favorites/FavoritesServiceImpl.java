@@ -1,6 +1,9 @@
 package com.mobeom.local_currency.favorites;
 
+import com.mobeom.local_currency.rating.Rating;
+import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.store.Store;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -8,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
 interface FavoritesService {
 
     Optional<Map<Long, FavoritesVO>> getFavoritesList(long userId);
@@ -31,7 +35,6 @@ public class FavoritesServiceImpl implements FavoritesService{
             oneFavoriteStore.setStoreName(store.getStoreName());
             oneFavoriteStore.setStoreAddr(store.getAddress());
             oneFavoriteStore.setStorePhoneNumber(store.getStorePhone());
-            oneFavoriteStore.setStoreStarRating(store.getStarRanking());
             favorites.put(store.getId(), oneFavoriteStore);
         });
         return Optional.of(favorites);

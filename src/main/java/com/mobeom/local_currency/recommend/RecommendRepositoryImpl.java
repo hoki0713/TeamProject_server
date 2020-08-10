@@ -2,15 +2,13 @@ package com.mobeom.local_currency.recommend;
 
 import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.industry.QIndustry.industry;
-import static com.mobeom.local_currency.board.QBoard.board;
-import static com.mobeom.local_currency.post.QPost.post;
-import static com.mobeom.local_currency.consume.QGender.gender;
 import static com.querydsl.core.types.ExpressionUtils.count;
+import static com.mobeom.local_currency.consume.QGenderAge.genderAge;
 
 
-
-import com.mobeom.local_currency.consume.Gender;
-import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.consume.GenderAge;
+import com.mobeom.local_currency.industry.Industry;
+import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.QStore;
 import com.mobeom.local_currency.store.Store;
 import com.querydsl.core.types.ExpressionUtils;
@@ -24,10 +22,17 @@ import java.util.List;
 
 interface CustomRecommendRepository {
     Store recommendStores(String searchWord);
-    List<Store> fetchByBestStore(String searchWord);
-    List<StoreVo> testRecommend(String storeName, String storeType);
-    List<Store> genderRecommend();
-    List<Gender> industryByGender(String searchWord);
+
+    List<Store> fetchByBestStore(String searchLocalWord);
+
+    //    List<StoreVo> testRecommend(String storeName, String storeType);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
+
+    List<GenderAge> industryByGenderAndAge(String searchWord, int age);
+
+    List<GenderAge> industryByAge(int age);
+
+    List<GenderAge> industryByGender(String gender);
 }
 
 public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
@@ -42,52 +47,87 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
 
-
-
-    @Override
+    @Override //mahout을 통한 가맹점 추천
     public Store recommendStores(String searchWord) {
         QStore store = QStore.store;
         JPAQueryFactory query = new JPAQueryFactory(getEntityManager());
         Store recommendStore = new Store();
         recommendStore = query.select(Projections.fields
-                (Store.class, store.storeName, store.storeType, store.starRanking, store.id)).from(store)
+                (Store.class, store.storeName, store.storeType, store.id)).from(store)
                 .where(store.id.like(searchWord)).fetchOne();
         return recommendStore;
     }
 
-    @Override
-    public List<Store> fetchByBestStore(String searchWord){
-        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType, store.starRanking))
-                .from(store).where(store.address.like("%" + searchWord + "%"))
+    @Override //단순 가맹점 추천(서치 순)
+    public List<Store> fetchByBestStore(String searchLocalWord) {
+        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType))
+                .from(store).where(store.address.contains(searchLocalWord))
                 .orderBy(store.searchResultCount.desc()).limit(10).fetch();
     }
 
 
-    @Override
-    public List<StoreVo> testRecommend(String storeName, String storeType){
-        return queryFactory
-                .select(Projections.fields(StoreVo.class,
-                        store.storeName.as("storeName"),
-                        store.storeType.as("storeType"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(count(store.id))
-                                        .from(store)
-                                        .where(store.storeName.startsWith(storeName), store.storeType.contains(storeType)),
-                                "passengerCounter")
-                ))
-                .from(store)
-                .fetch();
+//    @Override //서브쿼리 예제
+//    public List<StoreVo> testRecommend(String storeName, String storeType){
+//        return queryFactory
+//                .select(Projections.fields(StoreVo.class,
+//                        store.storeName.as("storeName"),
+//                        store.storeType.as("storeType"),
+//                        ExpressionUtils.as(
+//                                JPAExpressions.select(count(store.id))
+//                                        .from(store)
+//                                        .where(store.storeName.startsWith(storeName), store.storeType.contains(storeType)),
+//                                "passengerCounter")
+//                ))
+//                .from(store)
+//                .fetch();
+//    }
+
+    @Override //업종명으로 가맹점 찾기(img 연결된 ver)
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"))
+        )
+                .from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .fetchJoin().where(industry.mainCode.contains(searchIndustry))
+                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+    }
+    //고양시도 검색되는데 상관 없나... 헷갈린다.
+
+    @Override //성별 및 연령 입력시 대분류 안내
+    public List<GenderAge> industryByGenderAndAge(String searchWord, int age) {
+        return queryFactory.selectFrom(genderAge).where(genderAge.genderCode.eq(searchWord), genderAge.ageGroup.eq(age))
+                .orderBy(genderAge.amount.desc()).distinct().limit(7).fetch();
     }
 
-    @Override
-    public List<Store> genderRecommend() {
-        return from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode)).fetchJoin().where(industry.mainCode.endsWith("비영리")).fetch();
+
+    @Override // 연령으로 대분류 추천
+    public List<GenderAge> industryByAge(int age) {
+        return queryFactory.select(Projections.fields(GenderAge.class, genderAge.ageGroup,
+                genderAge.industryName)).from(genderAge)
+                .where(genderAge.ageGroup.eq(age))
+                .groupBy(genderAge.ageGroup, genderAge.industryName)
+                .orderBy(genderAge.amount.sum().desc())
+                .limit(7).fetch();
     }
+//    SELECT age_group, industry_name, SUM(amount) AS total
+//    FROM consume
+//    GROUP BY age_group, industry_name
+//    ORDER BY total DESC
+
 
     @Override
-    public List<Gender> industryByGender(String searchWord){
-        return queryFactory.select(Projections.fields(Gender.class,
-                gender.industryName)).from(gender).where(gender.genderCode.eq(searchWord)).orderBy(gender.amount.desc()).limit(5).fetch();
+    public List<GenderAge> industryByGender(String gender) {
+        return queryFactory.select(Projections.fields(GenderAge.class, genderAge.genderCode,
+                genderAge.industryName, genderAge.amount.sum())).from(genderAge)
+                .where(genderAge.genderCode.eq(gender))
+                .groupBy(genderAge.genderCode, genderAge.industryName)
+                .orderBy(genderAge.amount.sum().desc())
+                .limit(7).fetch();
+
     }
 
 }

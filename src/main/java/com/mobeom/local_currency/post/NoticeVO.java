@@ -11,19 +11,18 @@ public class NoticeVO {
     private String category;
     private String postTitle;
     private LocalDate regDate;
-    private int readCount;
     private String contents;
 
-    public NoticeVO() {}
 
-    public NoticeVO(Long postId, String category, String postTitle, LocalDate regDate, int readCount,String contents) {
-        this.postId = postId;
-        this.category = category;
-        this.postTitle = postTitle;
-        this.regDate = regDate;
-        this.readCount = readCount;
-        this.contents = contents;
-    }
+//    public NoticeVO(Long postId, String category, String postTitle, LocalDate regDate, String contents) {
+//        this.postId = postId;
+//        this.category = category;
+//        this.postTitle = postTitle;
+//        this.regDate = regDate;
+//        this.contents = contents;
+//    }
+
+
 
 
 }

@@ -3,12 +3,10 @@ package com.mobeom.local_currency.rating;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
-import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.stereotype.Controller;
 
 import javax.persistence.*;
 
@@ -30,11 +28,11 @@ public class Rating {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "store_id")
     private Store store;
 
-    @Column(name="rating", nullable = false)
-    private float rating;
+    @Column(name= "star_rating", nullable = false)
+    private int starRating;
 
 
 }

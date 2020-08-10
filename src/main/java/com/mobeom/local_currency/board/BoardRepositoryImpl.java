@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
-interface CustomBoardRepository{}
+interface CustomBoardRepository{
+
+}
 
 @Repository
 public class BoardRepositoryImpl extends QuerydslRepositorySupport implements CustomBoardRepository {
