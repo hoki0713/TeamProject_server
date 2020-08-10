@@ -1,15 +1,11 @@
 package com.mobeom.local_currency.post;
 
-
-
-
 import static com.mobeom.local_currency.post.QPost.post;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 
 interface CustomPostRepository {
@@ -20,27 +16,24 @@ interface CustomPostRepository {
 @Repository
 public class PostRepositoryImpl extends QuerydslRepositorySupport implements CustomPostRepository {
 
-    private final JPAQueryFactory query;
+    private final JPAQueryFactory queryFactory;
 
 
-    public PostRepositoryImpl(JPAQueryFactory query) {
+    public PostRepositoryImpl(JPAQueryFactory queryFactory) {
         super(Post.class);
-        this.query = query;
+        this.queryFactory = queryFactory;
     }
 
     @Override
     public Post findByPostId(long postId) {
-
-        Post findOne = query.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
-
+        Post findOne = queryFactory.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
         return findOne;
     }
 
 
-
     @Override
     public List<Post> inquiryList() {
-        List<Post> resultList = query.selectFrom(post).where(post.category.like("%"+"문의"+"%")).fetch();
+        List<Post> resultList = queryFactory.selectFrom(post).where(post.category.like("%"+"문의"+"%")).fetch();
         return resultList;
     }
 
