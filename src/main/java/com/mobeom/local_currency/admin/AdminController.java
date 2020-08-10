@@ -1,12 +1,13 @@
 package com.mobeom.local_currency.admin;
 
+import com.mobeom.local_currency.proxy.Box;
+import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.querydsl.core.Tuple;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +18,15 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
 
-    @Autowired AdminService adminService;
-    @Autowired AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
+    private final AdminService adminService;
+    private final Box box;
 
+    public AdminController(AdminRepository adminRepository, AdminService adminService, Box box) {
+        this.adminRepository = adminRepository;
+        this.adminService = adminService;
+        this.box = box;
+    }
 
 
     @GetMapping("/list")
@@ -33,26 +40,30 @@ public class AdminController {
 
 
     @GetMapping("/list/{userId}")
-    public ResponseEntity<Optional<User>> getOneUser(@PathVariable String userId) {
+    public User getOneUser(@PathVariable String userId) {
         Optional<User> findOne = adminService.findOneUser(userId);
-//        if(findOne.isPresent()) {
-//            return ResponseEntity.ok(findOne);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-        return ResponseEntity.ok(findOne);
-
+        return findOne.orElse(null);
+       // return findOne.isPresent()? ResponseEntity.ok(findOne) : ResponseEntity.notFound().build();
 
     }
     
-    @GetMapping("/chart/ratio-of-user-region")
-    public Map<String,Long> ratioOfUserRegion(){
-        return adminService.localTotalChart();
-    }
+
 
     @GetMapping("/userTotal-chart/{localSelect}")
-    public Map<String,Long> userLocalGenderChart(@PathVariable String localSelect){
-        return adminService.userLocalGenderChart(localSelect);
+    public Box<Map<?,?>> userLocalGenderChart(@PathVariable String localSelect){
+        Map<String,Long> testChart1 = adminService.userLocalGenderChart(localSelect);
+        Map<String,Integer> testChart2 = adminService.userAgeTotal(localSelect);
+       box.put("test1",testChart1);
+        box.put("test2",testChart2);
+
+        //return adminService.userLocalGenderChart(localSelect);
+        return box;
+    }
+
+    @GetMapping("/chart/ratio-of-user-region")
+    public Map<String,Long> ratioOfUserRegion(){
+
+        return adminService.localTotalChart();
     }
 
     @GetMapping("/userAge-chart/{localSelect}")
@@ -70,7 +81,7 @@ public class AdminController {
     }
 
     @GetMapping("/localChart/{localSelect}")
-    public Map<String,Long> storeLocalChart(@PathVariable String localSelect){
+    public Long storeLocalChart(@PathVariable String localSelect){
         return adminService.storeLocalsChart(localSelect);
 
     }
@@ -82,4 +93,13 @@ public class AdminController {
     }
 
 
+    @GetMapping("/currency/month/total")
+    public List<Integer> test(){
+       return adminService.currencySalesTotalChart();
+    }
+
+    @GetMapping("/test/list")
+    public List<Integer> test2(){
+        return adminRepository.test();
+    }
 }

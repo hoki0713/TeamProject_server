@@ -17,11 +17,11 @@ public class Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="board_id", nullable = false)
+    @Column(name="board_id")
     private Long boardId;
 
 
-    @Column(name="board_name", nullable = false)
+    @Column(name="board_name")
     private String boardName;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
