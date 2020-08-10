@@ -1,8 +1,10 @@
 package com.mobeom.local_currency.admin;
 
 
+import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
+import com.querydsl.core.Tuple;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +22,8 @@ interface AdminService{
     Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeChart();
-    Map<?,?> currencySalesTotalChart();
-
-
+    List<Integer> currencySalesTotalChart();
     List<User> getAllUserList();
-
     Optional<User> findOneUser(String userId);
 }
 
@@ -73,8 +72,8 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public Map<?, ?> currencySalesTotalChart() {
-        return null;
+    public List<Integer> currencySalesTotalChart() {
+        return adminRepository.currencyChart();
     }
 
     @Override

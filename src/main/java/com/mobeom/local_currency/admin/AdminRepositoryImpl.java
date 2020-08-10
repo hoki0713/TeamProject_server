@@ -13,10 +13,15 @@ package com.mobeom.local_currency.admin;
 
 import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.user.QUser.user;
+import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
+
+import com.mobeom.local_currency.sales.Sales;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -31,7 +36,8 @@ interface CustomAdminRepository {
      //List<Store> findAll();
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
-    Map<?,?> currencyChart();
+    List<Integer> currencyChart();
+    List<Integer>  test();
 
 }
 
@@ -196,8 +202,20 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public Map<?, ?> currencyChart() {
-        return null;
+    public List<Integer> currencyChart() {
+        System.out.println(query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).toString());
+        return query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).fetch();
+    }
+
+    @Override
+    public List<Integer> test() {
+       List<Integer> list = query
+               .select(Projections.fields(sales.unitPrice))
+               .from(sales)
+               .innerJoin(localCurrencyVoucher).fetchJoin().fetch();
+
+        System.out.println(list.toString());
+        return list;
     }
 
 

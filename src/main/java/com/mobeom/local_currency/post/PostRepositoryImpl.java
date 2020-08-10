@@ -9,13 +9,12 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 interface CustomPostRepository {
     Post findByPostId(long postId);
-    List<NoticeVO> noticeList();
-    NoticeVO update(String id,Post post);
-
+    List<Post> inquiryList();
 }
 
 @Repository
@@ -37,21 +36,12 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         return findOne;
     }
 
-    public List<NoticeVO> noticeList(){
 
-        List<Post> list = query.select(post).from(post).fetch();
-
-        // List<NoticeVO> resultList = list.
-        return null;
-    }
 
     @Override
-    public NoticeVO update(String id, Post post) {
-
-
-
-        return null;
-
+    public List<Post> inquiryList() {
+        List<Post> resultList = query.selectFrom(post).where(post.category.like("%"+"문의"+"%")).fetch();
+        return resultList;
     }
 
 
