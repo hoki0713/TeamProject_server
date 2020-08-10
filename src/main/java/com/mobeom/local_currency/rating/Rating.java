@@ -28,11 +28,11 @@ public class Rating {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "store_id")
     private Store store;
 
     @Column(name= "star_rating", nullable = false)
-    private float rating;
+    private int starRating;
 
 
 }

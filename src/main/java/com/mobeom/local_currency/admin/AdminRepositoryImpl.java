@@ -11,25 +11,20 @@ package com.mobeom.local_currency.admin;
 
  */
 
+import static com.mobeom.local_currency.store.QStore.store;
+import static com.mobeom.local_currency.user.QUser.user;
+import static com.mobeom.local_currency.sales.QSales.sales;
+import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
 
-import com.mobeom.local_currency.store.QStore;
-import com.mobeom.local_currency.store.Store;
-import com.mobeom.local_currency.user.QUser;
-import com.mobeom.local_currency.user.User;
+import com.mobeom.local_currency.sales.Sales;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.swagger.models.auth.In;
-import org.apache.tomcat.jni.Local;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 
 
 interface CustomAdminRepository {
@@ -39,21 +34,30 @@ interface CustomAdminRepository {
      Map<String,Integer> userAgeChart(String localSelect);
      Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
      //List<Store> findAll();
-    Map<String,Long> storeLocalsChart(String localSelect);
+    Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
+    List<Integer> currencyChart();
+    List<Integer>  test();
+
 }
 
 
 public class AdminRepositoryImpl extends QuerydslRepositorySupport implements CustomAdminRepository {
-        //@Autowired AdminRepository adminRepository;
 
-    public AdminRepositoryImpl() { super(Admin.class);}
 
-    @Autowired JPAQueryFactory query;
+    private final JPAQueryFactory query;
+
+    public AdminRepositoryImpl(JPAQueryFactory query) {
+        super(Admin.class);
+        this.query = query;
+    }
+
+
+
 
    @Override
     public Map<String,Long> localTotalChart() {
-       QUser user = QUser.user;
+
        String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
                "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
                "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
@@ -62,20 +66,31 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         Map<String,Long> localChart = new HashMap<>();
 
         for(int i=0;i<local.length;i++){
-            Long num = query.selectFrom(user).where(user.defaultAddr.like("%"+ local[i] +"%")).fetchCount();
+            Long num = query.selectFrom(user)
+                    .where(user.defaultAddr.like("%"+ local[i] +"%"))
+                    .fetchCount();
             localChart.put(local[i],num);
         }
+
+
+
        return localChart;
     }
 
     @Override
     public Map<String, Long> userLocalGenderChart(String localSelect) {
 
-        QUser user = QUser.user;
+
         Map<String, Long> userLocal = new HashMap<>();
 
-        Long man = query.selectFrom(user).where(user.defaultAddr.like("%"+localSelect+"%").and(user.gender.like("M"))).fetchCount();
-        Long woman =  query.selectFrom(user).where(user.defaultAddr.like("%"+localSelect+"%").and(user.gender.like("F"))).fetchCount();
+        Long man = query.selectFrom(user)
+                .where(user.defaultAddr.like("%"+localSelect+"%")
+                .and(user.gender.like("M")))
+                .fetchCount();
+        Long woman =  query.selectFrom(user)
+                .where(user.defaultAddr.like("%"+localSelect+"%")
+                .and(user.gender.like("F")))
+                .fetchCount();
 
         userLocal.put("남",man);
         userLocal.put("여",woman);
@@ -86,13 +101,16 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     @Override
     public Map<String, Integer> userAgeChart(String localSelect) {
 
-        QUser user = QUser.user;
+
         Map<String,Integer> userAge = new HashMap<>();
 
         String formatDate= LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
         int date = Integer.parseInt(formatDate);
 
-        List<LocalDate> list  = query.select(user.birthDate).from(user).where(user.defaultAddr.like("%" +localSelect +"%")).fetch();
+        List<LocalDate> list  = query.select(user.birthDate)
+                .from(user)
+                .where(user.defaultAddr.like("%" +localSelect +"%"))
+                .fetch();
 
         int ten=0,twenties=0,thirties=0,forties=0,fifties=0,sixties=0,old=0;
 
@@ -125,11 +143,16 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     @Override
     public Map<?, ?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate) { //객체 vo 달 /mm값 으로요
-        QUser user =QUser.user;
+
         LocalDate fixedEndDate = joinStartDate.plusMonths(1).minusDays(1);
         for(int i=1;i<=3;i++){
-            Long a =query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinStartDate.plusDays(30))).fetchCount();
-            List<?> userList = query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinStartDate.plusMonths(i))).fetch();
+            Long a =query.selectFrom(user)
+                    .where(user.joinDate.between(joinStartDate,joinStartDate.plusDays(30)))
+                    .fetchCount();
+
+            List<?> userList = query.selectFrom(user)
+                    .where(user.joinDate.between(joinStartDate,joinStartDate.plusMonths(i)))
+                    .fetch();
 
         }
 
@@ -142,22 +165,27 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
     @Override
-    public Map<String, Long> storeLocalsChart(String localSelect) {
-        QStore store = QStore.store;
-        Map<String,Long> localStoreChart = new HashMap<>();
+    public Long storeLocalsChart(String localSelect) {
+//        Map<String,Long> localStoreChart = new HashMap<>();
+//
+//        Long num = query.selectFrom(store)
+//                .where(store.address.like("%"+localSelect+"%"))
+//                .fetchCount();
 
-        Long num = query.selectFrom(store).where(store.address.like("%"+localSelect+"%")).fetchCount();
 
+        //localStoreChart.put("local",num);
 
-        localStoreChart.put("local",num);
+        //return localStoreChart;
+        return query.selectFrom(store)
+                .where(store.address.like("%"+localSelect+"%"))
+                .fetchCount();
 
-        return localStoreChart;
     }
+
+
 
     @Override
     public Map<String, Long> storeTypeLocal() {
-
-        QStore store = QStore.store;
 
         Map<String,Long> storeType = new HashMap<>();
 
@@ -173,9 +201,22 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         return storeType;
     }
 
+    @Override
+    public List<Integer> currencyChart() {
+        System.out.println(query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).toString());
+        return query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).fetch();
+    }
 
+    @Override
+    public List<Integer> test() {
+       List<Integer> list = query
+               .select(Projections.fields(sales.unitPrice))
+               .from(sales)
+               .innerJoin(localCurrencyVoucher).fetchJoin().fetch();
 
-
+        System.out.println(list.toString());
+        return list;
+    }
 
 
 }

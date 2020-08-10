@@ -23,6 +23,7 @@ interface DummyService {
     List<Sales> createRandomPurchaseHistory();
 
     List<Favorites> createRandomFavorites();
+
 }
 
 @Service

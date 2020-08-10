@@ -8,11 +8,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
+
 public interface AdminRepository extends JpaRepository<Admin,Long>,CustomAdminRepository {
-
-
+//
+//    @Query(value="SELECT MID(sales_date,1,7) m,SUM(unit_price) FROM sales GROUP BY m ")
+//    int currencySales(@Param("startDate")LocalDate startDate);
 
 }
