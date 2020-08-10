@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.post;
 
+import com.mobeom.local_currency.rating.Rating;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -83,6 +84,18 @@ public class PostController {
             postService.updatePost(repliesPost);
         }
         return repliesPost;
+    }
+  
+  
+   @PostMapping("/reviews/{storeId}")
+    public ResponseEntity<Post> createReview(@PathVariable String storeId,
+                                             @RequestBody ReviewVO review) {
+        Optional<Post> userReview = postService.createReview(storeId, review);
+        if(userReview.isPresent()) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package com.mobeom.local_currency.post;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mobeom.local_currency.board.Board;
+import com.mobeom.local_currency.rating.Rating;
 import com.mobeom.local_currency.recommend.Recommend;
 import com.mobeom.local_currency.user.User;
 import lombok.Getter;
@@ -45,9 +46,6 @@ public class Post {
     @Column(name="delete_yn")
     private Boolean deleteYn;
 
-    @Column(name="star_rating")
-    private Integer starRating;
-
     @Column(name="comment")
     private String comment;
 
@@ -58,8 +56,8 @@ public class Post {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name="recommend_id")
-    private Recommend recommend;
+    @JoinColumn(name="rating_id")
+    private Rating rating;
 
     @JsonIgnore
     @ManyToOne
