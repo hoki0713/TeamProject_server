@@ -3,8 +3,10 @@ package com.mobeom.local_currency.recommend;
 import com.mobeom.local_currency.consume.GenderAge;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.Store;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
+import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
@@ -65,8 +67,20 @@ public class RecommendServiceImpl implements RecommendService {
 
 
     @Override
-    public List<String> mahout(String id) throws IOException, TasteException {
-        DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_dataset.csv"));
+    public List<String> mahout(String id) throws TasteException {
+
+//        DataModel model = new FileDataModel(new File("C:\\Users\\bit\\TeamProject\\TeamProject_server\\src\\main\\resources\\static\\recommend_dataset.csv"));
+
+        MysqlDataSource dataSource = new MysqlDataSource();
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
+        dataSource.setPassword("mariadb");
+
+
+        MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource,"rating", "user_id", "store_id", "star_rating", null);
+        System.out.println("아이템숫자"+model.getNumItems());
+        System.out.println("유저숫자"+model.getNumUsers());
+
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
         UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.6,
                 similarity, model);
