@@ -94,12 +94,13 @@ public class AdminController {
 
 
     @GetMapping("/currency/month/total")
-    public List<Integer> test(){
+    public List<Integer> currencySalesMonthTotalChart(){
        return adminService.currencySalesTotalChart();
     }
 
     @GetMapping("/test/list")
-    public List<Integer> test2(){
+    public Integer test2(){
+        System.out.println(adminRepository.test().toString());
         return adminRepository.test();
     }
 }

@@ -17,6 +17,7 @@ import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
 
 import com.mobeom.local_currency.sales.Sales;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -37,7 +38,7 @@ interface CustomAdminRepository {
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
     List<Integer> currencyChart();
-    List<Integer>  test();
+    Integer test();
 
 }
 
@@ -203,19 +204,19 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     @Override
     public List<Integer> currencyChart() {
-        System.out.println(query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).toString());
         return query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).fetch();
     }
 
     @Override
-    public List<Integer> test() {
-       List<Integer> list = query
-               .select(Projections.fields(sales.unitPrice))
+    public Integer test() {
+     Integer list= query.select(sales.unitPrice.sum())
                .from(sales)
-               .innerJoin(localCurrencyVoucher).fetchJoin().fetch();
+               .innerJoin(sales.localCurrencyVoucher, localCurrencyVoucher)
+               .groupBy(localCurrencyVoucher.localName)
+               .having(localCurrencyVoucher.localName.like("%"+"가평"+"%")).fetchOne();
 
-        System.out.println(list.toString());
         return list;
+
     }
 
 
