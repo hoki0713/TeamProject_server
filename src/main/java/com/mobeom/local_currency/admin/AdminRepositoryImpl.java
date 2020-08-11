@@ -16,12 +16,12 @@ import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
 
+import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.sales.Sales;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -33,11 +33,11 @@ interface CustomAdminRepository {
      Map<String,Long> userLocalGenderChart(String localSelect);
      Map<String,Integer> userAgeChart(String localSelect);
      Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
-     //List<Store> findAll();
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
-    List<Integer> currencyChart();
-    List<Integer>  test();
+    List<Sales> salesMonthChart();
+    SalesVoucher voucherNameChart(String voucherName);
+    Integer useChart(String useSelect , String localName);
 
 }
 
@@ -82,18 +82,30 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
         Map<String, Long> userLocal = new HashMap<>();
+        if(localSelect.equals("null")){
+            Long man = query.selectFrom(user)
+                            .where(user.gender.like("M"))
+                    .fetchCount();
+            Long woman = query.selectFrom(user)
+                    .where(user.gender.like("F"))
+                    .fetchCount();
+            userLocal.put("남",man);
+            userLocal.put("여",woman);
+        }else{
+            Long man = query.selectFrom(user)
+                    .where(user.defaultAddr.like("%"+localSelect+"%")
+                            .and(user.gender.like("M")))
+                    .fetchCount();
+            Long woman =  query.selectFrom(user)
+                    .where(user.defaultAddr.like("%"+localSelect+"%")
+                            .and(user.gender.like("F")))
+                    .fetchCount();
+            userLocal.put("남",man);
+            userLocal.put("여",woman);
+        }
 
-        Long man = query.selectFrom(user)
-                .where(user.defaultAddr.like("%"+localSelect+"%")
-                .and(user.gender.like("M")))
-                .fetchCount();
-        Long woman =  query.selectFrom(user)
-                .where(user.defaultAddr.like("%"+localSelect+"%")
-                .and(user.gender.like("F")))
-                .fetchCount();
 
-        userLocal.put("남",man);
-        userLocal.put("여",woman);
+
 
         return userLocal;
     }
@@ -112,31 +124,87 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                 .where(user.defaultAddr.like("%" +localSelect +"%"))
                 .fetch();
 
+        List<LocalDate> userTotalList = query.select(user.birthDate)
+                .from(user)
+                .fetch();
+
         int ten=0,twenties=0,thirties=0,forties=0,fifties=0,sixties=0,old=0;
 
-        for(int i=0;i<list.size();i++){
-            String[] birthdayYear =list.get(i).toString().split("-");
-            int year = Integer.parseInt(birthdayYear[0]);
-            int age = date-year;
+//            for(int i=0;i<list.size();i++){
+//                String[] birthdayYear =list.get(i).toString().split("-");
+//                int year = Integer.parseInt(birthdayYear[0]);
+//                int age = date-year;
+//
+//                switch (age/10){
+//                    case 0 : case 1: ten+=1; break;
+//                    case 2: twenties+=1; break;
+//                    case 3: thirties+=1; break;
+//                    case 4: forties+=1; break;
+//                    case 5: fifties+=1; break;
+//                    case 6: sixties+=1; break;
+//                    default: old+=1;break;
+//                }
+//
+//            }
+//            userAge.put("10대",ten);
+//            userAge.put("20대",twenties);
+//            userAge.put("30대",thirties);
+//            userAge.put("40대",forties);
+//            userAge.put("50대",fifties);
+//            userAge.put("60대",sixties);
+//            userAge.put("70대이상",old);
 
-            switch (age/10){
-                case 0 : case 1: ten+=1; break;
-                case 2: twenties+=1; break;
-                case 3: thirties+=1; break;
-                case 4: forties+=1; break;
-                case 5: fifties+=1; break;
-                case 6: sixties+=1; break;
-                default: old+=1;break;
+
+        if(localSelect.equals("null")){
+            for(int i=0;i<userTotalList.size();i++){
+                String[] birthdayYear =userTotalList.get(i).toString().split("-");
+                int year = Integer.parseInt(birthdayYear[0]);
+                int age = date-year;
+
+                switch (age/10){
+                    case 0 : case 1: ten+=1; break;
+                    case 2: twenties+=1; break;
+                    case 3: thirties+=1; break;
+                    case 4: forties+=1; break;
+                    case 5: fifties+=1; break;
+                    case 6: sixties+=1; break;
+                    case 7 : case 8: case 9: old+=1;break;
+                }
+
             }
+            userAge.put("10대",ten);
+            userAge.put("20대",twenties);
+            userAge.put("30대",thirties);
+            userAge.put("40대",forties);
+            userAge.put("50대",fifties);
+            userAge.put("60대",sixties);
+            userAge.put("70대이상",old);
+        }else{
+            for(int i=0;i<list.size();i++){
+                String[] birthdayYear =list.get(i).toString().split("-");
+                int year = Integer.parseInt(birthdayYear[0]);
+                int age = date-year;
 
+                switch (age/10){
+                    case 0 : case 1: ten+=1; break;
+                    case 2: twenties+=1; break;
+                    case 3: thirties+=1; break;
+                    case 4: forties+=1; break;
+                    case 5: fifties+=1; break;
+                    case 6: sixties+=1; break;
+                    case 7 : case 8: case 9: old+=1;break;
+                }
+
+            }
+            userAge.put("10대",ten);
+            userAge.put("20대",twenties);
+            userAge.put("30대",thirties);
+            userAge.put("40대",forties);
+            userAge.put("50대",fifties);
+            userAge.put("60대",sixties);
+            userAge.put("70대이상",old);
         }
-        userAge.put("ten",ten);
-        userAge.put("twenties",twenties);
-        userAge.put("thirties",thirties);
-        userAge.put("forties",forties);
-        userAge.put("fifties",fifties);
-        userAge.put("sixties",sixties);
-        userAge.put("old",old);
+
 
         return userAge;
     }
@@ -202,20 +270,40 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public List<Integer> currencyChart() {
-        System.out.println(query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).toString());
-        return query.select(sales.unitPrice.sum()).from(sales).groupBy(sales.salesDate.month()).fetch();
+    public List<Sales> salesMonthChart() {
+        return  query.select(Projections.fields(Sales.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
+                .from(sales).groupBy(sales.salesDate.month()).fetch();
     }
 
-    @Override
-    public List<Integer> test() {
-       List<Integer> list = query
-               .select(Projections.fields(sales.unitPrice))
-               .from(sales)
-               .innerJoin(localCurrencyVoucher).fetchJoin().fetch();
 
-        System.out.println(list.toString());
+
+
+    @Override //이거는 뭐냐 거..그니까 기간이 들어가서 기간별로 뽑아내고싶음
+    public SalesVoucher voucherNameChart(String voucherName) {
+     SalesVoucher list= query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),localCurrencyVoucher.localCurrencyName))
+               .from(sales)
+               .innerJoin(sales.localCurrencyVoucher, localCurrencyVoucher)
+               .groupBy(localCurrencyVoucher.localName)
+               .having(localCurrencyVoucher.localName.like("%"+voucherName+"%")).fetchOne();
+
         return list;
+
+    }
+
+    /*
+
+SELECT SUM(unit_price),local_currency_voucher.local_name FROM sales inner JOIN local_currency_voucher ON sales.local_currency_voucher_id = local_currency_voucher.local_currency_voucher_id
+WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.local_name LIKE '%가평%'
+     */
+    @Override
+    public Integer useChart(String useSelect , String localName) {
+        Integer useTest = query.select(sales.unitPrice.sum())
+                        .from(sales)
+                        .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                        .where(sales.currencyState.like("%"+useSelect+"%").and(localCurrencyVoucher.localName.like("%"+localName+"%"))).fetchOne();
+
+
+        return useTest;
     }
 
 
