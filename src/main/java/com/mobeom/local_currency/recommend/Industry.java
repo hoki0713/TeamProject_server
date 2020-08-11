@@ -1,4 +1,4 @@
-package com.mobeom.local_currency.industry;
+package com.mobeom.local_currency.recommend;
 
 
 import lombok.Getter;

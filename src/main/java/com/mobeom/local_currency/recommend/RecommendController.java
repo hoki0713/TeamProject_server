@@ -1,19 +1,12 @@
 package com.mobeom.local_currency.recommend;
 
-import com.mobeom.local_currency.consume.GenderAge;
-import com.mobeom.local_currency.industry.Industry;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.Store;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.ws.rs.Path;
-import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.Map;
 
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -24,10 +17,18 @@ public class RecommendController {
     RecommendService recommendService;
 
     @GetMapping("/individual/{id}")
-    public List<Store> individual(@PathVariable String id) throws IOException, TasteException {
-       return recommendService.recommendStore(recommendService.mahout(id));
+    public List<IndustryStore> individual(@PathVariable String id) throws TasteException {
+       return recommendService.recommendStore(recommendService.userBasedRecommend(id));
 
     }
+
+    @GetMapping("/item/{itemId}")
+    public List<IndustryStore> item(@PathVariable String itemId) throws TasteException {
+        return recommendService.recommendStore(recommendService.itemBasedRecommend(itemId));
+
+    }
+
+
 
     @GetMapping("/bestStores/{searchWord}")
     public void bestStore(@PathVariable String searchWord) {

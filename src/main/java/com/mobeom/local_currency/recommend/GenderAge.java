@@ -1,4 +1,4 @@
-package com.mobeom.local_currency.consume;
+package com.mobeom.local_currency.recommend;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

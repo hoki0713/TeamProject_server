@@ -1,7 +1,5 @@
 package com.mobeom.local_currency.join;
 
-import com.mobeom.local_currency.industry.Industry;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
