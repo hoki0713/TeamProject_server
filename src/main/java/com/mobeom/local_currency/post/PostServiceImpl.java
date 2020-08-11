@@ -23,7 +23,7 @@ import java.util.Optional;
 interface PostService {
     List<Post>  postNoticeList();
     Optional<Post> onePost(long postId);
-    Post insertNotice(Post notice);
+    Post insertNotice(NoticeVo notice);
     Post updatePost(Post notice);
     void deleteNotice(Post notice);
     List<Post> inquiryList();
@@ -62,8 +62,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post insertNotice(Post notice) {
-        Optional<User> user = userRepository.findByUserId(notice.getUser().getUserId());
+    public Post insertNotice(NoticeVo notice) {
+        Optional<User> user = userRepository.findById(notice.getUserId());
         Optional<Board> board = boardRepository.findById((long)1);
 
         Post insertNotice = new Post();
