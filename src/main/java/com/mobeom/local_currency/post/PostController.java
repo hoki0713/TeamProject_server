@@ -34,12 +34,16 @@ public class PostController {
 
     @GetMapping("/postlist")
     public ResponseEntity<List<Post>> postList(){
-        List<Post> list = postService.postList();
+        List<Post> list = postService.postNoticeList();
+        System.out.println(postRepository.postList().toString());
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/create")
+    @GetMapping("/notice/create")
     public Post noticeCreate(@RequestBody Post notice){
+        System.out.println("들어옴"+notice.toString());
+        Post newNotice = new Post();
+       // newNotice.set
         return postService.insertNotice(notice);
     }
 
