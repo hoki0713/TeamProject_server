@@ -116,4 +116,11 @@ public class PostController {
         return ResponseEntity.ok(postService.updatePost(selectPost));
     }
 
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<Post> deleteReview(@PathVariable String reviewId) {
+        Post findOne = postService.findReview(Long.parseLong(reviewId));
+        postService.deleteReview(findOne);
+        return ResponseEntity.ok().build();
+    }
+
 }

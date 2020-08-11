@@ -32,6 +32,8 @@ interface PostService {
     ReviewVO getOneReviewById(long postId);
 
     Post findReview(long reviewId);
+
+    void deleteReview(Post findOne);
 }
 
 @Service
@@ -142,6 +144,11 @@ public class PostServiceImpl implements PostService {
     public Post findReview(long reviewId) {
         Optional<Post> findOne = postRepository.findById(reviewId);
         return findOne.get();
+    }
+
+    @Override
+    public void deleteReview(Post findOne) {
+        postRepository.delete(findOne);
     }
 
 }
