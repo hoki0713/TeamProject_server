@@ -13,6 +13,8 @@ interface CustomPostRepository {
     List<Post> inquiryList();
 
     List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId);
+
+    Post findOnePostByReviewId(long reviewId);
 }
 
 @Repository
@@ -47,6 +49,11 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
                         .where(post.board.boardId.eq(boardId), post.user.id.eq(userId))
                         .fetch();
         return resultList;
+    }
+
+    @Override
+    public Post findOnePostByReviewId(long reviewId) {
+        return queryFactory.selectFrom(post).where(post.postId.eq(reviewId)).fetchOne();
     }
 
 

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -99,6 +100,20 @@ public class PostController {
     public ResponseEntity<Map<Long, ReviewVO>> getAllReviewsByUserId(@PathVariable String userId) {
         Map<Long,ReviewVO> reviews = postService.getAllReviewsByUserId(Long.parseLong(userId));
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/reviews/detail/{reviewId}")
+    public ResponseEntity<ReviewVO> getOneReviewById(@PathVariable String reviewId) {
+        ReviewVO review = postService.getOneReviewById(Long.parseLong(reviewId));
+        return ResponseEntity.ok(review);
+    }
+
+    @PatchMapping("/reviews/{reviewId}")
+    public ResponseEntity<Post> updateReview(@PathVariable String reviewId, @RequestBody ReviewVO review) {
+        Post selectPost = postService.findReview(Long.parseLong(reviewId));
+        Optional.ofNullable(review.getContents()).ifPresent(contents -> selectPost.setContents(contents));
+        Optional.ofNullable(review.getStarRating()).ifPresent(rating -> selectPost.getRating().setStarRating(rating));
+        return ResponseEntity.ok(postService.updatePost(selectPost));
     }
 
 }

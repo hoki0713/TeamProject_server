@@ -28,6 +28,10 @@ interface PostService {
     Post createReview(String storeId, ReviewVO review);
 
     Map<Long, ReviewVO> getAllReviewsByUserId(long userId);
+
+    ReviewVO getOneReviewById(long postId);
+
+    Post findReview(long reviewId);
 }
 
 @Service
@@ -119,6 +123,25 @@ public class PostServiceImpl implements PostService {
            resultMap.put(review.getPostId(), oneReview);
         });
         return resultMap;
+    }
+
+    @Override
+    public ReviewVO getOneReviewById(long postId) {
+        ReviewVO resultReview = new ReviewVO();
+        Optional<Post> findOne = postRepository.findById(postId);
+        Post review = findOne.get();
+        resultReview.setStoreName(review.getRating().getStore().getStoreName());
+        resultReview.setStoreId(review.getRating().getStore().getId());
+        resultReview.setStarRating(review.getRating().getStarRating());
+        resultReview.setUserId(review.getUser().getId());
+        resultReview.setContents(review.getContents());
+        return resultReview;
+    }
+
+    @Override
+    public Post findReview(long reviewId) {
+        Optional<Post> findOne = postRepository.findById(reviewId);
+        return findOne.get();
     }
 
 }
