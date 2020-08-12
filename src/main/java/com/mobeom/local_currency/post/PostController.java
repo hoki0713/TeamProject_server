@@ -28,6 +28,7 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId){
+        System.out.println("들어옴"+postId);
        Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
         return oneNotice.isPresent()? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
        //return oneNotice.orElse(null);
@@ -36,21 +37,21 @@ public class PostController {
 
     @GetMapping("/postlist")
     public ResponseEntity<List<Post>> postList(){
-        List<Post> list = postService.postList();
+        List<Post> list = postService.postNoticeList();
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/create")
-    public Post noticeCreate(@RequestBody Post notice){
+    @PostMapping("/notice/create")
+    public Post noticeCreate(@RequestBody NoticeVo notice){
         return postService.insertNotice(notice);
     }
 
 
 
-    @PatchMapping(value = "/{postId}")
+    @PatchMapping(value = "update/{postId}")
     public Post update(@PathVariable String postId,
                        @RequestBody Post updateNotice) {
-
+    //    update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
         System.out.println(findOne.toString());
         Post updatePost = findOne.get();

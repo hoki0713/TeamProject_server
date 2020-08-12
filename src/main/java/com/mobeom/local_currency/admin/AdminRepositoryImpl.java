@@ -18,6 +18,7 @@ import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurre
 
 import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.user.User;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -38,6 +39,7 @@ interface CustomAdminRepository {
     List<Sales> salesMonthChart();
     SalesVoucher voucherNameChart(String voucherName);
     Integer useChart(String useSelect , String localName);
+
 
 }
 
@@ -61,16 +63,26 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
        String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
                "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
                "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
-               "광명시", "성남시", "시흥시"}; //enum으로처리
+               "광명", "성남", "시흥"}; //enum으로처리
 
         Map<String,Long> localChart = new HashMap<>();
 
         for(int i=0;i<local.length;i++){
-            Long num = query.selectFrom(user)
-                    .where(user.defaultAddr.like("%"+ local[i] +"%"))
+            if(local[i].equals("양주")) {
+                Long num = query.selectFrom(user)
+                        .where(user.defaultAddr.like("경기도 " + local[i] + "%"))
                     .fetchCount();
-            localChart.put(local[i],num);
+                localChart.put(local[i],num);
+            } else {
+                Long num = query.selectFrom(user)
+                        .where(user.defaultAddr.like("%" + local[i] + "%"))
+                        .fetchCount();
+                localChart.put(local[i],num);
+            }
+
         }
+
+
 
 
 
@@ -129,32 +141,6 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                 .fetch();
 
         int ten=0,twenties=0,thirties=0,forties=0,fifties=0,sixties=0,old=0;
-
-//            for(int i=0;i<list.size();i++){
-//                String[] birthdayYear =list.get(i).toString().split("-");
-//                int year = Integer.parseInt(birthdayYear[0]);
-//                int age = date-year;
-//
-//                switch (age/10){
-//                    case 0 : case 1: ten+=1; break;
-//                    case 2: twenties+=1; break;
-//                    case 3: thirties+=1; break;
-//                    case 4: forties+=1; break;
-//                    case 5: fifties+=1; break;
-//                    case 6: sixties+=1; break;
-//                    default: old+=1;break;
-//                }
-//
-//            }
-//            userAge.put("10대",ten);
-//            userAge.put("20대",twenties);
-//            userAge.put("30대",thirties);
-//            userAge.put("40대",forties);
-//            userAge.put("50대",fifties);
-//            userAge.put("60대",sixties);
-//            userAge.put("70대이상",old);
-
-
         if(localSelect.equals("null")){
             for(int i=0;i<userTotalList.size();i++){
                 String[] birthdayYear =userTotalList.get(i).toString().split("-");
@@ -305,6 +291,8 @@ WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.loca
 
         return useTest;
     }
+
+
 
 
 }
