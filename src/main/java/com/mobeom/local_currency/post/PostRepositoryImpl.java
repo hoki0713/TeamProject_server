@@ -11,6 +11,10 @@ import java.util.List;
 interface CustomPostRepository {
     Post findByPostId(long postId);
     List<Post> inquiryList();
+
+    List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId);
+
+    Post findOnePostByReviewId(long reviewId);
 }
 
 @Repository
@@ -35,6 +39,21 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     public List<Post> inquiryList() {
         List<Post> resultList = queryFactory.selectFrom(post).where(post.category.like("%"+"문의"+"%")).fetch();
         return resultList;
+    }
+
+    @Override
+    public List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId) {
+        List<Post> resultList =
+                queryFactory
+                        .selectFrom(post)
+                        .where(post.board.boardId.eq(boardId), post.user.id.eq(userId))
+                        .fetch();
+        return resultList;
+    }
+
+    @Override
+    public Post findOnePostByReviewId(long reviewId) {
+        return queryFactory.selectFrom(post).where(post.postId.eq(reviewId)).fetchOne();
     }
 
 
