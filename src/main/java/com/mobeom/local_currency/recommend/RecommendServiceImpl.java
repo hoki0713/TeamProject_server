@@ -1,7 +1,10 @@
 package com.mobeom.local_currency.recommend;
 
+import com.mobeom.local_currency.favorites.Favorites;
+import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.Store;
+import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -62,6 +65,7 @@ interface RecommendService {
 public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
     private final UserRepository userRepository;
+    private final FavoritesRepository favoritesRepository;
 
     @Override
     public List<String> userBasedRecommend(String id) throws TasteException {
@@ -93,7 +97,7 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<String> itemBasedRecommend(String itemId) throws TasteException {
+    public List<String> itemBasedRecommend(String id) throws TasteException {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
         dataSource.setUser("mariadb");
@@ -105,7 +109,8 @@ public class RecommendServiceImpl implements RecommendService {
 
         ItemSimilarity similarity = new PearsonCorrelationSimilarity(model);
         ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
-        List<RecommendedItem> recommendations = recommender.mostSimilarItems(Long.parseLong(itemId), 7);
+        Long storeId = fetchStoreId(id);
+        List<RecommendedItem> recommendations = recommender.mostSimilarItems(storeId, 7);
 
 
         List<String> recommendItemIds = new ArrayList<>();
@@ -132,7 +137,7 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public List<IndustryStore> selectBestStores(String id) {
         Optional<User> searchUser = userRepository.findById(Long.parseLong(id));
-        String townName = searchUser.get().getDefaultAddr().split("\\s")[1];
+        String townName = searchUser.get().getDefaultAddr().split("\\s")[2];
         System.out.println(townName);
         if (searchUser.isPresent()) {
             System.out.println("유저 있음");
@@ -186,6 +191,10 @@ public class RecommendServiceImpl implements RecommendService {
         return resultList;
 
     }
+    public Long fetchStoreId(String id){
+        return recommendRepository.fetchedStoreId(id).getStore().getId();
+    }
+
 }
 
 

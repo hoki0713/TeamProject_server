@@ -21,38 +21,13 @@ private final RecommendService recommendService;
 private final Box box;
 
     @GetMapping("/individual/{id}")
-    public Map<?,?> individual(@PathVariable String id) throws TasteException {
-        //Box<List<IndustryStore>> personalRecommendBox = new Box<>();
-//        personalRecommendBox.put("bestStore", recommendService.selectBestStores(id));
-//        personalRecommendBox.put("userBased", recommendService.recommendStore(recommendService.userBasedRecommend(id)));
+    public Map<String,List<Industry>> individual(@PathVariable String id) throws TasteException {
         box.put("bestStore", recommendService.selectBestStores(id));
         box.put("userBased", recommendService.recommendStore(recommendService.userBasedRecommend(id)));
-
+        box.put("itemBased", recommendService.recommendStore(recommendService.itemBasedRecommend(id)));
        return box.get();
 
     }
-
-    @GetMapping("/item/{itemId}")
-    public List<IndustryStore> item(@PathVariable String itemId) throws TasteException {
-        return recommendService.recommendStore(recommendService.itemBasedRecommend(itemId));
-
-    }
-
-
-
-
-
-//    @GetMapping("/test/{storeName}/{storeType}")
-//    public void testRecommend(@PathVariable String storeName, @PathVariable String storeType) {
-//        System.out.println("테스트");
-//        List<StoreVo> lists = recommendService.testRecommend(storeName, storeType);
-//        System.out.println(lists.size());
-//        for (StoreVo storeVo : lists) {
-//            System.out.println(storeVo.getStoreName());
-//        }
-//    }
-
-
 
     @GetMapping("/industry/{searchWord}/{age}")
     public void industryByGenderAndAge(@PathVariable String searchWord, @PathVariable int age) {
