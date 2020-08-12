@@ -12,22 +12,28 @@ import com.mobeom.local_currency.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
 interface PostService {
-    List<Post>  postList();
+    List<Post>  postNoticeList();
     Optional<Post> onePost(long postId);
-    Post insertNotice(Post notice);
+    Post insertNotice(NoticeVo notice);
     Post updatePost(Post notice);
     void deleteNotice(Post notice);
     List<Post> inquiryList();
-    Optional<Post> createReview(String storeId, ReviewVO review);
+    Post createReview(String storeId, ReviewVO review);
+
+    Map<Long, ReviewVO> getAllReviewsByUserId(long userId);
+
+    ReviewVO getOneReviewById(long postId);
+
+    Post findReview(long reviewId);
+
+    void deleteReview(Post findOne);
 }
 
 @Service
@@ -51,8 +57,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> postList() {
-        return postRepository.findAll();
+    public List<Post> postNoticeList() {
+        return postRepository.postList();
     }
 
     @Override
@@ -62,8 +68,19 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post insertNotice(Post notice) {
-        return postRepository.save(notice);
+    public Post insertNotice(NoticeVo notice) {
+        Optional<User> user = userRepository.findById(notice.getUserId());
+        Optional<Board> board = boardRepository.findById((long)1);
+
+        Post insertNotice = new Post();
+        insertNotice.setCategory(notice.getCategory());
+        insertNotice.setPostTitle(notice.getPostTitle());
+        insertNotice.setContents(notice.getContents());
+        insertNotice.setBoard(board.get());
+        insertNotice.setUser(user.get());
+        insertNotice.setDeleteYn(false);
+        insertNotice.setNoticeYn(true);
+        return postRepository.save(insertNotice);
     }
 
     @Override
@@ -83,7 +100,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Optional<Post> createReview(String storeId, ReviewVO review) {
+    public Post createReview(String storeId, ReviewVO review) {
         Optional<Store> store = storeRepository.findById(Long.parseLong(storeId));
         Optional<User> user = userRepository.findById(review.getUserId());
         Optional<Board> board = boardRepository.findById((long) 3);
@@ -103,7 +120,46 @@ public class PostServiceImpl implements PostService {
         newPost.setRating(savedRating);
         newPost.setUser(user.get());
         newPost.setRegDate(newPost.getRegDate());
-        return Optional.of(postRepository.save(newPost));
+        return postRepository.save(newPost);
+    }
+
+    @Override
+    public Map<Long, ReviewVO> getAllReviewsByUserId(long userId) {
+        Map<Long, ReviewVO> resultMap = new HashMap<>();
+        List<Post> usersReviews = postRepository.findAllReviewsByUserIdAndBoardId(userId, (long)3);
+        usersReviews.forEach(review -> {
+           ReviewVO oneReview = new ReviewVO();
+           oneReview.setStoreId(review.getRating().getStore().getId());
+           oneReview.setStoreName(review.getRating().getStore().getStoreName());
+           oneReview.setContents(review.getContents());
+           oneReview.setStarRating(review.getRating().getStarRating());
+           resultMap.put(review.getPostId(), oneReview);
+        });
+        return resultMap;
+    }
+
+    @Override
+    public ReviewVO getOneReviewById(long postId) {
+        ReviewVO resultReview = new ReviewVO();
+        Optional<Post> findOne = postRepository.findById(postId);
+        Post review = findOne.get();
+        resultReview.setStoreName(review.getRating().getStore().getStoreName());
+        resultReview.setStoreId(review.getRating().getStore().getId());
+        resultReview.setStarRating(review.getRating().getStarRating());
+        resultReview.setUserId(review.getUser().getId());
+        resultReview.setContents(review.getContents());
+        return resultReview;
+    }
+
+    @Override
+    public Post findReview(long reviewId) {
+        Optional<Post> findOne = postRepository.findById(reviewId);
+        return findOne.get();
+    }
+
+    @Override
+    public void deleteReview(Post findOne) {
+        postRepository.delete(findOne);
     }
 
 }

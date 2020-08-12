@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.admin;
 
+import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
@@ -50,19 +51,19 @@ public class AdminController {
 
 
     @GetMapping("/userTotal-chart/{localSelect}")
-    public Box<Map<?,?>> userLocalGenderChart(@PathVariable String localSelect){
+    public Map<?,?> userLocalGenderChart(@PathVariable String localSelect){
+        System.out.println(localSelect+"들어옴");
         Map<String,Long> testChart1 = adminService.userLocalGenderChart(localSelect);
         Map<String,Integer> testChart2 = adminService.userAgeTotal(localSelect);
-       box.put("test1",testChart1);
-        box.put("test2",testChart2);
+       box.put("gender",testChart1);
+        box.put("age",testChart2);
 
         //return adminService.userLocalGenderChart(localSelect);
-        return box;
+        return box.get();
     }
 
     @GetMapping("/chart/ratio-of-user-region")
     public Map<String,Long> ratioOfUserRegion(){
-
         return adminService.localTotalChart();
     }
 
@@ -94,12 +95,20 @@ public class AdminController {
 
 
     @GetMapping("/currency/month/total")
-    public List<Integer> test(){
-       return adminService.currencySalesTotalChart();
+    public ResponseEntity<List<Sales>> currencySalesMonthTotalChart(){
+        List<Sales> monthList = adminService.salesMonthChart();
+       return ResponseEntity.ok(monthList);
     }
 
-    @GetMapping("/test/list")
-    public List<Integer> test2(){
-        return adminRepository.test();
+    @GetMapping("/voucher/name-list/{voucherName}")
+    public SalesVoucher voucherNameChart(@PathVariable String voucherName){ //SalesVoucher voucherNameChart(String voucherName)
+        System.out.println(adminService.voucherNameChart(voucherName).toString());
+        return adminRepository.voucherNameChart(voucherName);
+    }
+
+    @GetMapping("/useChart/test/{useSelect}/{localName}")
+    public Integer test3(@PathVariable String useSelect, @PathVariable String localName){
+        System.out.println(adminService.useChartTest(useSelect,localName));
+        return adminService.useChartTest(useSelect,localName);
     }
 }

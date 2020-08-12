@@ -1,6 +1,8 @@
 package com.mobeom.local_currency.admin;
 
 
+import com.mobeom.local_currency.join.SalesVoucher;
+import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
@@ -22,9 +24,11 @@ interface AdminService{
     Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeChart();
-    List<Integer> currencySalesTotalChart();
+    List<Sales> salesMonthChart();
     List<User> getAllUserList();
     Optional<User> findOneUser(String userId);
+    Integer useChartTest(String useSelect,String localName);
+    SalesVoucher voucherNameChart(String voucherName);
 }
 
 @Service
@@ -72,8 +76,8 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<Integer> currencySalesTotalChart() {
-        return adminRepository.currencyChart();
+    public List<Sales> salesMonthChart() {
+        return adminRepository.salesMonthChart();
     }
 
     @Override
@@ -86,6 +90,15 @@ public class AdminServiceImpl implements AdminService{
         return userRepository.findByUserId(userId);
     }
 
+    @Override
+    public Integer useChartTest(String useSelect, String localName) {
+        return adminRepository.useChart(useSelect,localName);
+    }
+
+    @Override
+    public SalesVoucher voucherNameChart(String voucherName) {
+        return adminRepository.voucherNameChart(voucherName);
+    }
 
 
 }
