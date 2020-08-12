@@ -12,10 +12,7 @@ import com.mobeom.local_currency.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 interface PostService {
@@ -40,6 +37,8 @@ interface PostService {
     Map<Long, QuestionVO> getAllQuestionsByUserId(long userId);
 
     QuestionVO getOneQuestionById(long postId);
+
+    Map<Long, QuestionVO> getAllQuestionsBySelectedOption(String selectedOption, String searchWord);
 }
 
 @Service
@@ -208,6 +207,34 @@ public class PostServiceImpl implements PostService {
         resultQuestion.setContents(question.getContents());
         resultQuestion.setComment(question.getComment());
         return resultQuestion;
+    }
+
+    @Override
+    public Map<Long, QuestionVO> getAllQuestionsBySelectedOption(String selectedOption, String searchWord) {
+        Map<Long, QuestionVO> resultMap = new HashMap<>();
+        List<Post> questions = new ArrayList<>();
+        if(searchWord.equals("undefined") || searchWord.equals("")) {
+            if(selectedOption.equals("all")) {
+                questions.addAll(postRepository.findAllByBoardId((long)1));
+            } else {
+                questions.addAll(postRepository.findAllByBoardIdAndCommentYn((long) 1, selectedOption));
+            }
+        } else {
+            questions.addAll(postRepository.findAllByBoardIdCommentYnSearchWord((long) 1, selectedOption, searchWord));
+        }
+
+        questions.forEach(question -> {
+            QuestionVO newQuestion = new QuestionVO();
+            newQuestion.setUserId(question.getUser().getId());
+            newQuestion.setUserUniqueId(question.getUser().getUserId());
+            newQuestion.setUserName(question.getUser().getName());
+            newQuestion.setPostTitle(question.getPostTitle());
+            newQuestion.setContents(question.getContents());
+            newQuestion.setComment(question.getComment());
+            newQuestion.setRegDate(question.getRegDate());
+            resultMap.put(question.getPostId(), newQuestion);
+        });
+        return resultMap;
     }
 
 

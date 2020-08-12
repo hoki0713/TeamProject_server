@@ -88,7 +88,7 @@ public class PostController {
     }
   
   
-   @PostMapping("/reviews/{storeId}")
+    @PostMapping("/reviews/{storeId}")
     public ResponseEntity<Post> createReview(@PathVariable String storeId,
                                              @RequestBody ReviewVO review) {
         Post userReview = postService.createReview(storeId, review);
@@ -153,6 +153,15 @@ public class PostController {
         Post findOne = postService.findPost(Long.parseLong(questionId));
         postService.deletePost(findOne);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/questions")
+    public ResponseEntity<Map<Long, QuestionVO>> getAllQuestionsBySelectedOption(@RequestParam String selectedOption,
+                                                                                 @RequestParam String searchWord) {
+        System.out.println(selectedOption);
+        System.out.println(searchWord);
+        Map<Long,QuestionVO> questions = postService.getAllQuestionsBySelectedOption(selectedOption, searchWord);
+        return ResponseEntity.ok(questions);
     }
 
 }
