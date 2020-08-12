@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-interface RecommendRepository extends JpaRepository<Recommend,Long>, CustomRecommendRepository{
+interface RecommendRepository extends JpaRepository<GenderAge,Long>, CustomRecommendRepository{
 
 }

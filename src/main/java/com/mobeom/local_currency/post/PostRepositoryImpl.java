@@ -18,6 +18,8 @@ interface CustomPostRepository {
     Post findByPostId(long postId);
     List<Post> inquiryList();
     List<Post> postList();
+    List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId);
+    Post findOnePostByReviewId(long reviewId);
 }
 
 @Repository
@@ -46,6 +48,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     }
 
     @Override
+
     public List<Post> postList() {
   // List<Post> list= queryFactory.select(Projections.fields(post,user.userId,user.name)).from(post).innerJoin(user).fetch();
         List<Post> list= queryFactory.select(Projections.fields(Post.class,post.postTitle,
@@ -54,6 +57,20 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     Map<String,List<Post>> test = new HashMap<>();
     test.put("postList",list);
         return list;
+    }
+  
+    public List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId) {
+        List<Post> resultList =
+                queryFactory
+                        .selectFrom(post)
+                        .where(post.board.boardId.eq(boardId), post.user.id.eq(userId))
+                        .fetch();
+        return resultList;
+    }
+
+    @Override
+    public Post findOnePostByReviewId(long reviewId) {
+        return queryFactory.selectFrom(post).where(post.postId.eq(reviewId)).fetchOne();
     }
 
 

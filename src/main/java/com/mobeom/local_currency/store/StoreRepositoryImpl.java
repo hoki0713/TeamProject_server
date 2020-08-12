@@ -13,6 +13,8 @@ interface IStoreRepository {
     List<Store> findAllStoreByUserDefaultAddr(String defaultAddr);
     List<Store> uiList();
     List<Store> findByLocal(String clickedState);
+
+    List<Store> findAllByStoreName(String storeName);
 }
 
 @Repository
@@ -41,6 +43,13 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         return queryFactory.select(qStore).from(qStore).where(qStore.localName.like('%'+clickedState+'%')).limit(200).fetch();
 
+    }
+
+    @Override
+    public List<Store> findAllByStoreName(String storeName) {
+        QStore qStore = QStore.store;
+        List<Store> storeList = queryFactory.selectFrom(qStore).where(qStore.storeName.like(storeName)).fetch();
+        return storeList;
     }
 
     @Override

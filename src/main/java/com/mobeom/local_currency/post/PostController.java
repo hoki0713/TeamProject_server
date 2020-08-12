@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -91,12 +93,35 @@ public class PostController {
    @PostMapping("/reviews/{storeId}")
     public ResponseEntity<Post> createReview(@PathVariable String storeId,
                                              @RequestBody ReviewVO review) {
-        Optional<Post> userReview = postService.createReview(storeId, review);
-        if(userReview.isPresent()) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+        Post userReview = postService.createReview(storeId, review);
+        return ResponseEntity.ok(userReview);
+    }
+
+    @GetMapping("/reviews/{userId}")
+    public ResponseEntity<Map<Long, ReviewVO>> getAllReviewsByUserId(@PathVariable String userId) {
+        Map<Long,ReviewVO> reviews = postService.getAllReviewsByUserId(Long.parseLong(userId));
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/reviews/detail/{reviewId}")
+    public ResponseEntity<ReviewVO> getOneReviewById(@PathVariable String reviewId) {
+        ReviewVO review = postService.getOneReviewById(Long.parseLong(reviewId));
+        return ResponseEntity.ok(review);
+    }
+
+    @PatchMapping("/reviews/{reviewId}")
+    public ResponseEntity<Post> updateReview(@PathVariable String reviewId, @RequestBody ReviewVO review) {
+        Post selectPost = postService.findReview(Long.parseLong(reviewId));
+        Optional.ofNullable(review.getContents()).ifPresent(contents -> selectPost.setContents(contents));
+        Optional.ofNullable(review.getStarRating()).ifPresent(rating -> selectPost.getRating().setStarRating(rating));
+        return ResponseEntity.ok(postService.updatePost(selectPost));
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<Post> deleteReview(@PathVariable String reviewId) {
+        Post findOne = postService.findReview(Long.parseLong(reviewId));
+        postService.deleteReview(findOne);
+        return ResponseEntity.ok().build();
     }
 
 }
