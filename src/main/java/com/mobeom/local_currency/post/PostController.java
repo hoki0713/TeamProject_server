@@ -46,12 +46,12 @@ public class PostController {
 
 
 
-    @PatchMapping(value = "update/{postId}")
+    @PatchMapping("/update/{postId}")
     public Post update(@PathVariable String postId,
                        @RequestBody Post updateNotice) {
     //    update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
-        System.out.println(findOne.toString());
+
         Post updatePost = findOne.get();
         if (findOne.isPresent()) {
             updatePost.setContents(updateNotice.getContents());
@@ -60,6 +60,8 @@ public class PostController {
             updatePost.setModiDate(LocalDate.now());
             postService.updatePost(updatePost);
         }
+
+
         return updatePost;
     }
 
@@ -67,7 +69,10 @@ public class PostController {
     public void deleteNotice(@PathVariable String postId){
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
         Post deletePost = findOne.get();
-        postService.deleteNotice(deletePost);
+        if(findOne.isPresent()){
+            deletePost.setDeleteYn(true);
+        }
+        postService.updatePost(deletePost);
     }
 
     @GetMapping("/inquiry/all")

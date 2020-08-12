@@ -257,7 +257,8 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     @Override
     public List<Sales> salesMonthChart() {
-        return  query.select(Projections.fields(Sales.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
+        return  query.select(Projections.fields
+                (Sales.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
                 .from(sales).groupBy(sales.salesDate.month()).fetch();
     }
 
