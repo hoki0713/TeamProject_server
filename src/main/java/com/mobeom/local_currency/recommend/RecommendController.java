@@ -1,6 +1,7 @@
 package com.mobeom.local_currency.recommend;
 
 import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.Store;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -16,10 +18,17 @@ import java.util.List;
 @AllArgsConstructor
 public class RecommendController {
 private final RecommendService recommendService;
+private final Box box;
 
     @GetMapping("/individual/{id}")
-    public List<IndustryStore> individual(@PathVariable String id) throws TasteException {
-       return recommendService.recommendStore(recommendService.userBasedRecommend(id));
+    public Map<?,?> individual(@PathVariable String id) throws TasteException {
+        //Box<List<IndustryStore>> personalRecommendBox = new Box<>();
+//        personalRecommendBox.put("bestStore", recommendService.selectBestStores(id));
+//        personalRecommendBox.put("userBased", recommendService.recommendStore(recommendService.userBasedRecommend(id)));
+        box.put("bestStore", recommendService.selectBestStores(id));
+        box.put("userBased", recommendService.recommendStore(recommendService.userBasedRecommend(id)));
+
+       return box.get();
 
     }
 
@@ -31,16 +40,7 @@ private final RecommendService recommendService;
 
 
 
-    @GetMapping("/bestStores/{searchWord}")
-    public void bestStore(@PathVariable String searchWord) {
-        System.out.println("베스트가맹점 진입");
-        List<Store> stores = recommendService.selectBestStores(searchWord);
 
-        for (Store bestStore : stores) {
-            System.out.println(bestStore.getStoreName());
-        }
-
-    }
 
 //    @GetMapping("/test/{storeName}/{storeType}")
 //    public void testRecommend(@PathVariable String storeName, @PathVariable String storeType) {

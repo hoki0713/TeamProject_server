@@ -19,7 +19,7 @@ import java.util.List;
 interface CustomRecommendRepository {
     IndustryStore recommendStores(String searchWord);
 
-    List<Store> fetchByBestStore(String searchLocalWord);
+    List<IndustryStore> fetchByBestStore(String searchLocalWord);
 
     //    List<StoreVo> testRecommend(String storeName, String storeType);
     List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
@@ -60,10 +60,18 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override //단순 가맹점 추천(서치 순)
-    public List<Store> fetchByBestStore(String searchLocalWord) {
-        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType))
-                .from(store).where(store.address.contains(searchLocalWord))
-                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+    public List<IndustryStore> fetchByBestStore(String searchLocalWord) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address"))
+        ) .from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .fetchJoin().where(store.address.contains(searchLocalWord))
+                .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
 

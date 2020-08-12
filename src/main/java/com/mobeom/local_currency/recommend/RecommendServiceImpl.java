@@ -2,7 +2,10 @@ package com.mobeom.local_currency.recommend;
 
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.Store;
+import com.mobeom.local_currency.user.User;
+import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
+import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.LongPrimitiveArrayIterator;
 import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
@@ -29,12 +32,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 interface RecommendService {
     List<IndustryStore> recommendStore(List<String> recommendItemIds);
 
-    List<Store> selectBestStores(String searchWord);
+    List<IndustryStore> selectBestStores(String id);
 
     List<String> userBasedRecommend(String id) throws TasteException;
 
@@ -54,9 +58,10 @@ interface RecommendService {
 }
 
 @Service
+@AllArgsConstructor
 public class RecommendServiceImpl implements RecommendService {
-    @Autowired
-    RecommendRepository recommendRepository;
+    private final RecommendRepository recommendRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<String> userBasedRecommend(String id) throws TasteException {
@@ -125,8 +130,18 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<Store> selectBestStores(String searchWord) {
-        return recommendRepository.fetchByBestStore(searchWord);
+    public List<IndustryStore> selectBestStores(String id) {
+        Optional<User> searchUser = userRepository.findById(Long.parseLong(id));
+        String townName = searchUser.get().getDefaultAddr().split("\\s")[1];
+        System.out.println(townName);
+        if (searchUser.isPresent()) {
+            System.out.println("유저 있음");
+        } else {
+            System.out.println("유저 없대");
+        }
+        return recommendRepository.fetchByBestStore(townName);
+
+
     }
 
 

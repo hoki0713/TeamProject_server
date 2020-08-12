@@ -43,5 +43,8 @@ public class SalesController {
         }
 
     }
-
+    @PostMapping("/{userId}")
+    public ResponseEntity<Sales> createSales(@PathVariable String userId, @RequestBody Sales salesInfo){
+        return ResponseEntity.ok(salesService.addSalesRecode(userId, salesInfo));
+    }
 }
