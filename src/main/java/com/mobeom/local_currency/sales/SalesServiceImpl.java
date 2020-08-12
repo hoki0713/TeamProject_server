@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.sales;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,9 @@ interface SalesService {
 }
 
 @Service
+@AllArgsConstructor
 public class SalesServiceImpl implements SalesService {
-    @Autowired
-    SalesRepository salesRepository;
+    private final SalesRepository salesRepository;
 
     @Override
     public Optional<Map<Long, RequestedPurchaseHistoryVO>> getHistoryByUserId(long userId) {

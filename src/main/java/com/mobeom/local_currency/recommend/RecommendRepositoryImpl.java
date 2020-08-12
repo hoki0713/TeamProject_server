@@ -11,6 +11,7 @@ import com.mobeom.local_currency.store.Store;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -29,7 +30,7 @@ interface CustomRecommendRepository {
 
     List<GenderAge> industryByGender(String gender);
 }
-
+@Repository
 public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
     private final JPAQueryFactory queryFactory;
     private final DataSource dataSource;

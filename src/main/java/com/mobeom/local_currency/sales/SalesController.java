@@ -1,6 +1,7 @@
 package com.mobeom.local_currency.sales;
 
 import com.mobeom.local_currency.user.User;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +12,10 @@ import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
+@AllArgsConstructor
 @RequestMapping("/sales")
 public class SalesController {
-    @Autowired
-    SalesService salesService;
+    private final SalesService salesService;
 
     @GetMapping(value = "/purchase-history/{userId}")
     public ResponseEntity<Map<Long,RequestedPurchaseHistoryVO>> getSalesHistory(@PathVariable String userId) {

@@ -12,6 +12,7 @@ interface CustomSalesRepository{
 
     Map<Long, RequestedPurchaseHistoryVO> findAllSalesRecordsByUserId(long userId);
 }
+
 public class SalesRepositoryImpl extends QuerydslRepositorySupport implements CustomSalesRepository{
     @Autowired
     JPAQueryFactory queryFactory;

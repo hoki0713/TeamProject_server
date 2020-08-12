@@ -2,6 +2,7 @@ package com.mobeom.local_currency.recommend;
 
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.Store;
+import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,9 @@ import java.util.List;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/recommends")
+@AllArgsConstructor
 public class RecommendController {
-    @Autowired
-    RecommendService recommendService;
+private final RecommendService recommendService;
 
     @GetMapping("/individual/{id}")
     public List<IndustryStore> individual(@PathVariable String id) throws TasteException {
