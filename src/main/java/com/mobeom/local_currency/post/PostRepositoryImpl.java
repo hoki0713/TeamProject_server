@@ -41,7 +41,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     @Override
     public List<Post> inquiryList() {
         List<Post> resultList = queryFactory.selectFrom(post).where(post.category.like("%"+"문의"+"%")).fetch();
-        update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
+
         return resultList;
     }
 

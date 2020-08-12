@@ -46,10 +46,10 @@ public class PostController {
 
 
 
-    @PatchMapping(value = "/{postId}")
+    @PatchMapping(value = "update/{postId}")
     public Post update(@PathVariable String postId,
                        @RequestBody Post updateNotice) {
-
+    //    update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
         System.out.println(findOne.toString());
         Post updatePost = findOne.get();
