@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -26,6 +28,7 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId){
+        System.out.println("들어옴"+postId);
        Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
         return oneNotice.isPresent()? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
        //return oneNotice.orElse(null);
@@ -34,21 +37,21 @@ public class PostController {
 
     @GetMapping("/postlist")
     public ResponseEntity<List<Post>> postList(){
-        List<Post> list = postService.postList();
+        List<Post> list = postService.postNoticeList();
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/create")
-    public Post noticeCreate(@RequestBody Post notice){
+    @PostMapping("/notice/create")
+    public Post noticeCreate(@RequestBody NoticeVo notice){
         return postService.insertNotice(notice);
     }
 
 
 
-    @PatchMapping(value = "/{postId}")
+    @PatchMapping(value = "update/{postId}")
     public Post update(@PathVariable String postId,
                        @RequestBody Post updateNotice) {
-
+    //    update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
         System.out.println(findOne.toString());
         Post updatePost = findOne.get();
@@ -90,12 +93,35 @@ public class PostController {
    @PostMapping("/reviews/{storeId}")
     public ResponseEntity<Post> createReview(@PathVariable String storeId,
                                              @RequestBody ReviewVO review) {
-        Optional<Post> userReview = postService.createReview(storeId, review);
-        if(userReview.isPresent()) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+        Post userReview = postService.createReview(storeId, review);
+        return ResponseEntity.ok(userReview);
+    }
+
+    @GetMapping("/reviews/{userId}")
+    public ResponseEntity<Map<Long, ReviewVO>> getAllReviewsByUserId(@PathVariable String userId) {
+        Map<Long,ReviewVO> reviews = postService.getAllReviewsByUserId(Long.parseLong(userId));
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/reviews/detail/{reviewId}")
+    public ResponseEntity<ReviewVO> getOneReviewById(@PathVariable String reviewId) {
+        ReviewVO review = postService.getOneReviewById(Long.parseLong(reviewId));
+        return ResponseEntity.ok(review);
+    }
+
+    @PatchMapping("/reviews/{reviewId}")
+    public ResponseEntity<Post> updateReview(@PathVariable String reviewId, @RequestBody ReviewVO review) {
+        Post selectPost = postService.findReview(Long.parseLong(reviewId));
+        Optional.ofNullable(review.getContents()).ifPresent(contents -> selectPost.setContents(contents));
+        Optional.ofNullable(review.getStarRating()).ifPresent(rating -> selectPost.getRating().setStarRating(rating));
+        return ResponseEntity.ok(postService.updatePost(selectPost));
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<Post> deleteReview(@PathVariable String reviewId) {
+        Post findOne = postService.findReview(Long.parseLong(reviewId));
+        postService.deleteReview(findOne);
+        return ResponseEntity.ok().build();
     }
 
 }

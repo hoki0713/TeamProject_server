@@ -16,6 +16,8 @@ interface StoreService extends JpaService<Store> {
     Object getUi();
 
     Object getMap(String clickedState);
+
+    Optional<List<Store>> findAllStoreByName(String storeName);
 }
 
 
@@ -63,5 +65,11 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public Object getMap(String clickedState) {
         return (clickedState!="")?repository.findByLocal(clickedState):findAll();
+    }
+
+    @Override
+    public Optional<List<Store>> findAllStoreByName(String storeName) {
+        List<Store> storeList = repository.findAllByStoreName(storeName);
+        return Optional.of(storeList);
     }
 }

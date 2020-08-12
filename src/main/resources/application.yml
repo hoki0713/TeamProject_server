@@ -4,11 +4,11 @@ spring:
       suffix: .html
 
   jpa:
-    show-sql: true
+    show-sql: false
     database: mysql
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://127.0.0.1:3306/teamproject
-    username: mariadb
+    url: jdbc:mariadb://127.0.0.1:3306/mariadb
+    username: root
     password: mariadb

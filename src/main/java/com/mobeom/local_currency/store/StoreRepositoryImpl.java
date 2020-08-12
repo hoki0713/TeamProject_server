@@ -1,18 +1,20 @@
 package com.mobeom.local_currency.store;
 
+import com.mobeom.local_currency.industry.QIndustry;
+import com.mobeom.local_currency.join.IndustryStore;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.Optional;
 import java.util.List;
 
 interface IStoreRepository {
     List<Store> findAllStoreByUserDefaultAddr(String defaultAddr);
     List<Store> uiList();
-    List<Store> findByLocal(String clickedState);
+    List<IndustryStore> findByLocal(String clickedState);
+    List<Store> findAllByStoreName(String storeName);
 }
 
 @Repository
@@ -36,11 +38,31 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
     }
 
     @Override
-    public List<Store> findByLocal(String clickedState) {
-        QStore qStore = QStore.store;
-        JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
-        return queryFactory.select(qStore).from(qStore).where(qStore.localName.like('%'+clickedState+'%')).limit(200).fetch();
+    public List<IndustryStore> findByLocal(String clickedState) {
+        QStore store = QStore.store;
+        QIndustry industry = QIndustry.industry;
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl")
+                )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .fetchJoin()
+                .where(store.localName.like('%'+clickedState+'%')).limit(200).fetch();
 
+    }
+
+    @Override
+    public List<Store> findAllByStoreName(String storeName) {
+        QStore qStore = QStore.store;
+        List<Store> storeList = queryFactory.selectFrom(qStore).where(qStore.storeName.like(storeName)).fetch();
+        return storeList;
     }
 
     @Override
@@ -54,4 +76,6 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         List<Store> resultList = queryFactory.selectFrom(qStore).where(qStore.localName.like(defaultAddr)).fetch();
         return resultList;
     }
+
+
 }
