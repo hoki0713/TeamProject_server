@@ -3,13 +3,10 @@ package com.mobeom.local_currency.post;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mobeom.local_currency.board.Board;
 import com.mobeom.local_currency.rating.Rating;
-import com.mobeom.local_currency.recommend.Recommend;
 import com.mobeom.local_currency.user.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
-import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import java.time.LocalDate;
