@@ -18,7 +18,7 @@ interface CustomPostRepository {
     Post findByPostId(long postId);
     List<Post> inquiryList();
     List<Post> postList();
-    List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId);
+    List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId);
     Post findOnePostByReviewId(long reviewId);
 }
 
@@ -59,7 +59,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         return list;
     }
   
-    public List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId) {
+    public List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId) {
         List<Post> resultList =
                 queryFactory
                         .selectFrom(post)

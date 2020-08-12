@@ -31,9 +31,15 @@ interface PostService {
 
     ReviewVO getOneReviewById(long postId);
 
-    Post findReview(long reviewId);
+    Post findPost(long reviewId);
 
-    void deleteReview(Post findOne);
+    void deletePost(Post findOne);
+
+    Post createQuestion(String userId, QuestionVO question);
+
+    Map<Long, QuestionVO> getAllQuestionsByUserId(long userId);
+
+    QuestionVO getOneQuestionById(long postId);
 }
 
 @Service
@@ -70,7 +76,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post insertNotice(NoticeVo notice) {
         Optional<User> user = userRepository.findById(notice.getUserId());
-        Optional<Board> board = boardRepository.findById((long)1);
+        Optional<Board> board = boardRepository.findById((long)2);
 
         Post insertNotice = new Post();
         insertNotice.setCategory(notice.getCategory());
@@ -126,7 +132,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Map<Long, ReviewVO> getAllReviewsByUserId(long userId) {
         Map<Long, ReviewVO> resultMap = new HashMap<>();
-        List<Post> usersReviews = postRepository.findAllReviewsByUserIdAndBoardId(userId, (long)3);
+        List<Post> usersReviews = postRepository.findAllPostsByUserIdAndBoardId(userId, (long)3);
         usersReviews.forEach(review -> {
            ReviewVO oneReview = new ReviewVO();
            oneReview.setStoreId(review.getRating().getStore().getId());
@@ -152,14 +158,57 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post findReview(long reviewId) {
+    public Post findPost(long reviewId) {
         Optional<Post> findOne = postRepository.findById(reviewId);
         return findOne.get();
     }
 
     @Override
-    public void deleteReview(Post findOne) {
+    public void deletePost(Post findOne) {
         postRepository.delete(findOne);
     }
+
+    @Override
+    public Post createQuestion(String userId, QuestionVO question) {
+        Optional<User> user = userRepository.findById(Long.parseLong(userId));
+        Optional<Board> board = boardRepository.findById((long) 1);
+
+        Post newPost = new Post();
+        newPost.setBoard(board.get());
+        newPost.setPostTitle(question.getPostTitle());
+        newPost.setContents(question.getContents());
+        newPost.setDeleteYn(false);
+        newPost.setNoticeYn(false);
+        newPost.setUser(user.get());
+        newPost.setRegDate(newPost.getRegDate());
+        return postRepository.save(newPost);
+    }
+
+    @Override
+    public Map<Long, QuestionVO> getAllQuestionsByUserId(long userId) {
+        Map<Long, QuestionVO> resultMap = new HashMap<>();
+        List<Post> usersQuestions = postRepository.findAllPostsByUserIdAndBoardId(userId, (long)1);
+        usersQuestions.forEach(question -> {
+            QuestionVO oneQuestion = new QuestionVO();
+            oneQuestion.setPostTitle(question.getPostTitle());
+            oneQuestion.setContents(question.getContents());
+            oneQuestion.setComment(question.getComment());
+            resultMap.put(question.getPostId(), oneQuestion);
+        });
+        return resultMap;
+    }
+
+    @Override
+    public QuestionVO getOneQuestionById(long postId) {
+        QuestionVO resultQuestion = new QuestionVO();
+        Optional<Post> findOne = postRepository.findById(postId);
+        Post question = findOne.get();
+        resultQuestion.setUserId(question.getUser().getId());
+        resultQuestion.setPostTitle(question.getPostTitle());
+        resultQuestion.setContents(question.getContents());
+        resultQuestion.setComment(question.getComment());
+        return resultQuestion;
+    }
+
 
 }
