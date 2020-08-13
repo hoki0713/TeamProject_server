@@ -3,14 +3,16 @@ package com.mobeom.local_currency.recommend;
 import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
+import static com.mobeom.local_currency.favorites.QFavorites.favorites;
+import static com.mobeom.local_currency.user.QUser.user;
 
 
+import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.store.QStore;
-import com.mobeom.local_currency.store.Store;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -18,9 +20,8 @@ import java.util.List;
 interface CustomRecommendRepository {
     IndustryStore recommendStores(String searchWord);
 
-    List<Store> fetchByBestStore(String searchLocalWord);
+    List<IndustryStore> fetchByBestStore(String searchLocalWord);
 
-    //    List<StoreVo> testRecommend(String storeName, String storeType);
     List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
 
     List<GenderAge> industryByGenderAndAge(String searchWord, int age);
@@ -28,8 +29,11 @@ interface CustomRecommendRepository {
     List<GenderAge> industryByAge(int age);
 
     List<GenderAge> industryByGender(String gender);
-}
 
+    Long fetchedStoreId(String id);
+
+}
+@Repository
 public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
     private final JPAQueryFactory queryFactory;
     private final DataSource dataSource;
@@ -59,28 +63,22 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override //단순 가맹점 추천(서치 순)
-    public List<Store> fetchByBestStore(String searchLocalWord) {
-        return queryFactory.select(Projections.fields(Store.class, store.storeName, store.storeType))
-                .from(store).where(store.address.contains(searchLocalWord))
-                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+    public List<IndustryStore> fetchByBestStore(String searchLocalWord) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address"))
+        ) .from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .fetchJoin().where(store.address.endsWith(searchLocalWord+")"))
+                .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
 
-//    @Override //서브쿼리 예제
-//    public List<StoreVo> testRecommend(String storeName, String storeType){
-//        return queryFactory
-//                .select(Projections.fields(StoreVo.class,
-//                        store.storeName.as("storeName"),
-//                        store.storeType.as("storeType"),
-//                        ExpressionUtils.as(
-//                                JPAExpressions.select(count(store.id))
-//                                        .from(store)
-//                                        .where(store.storeName.startsWith(storeName), store.storeType.contains(storeType)),
-//                                "passengerCounter")
-//                ))
-//                .from(store)
-//                .fetch();
-//    }
+
 
     @Override //업종명으로 가맹점 찾기(img 연결된 ver)
     public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town) {
@@ -130,6 +128,14 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .orderBy(genderAge.amount.sum().desc())
                 .limit(7).fetch();
 
+    }
+
+    public Long fetchedStoreId(String id){
+        return queryFactory.select(favorites.store.id)
+                .from(favorites).innerJoin(store).on(store.id.eq(favorites.store.id))
+                .innerJoin(user).on(user.id.eq(favorites.user.id)).fetchJoin()
+                .where(user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
+                        orderBy(store.searchResultCount.desc()).fetchFirst();
     }
 
 }

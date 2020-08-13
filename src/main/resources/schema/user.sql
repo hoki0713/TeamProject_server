@@ -25,7 +25,7 @@ CREATE TABLE `user` (
 `password` VARCHAR(80),
 `name` VARCHAR(10),
 `birth_date` DATE,
-`genderAge` VARCHAR(2),
+`gender` VARCHAR(2),
 `email` VARCHAR(100),
 `join_date` DATE,
 `withdraw_date` DATE,
