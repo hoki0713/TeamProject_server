@@ -17,13 +17,15 @@ import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
 
 import com.mobeom.local_currency.join.SalesVoucher;
+import com.mobeom.local_currency.user.User;
+import com.mobeom.local_currency.user.UserRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 
 interface CustomAdminRepository {
@@ -38,6 +40,7 @@ interface CustomAdminRepository {
     Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end);
     Integer useChart(String useSelect , String localName);
     Map<String,Long> voucherSalesTotalChart();
+    Map<?,?> useTest(String useSelect);
 
 
 }
@@ -47,10 +50,12 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
     private final JPAQueryFactory query;
+    private final UserRepository userRepository;
 
-    public AdminRepositoryImpl(JPAQueryFactory query) {
+    public AdminRepositoryImpl(JPAQueryFactory query, UserRepository userRepository) {
         super(Admin.class);
         this.query = query;
+        this.userRepository = userRepository;
     }
 
 
@@ -93,6 +98,8 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
         Map<String, Long> userLocal = new HashMap<>();
+
+
         if(localSelect.equals("null")){
             Long man = query.selectFrom(user)
                             .where(user.gender.like("M"))
@@ -265,8 +272,8 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
 
-    @Override //이거는 뭐냐 거..그니까 기간이 들어가서 기간별로 뽑아내고싶음
-    public Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end) {
+    @Override
+    public Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end) {
 
         Map<String,SalesVoucher> voucherMap = new HashMap<>();
 
@@ -274,16 +281,14 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         int endDate = Integer.parseInt(end);
 
         for(int i= startDate;i<=endDate;i++){
+            SalesVoucher monthTotal=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),
+                    localCurrencyVoucher.localCurrencyName))
+                    .from(sales).where(sales.salesDate.stringValue().substring(0,7).like("2020-"+"%"+i)
+                            .and(localCurrencyVoucher.localCurrencyName.like("%"+voucherName+"%"))).fetchOne();
 
-            SalesVoucher d=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),localCurrencyVoucher.localCurrencyName))
-                    .from(sales).where(sales.salesDate.stringValue().substring(0,7).like("2020-0"+i).and(localCurrencyVoucher.localCurrencyName.like("%"+"고양"+"%"))).fetchOne();
-
-
-            List<Integer> aa=  query.select(sales.unitPrice.sum())
-                    .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where((localCurrencyVoucher.localCurrencyName.like("%"+"고양"+"%"))).fetch();
-
-            voucherMap.put("2020-0"+i,d);
-            System.out.println(d.toString());
+            if(monthTotal.getUnitPrice()!=0){
+                voucherMap.put("2020-"+i,monthTotal);
+            }
 
         }
 
@@ -331,6 +336,23 @@ WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.loca
 
 
         return voucherSales;
+    }
+
+    @Override
+    public Map<?, ?> useTest(String useSelect) {
+
+        String[] useYn = {"사용완료","취소완료","미사용"};
+
+        Map<String,Long> result = new HashMap<>();
+
+        if(useSelect.equals("")){
+            for (String s : useYn) {
+               Long useResult = query.selectFrom(sales).where(sales.currencyState.like(s)).fetchCount();
+                result.put(s,useResult);
+            }
+
+        }
+        return null;
     }
 
 

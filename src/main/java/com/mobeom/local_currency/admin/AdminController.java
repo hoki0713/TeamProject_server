@@ -105,6 +105,7 @@ public class AdminController {
             String month=sales.getSalesDate().toString().split("-")[1];
            result.put(year+"-"+month,sales.getUnitPrice());
         });
+
        return ResponseEntity.ok(result);
     }
 
