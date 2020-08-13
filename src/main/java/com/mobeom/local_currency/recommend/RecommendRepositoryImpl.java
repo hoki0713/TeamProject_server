@@ -24,11 +24,13 @@ interface CustomRecommendRepository {
 
     List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
 
-    List<GenderAge> industryByGenderAndAge(String searchWord, int age);
+    List<GenderAge> industryByGenderAndAge(String gender, int ageGroup);
 
     List<GenderAge> industryByAge(int age);
 
     List<GenderAge> industryByGender(String gender);
+
+    List<GenderAge> industryByTotal();
 
     Long fetchedStoreId(String id);
 
@@ -98,9 +100,9 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     //고양시도 검색되는데 상관 없나... 헷갈린다.
 
     @Override //성별 및 연령 입력시 대분류 안내
-    public List<GenderAge> industryByGenderAndAge(String searchWord, int age) {
-        return queryFactory.selectFrom(genderAge).where(genderAge.genderCode.eq(searchWord), genderAge.ageGroup.eq(age))
-                .orderBy(genderAge.amount.desc()).distinct().limit(7).fetch();
+    public List<GenderAge> industryByGenderAndAge(String gender, int ageGroup) {
+        return queryFactory.selectFrom(genderAge).where(genderAge.genderCode.eq(gender), genderAge.ageGroup.eq(ageGroup))
+                .orderBy(genderAge.amount.desc()).limit(7).fetch();
     }
 
 
@@ -122,7 +124,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public List<GenderAge> industryByGender(String gender) {
         return queryFactory.select(Projections.fields(GenderAge.class, genderAge.genderCode,
-                genderAge.industryName, genderAge.amount.sum())).from(genderAge)
+                genderAge.industryName)).from(genderAge)
                 .where(genderAge.genderCode.eq(gender))
                 .groupBy(genderAge.genderCode, genderAge.industryName)
                 .orderBy(genderAge.amount.sum().desc())
@@ -130,6 +132,18 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
     }
 
+    @Override
+    public List<GenderAge> industryByTotal() {
+        return queryFactory.select(Projections.fields(GenderAge.class,
+                genderAge.industryName)).from(genderAge)
+                .groupBy(genderAge.industryName)
+                .orderBy(genderAge.amount.sum().desc())
+                .limit(7).fetch();
+    }
+
+
+
+    @Override
     public Long fetchedStoreId(String id){
         return queryFactory.select(favorites.store.id)
                 .from(favorites).innerJoin(store).on(store.id.eq(favorites.store.id))

@@ -8,6 +8,7 @@ import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -21,18 +22,57 @@ private final RecommendService recommendService;
 private final Box box;
 
     @GetMapping("/individual/{id}")
-    public Map<String,List<Industry>> individual(@PathVariable String id) throws TasteException {
+    public Map<String,List<IndustryStore>> individual(@PathVariable String id) throws TasteException {
+        box.clear();
         box.put("bestStore", recommendService.selectBestStores(id));
         box.put("userBased", recommendService.recommendStore(recommendService.userBasedRecommend(id)));
-        box.put("itemBased", recommendService.recommendStore(recommendService.itemBasedRecommend(id)));
+//        box.put("itemBased", recommendService.recommendStore(recommendService.itemBasedRecommend(id)));
        return box.get();
 
     }
+    @GetMapping("/tag/{gender}/{birthYear}")
+    public Map<String, List<Industry>> IndustryByTag(@PathVariable String gender, @PathVariable int birthYear){
+        Calendar cal = Calendar.getInstance();
+        int thisYear = cal.get (Calendar.YEAR);
+        int ageGroup = ((thisYear-birthYear+1)/10)*10;
+        System.out.println(ageGroup);
+        if (ageGroup<10){ birthYear = 10;}
+        box.clear();
+        box.put("byTotal", recommendService.industryByTotal());
+        box.put("byGenderAge", recommendService.industryByGenderAndAge(gender, birthYear));
+        box.put("byGender", recommendService.industryByGender(gender));
+        box.put("byAge", recommendService.industryByAge(birthYear));
+        return box.get();
+    }
+
+    @GetMapping("/search/{gender}/{ageGroup}")
+    public Map<String, List<Industry>> IndustryBySearch(@PathVariable String gender, @PathVariable int ageGroup){
+        box.clear();
+        System.out.println(gender+ageGroup);
+        if(gender.equals("None") && ageGroup ==0){
+            System.out.println("몇개냐"+recommendService.industryByTotal().size());
+            box.put("searchResult", recommendService.industryByTotal());
+        }
+        else if(gender.equals("None")){
+            System.out.println("나이 몇개냐"+recommendService.industryByTotal().size());
+            box.put("searchResult", recommendService.industryByAge(ageGroup));
+        }
+        else if(ageGroup == 0){
+            System.out.println("성별 몇개냐"+recommendService.industryByTotal().size());
+            box.put("searchResult", recommendService.industryByGender(gender));
+        }
+        else {
+            System.out.println("답있음"+recommendService.industryByTotal().size());
+            box.put("searchResult", recommendService.industryByGenderAndAge(gender, ageGroup));}
+        return box.get();
+    }
+
+
 
     @GetMapping("/industry/{searchWord}/{age}")
     public void industryByGenderAndAge(@PathVariable String searchWord, @PathVariable int age) {
         List<GenderAge> list;
-        if (searchWord.equals("남성")) {
+        if (searchWord.equals("") ) {
             list = recommendService.industryByGenderAndAge("M", age);
         } else if (searchWord.equals("여성")) {
             list = recommendService.industryByGenderAndAge("F", age);
