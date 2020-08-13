@@ -1,14 +1,13 @@
 package com.mobeom.local_currency.post;
 
 import static com.mobeom.local_currency.post.QPost.post;
-import static com.mobeom.local_currency.user.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,14 @@ interface CustomPostRepository {
     Post findByPostId(long postId);
     List<Post> inquiryList();
     List<Post> postList();
-    Long test(String postId,Post noticeVo);
-    List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId);
+    List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId);
     Post findOnePostByReviewId(long reviewId);
+
+    List<Post> findAllByBoardId(long boardId);
+
+    List<Post> findAllByBoardIdAndCommentYn(long boardId, String selectedOption);
+
+    List<Post> findAllByBoardIdCommentYnSearchWord(long boardId, String selectedOption, String searchWord);
 }
 
 @Repository
@@ -56,8 +60,8 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
                 .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
         return list;
     }
-  
-    public List<Post> findAllReviewsByUserIdAndBoardId(long userId, long boardId) {
+
+    public List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId) {
         List<Post> resultList =
                 queryFactory
                         .selectFrom(post)
@@ -72,11 +76,39 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     }
 
     @Override
-    public Long test(String postId,Post noticeVo) {
-        //    update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
-        Long update = update(post).set(post.category,noticeVo.getCategory()).where(post.postId.eq(noticeVo.getPostId())).execute();
-        //System.out.println(update.toString());
-        return update;
+    public List<Post> findAllByBoardId(long boardId) {
+        List<Post> resultList = queryFactory.selectFrom(post).where(post.board.boardId.eq(boardId)).fetch();
+        return resultList;
+    }
+
+    @Override
+    public List<Post> findAllByBoardIdAndCommentYn(long boardId, String selectedOption) {
+        if (selectedOption.equals("solved")) {
+            return queryFactory.selectFrom(post).where(post.board.boardId.eq(boardId), post.comment.isNotNull()).fetch();
+        } else {
+            return queryFactory.selectFrom(post).where(post.board.boardId.eq(boardId), post.comment.isNull()).fetch();
+        }
+    }
+
+    @Override
+    public List<Post> findAllByBoardIdCommentYnSearchWord(long boardId, String selectedOption, String searchWord) {
+        if (selectedOption.equals("solved")) {
+            return queryFactory
+                    .selectFrom(post)
+                    .where(
+                            post.board.boardId.eq(boardId),
+                            post.comment.isNotNull(),
+                            post.user.name.eq(searchWord)
+                    ).fetch();
+        } else {
+            return queryFactory
+                    .selectFrom(post)
+                    .where(
+                            post.board.boardId.eq(boardId),
+                            post.comment.isNull(),
+                            post.user.name.eq(searchWord)
+                    ).fetch();
+        }
     }
 
 
