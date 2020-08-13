@@ -51,7 +51,7 @@ public class PostController {
     @PatchMapping("/update/{postId}")
     public Post update(@PathVariable String postId,
                        @RequestBody Post updateNotice) {
-    //    update(post).set(post.comment,"아이오").where(post.noticeYn.eq(true)).execute();
+
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
 
         Post updatePost = findOne.get();
@@ -62,8 +62,6 @@ public class PostController {
             updatePost.setModiDate(LocalDate.now());
             postService.updatePost(updatePost);
         }
-
-
         return updatePost;
     }
 

@@ -10,8 +10,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 public class SalesVoucher {
-    private String localCurrencyName;
+    private String localCurrencyName,localName;
     private int unitPrice;
+    private Long localCurrencyVoucherId;
+    private LocalDate salesDate;
 
 
 }

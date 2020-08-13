@@ -17,8 +17,6 @@ import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
 
 import com.mobeom.local_currency.join.SalesVoucher;
-import com.mobeom.local_currency.sales.Sales;
-import com.mobeom.local_currency.user.User;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -36,9 +34,10 @@ interface CustomAdminRepository {
      Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
-    List<Sales> salesMonthChart();
-    SalesVoucher voucherNameChart(String voucherName);
+    List<SalesVoucher> salesMonthChart();
+    Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end);
     Integer useChart(String useSelect , String localName);
+    Map<String,Long> voucherSalesTotalChart();
 
 
 }
@@ -141,6 +140,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                 .fetch();
 
         int ten=0,twenties=0,thirties=0,forties=0,fifties=0,sixties=0,old=0;
+
         if(localSelect.equals("null")){
             for(int i=0;i<userTotalList.size();i++){
                 String[] birthdayYear =userTotalList.get(i).toString().split("-");
@@ -256,9 +256,9 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public List<Sales> salesMonthChart() {
+    public List<SalesVoucher> salesMonthChart() {
         return  query.select(Projections.fields
-                (Sales.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
+                (SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
                 .from(sales).groupBy(sales.salesDate.month()).fetch();
     }
 
@@ -266,14 +266,29 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
     @Override //이거는 뭐냐 거..그니까 기간이 들어가서 기간별로 뽑아내고싶음
-    public SalesVoucher voucherNameChart(String voucherName) {
-     SalesVoucher list= query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),localCurrencyVoucher.localCurrencyName))
-               .from(sales)
-               .innerJoin(sales.localCurrencyVoucher, localCurrencyVoucher)
-               .groupBy(localCurrencyVoucher.localName)
-               .having(localCurrencyVoucher.localName.like("%"+voucherName+"%")).fetchOne();
+    public Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end) {
 
-        return list;
+        Map<String,SalesVoucher> voucherMap = new HashMap<>();
+
+        int startDate = Integer.parseInt(start);
+        int endDate = Integer.parseInt(end);
+
+        for(int i= startDate;i<=endDate;i++){
+
+            SalesVoucher d=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),localCurrencyVoucher.localCurrencyName))
+                    .from(sales).where(sales.salesDate.stringValue().substring(0,7).like("2020-0"+i).and(localCurrencyVoucher.localCurrencyName.like("%"+"고양"+"%"))).fetchOne();
+
+
+            List<Integer> aa=  query.select(sales.unitPrice.sum())
+                    .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where((localCurrencyVoucher.localCurrencyName.like("%"+"고양"+"%"))).fetch();
+
+            voucherMap.put("2020-0"+i,d);
+            System.out.println(d.toString());
+
+        }
+
+
+        return voucherMap;
 
     }
 
@@ -293,7 +308,30 @@ WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.loca
         return useTest;
     }
 
+    @Override
+    public Map<String, Long> voucherSalesTotalChart() {
 
+        Map<String,Long> voucherSales = new HashMap<>();
+        String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
+                "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
+                "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
+                "광명", "성남", "시흥"};
+
+
+
+        for(int i=0;i<local.length;i++){
+        Long result=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),
+                    localCurrencyVoucher.localCurrencyName))
+                    .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where(localCurrencyVoucher.localCurrencyName.like(local[i]+"%"))
+                    .fetchCount();
+
+        voucherSales.put(local[i]+"사랑상품권",result);
+        }
+
+
+
+        return voucherSales;
+    }
 
 
 }

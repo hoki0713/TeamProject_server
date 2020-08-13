@@ -14,8 +14,8 @@ import java.util.List;
 
 
 public interface AdminRepository extends JpaRepository<Admin,Long>,CustomAdminRepository {
-//
-//    @Query(value="SELECT MID(sales_date,1,7) m,SUM(unit_price) FROM sales GROUP BY m ")
-//    int currencySales(@Param("startDate")LocalDate startDate);
+
+   @Query(value=" select * from sales sa where sa.sales_date like '%07%' ",nativeQuery=true)
+    int currencySales();
 
 }
