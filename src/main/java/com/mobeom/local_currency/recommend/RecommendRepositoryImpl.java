@@ -4,6 +4,7 @@ import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
+import static com.mobeom.local_currency.user.QUser.user;
 
 
 import com.mobeom.local_currency.favorites.Favorites;
@@ -29,7 +30,7 @@ interface CustomRecommendRepository {
 
     List<GenderAge> industryByGender(String gender);
 
-    Favorites fetchedStoreId(String id);
+    Long fetchedStoreId(String id);
 
 }
 @Repository
@@ -72,7 +73,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.address.as("address"))
         ) .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.address.contains(searchLocalWord))
+                .fetchJoin().where(store.address.endsWith(searchLocalWord+")"))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -129,9 +130,12 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
     }
 
-    public Favorites fetchedStoreId(String id){
-        return queryFactory.select(Projections.fields(Favorites.class, favorites.store.id)).from(store)
-                .where(favorites.user.id.eq(Long.valueOf(id))).fetchOne();
+    public Long fetchedStoreId(String id){
+        return queryFactory.select(favorites.store.id)
+                .from(favorites).innerJoin(store).on(store.id.eq(favorites.store.id))
+                .innerJoin(user).on(user.id.eq(favorites.user.id)).fetchJoin()
+                .where(user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
+                        orderBy(store.searchResultCount.desc()).fetchFirst();
     }
 
 }

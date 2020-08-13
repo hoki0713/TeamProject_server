@@ -76,23 +76,21 @@ public class RecommendServiceImpl implements RecommendService {
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
-        System.out.println("아이템숫자" + model.getNumItems());
-        System.out.println("유저숫자" + model.getNumUsers());
 
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.6,
+        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7,
                 similarity, model);
         UserBasedRecommender recommender = new GenericUserBasedRecommender(
                 model, neighborhood, similarity);
 
-        List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 10);
+        List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 7);
 
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("배열의 갯수" + recommendItemIds.size());
+        System.out.println("유저 배열의 갯수" + recommendItemIds.size());
         return recommendItemIds;
     }
 
@@ -104,24 +102,22 @@ public class RecommendServiceImpl implements RecommendService {
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
-        System.out.println("아이템숫자" + model.getNumItems());
-        System.out.println("유저숫자" + model.getNumUsers());
 
         ItemSimilarity similarity = new PearsonCorrelationSimilarity(model);
         ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
-        Long storeId = fetchStoreId(id);
-        List<RecommendedItem> recommendations = recommender.mostSimilarItems(storeId, 7);
 
+        Long itemId = fetchStoreIdByUserId(id);
+        System.out.println(itemId);
+        List<RecommendedItem> recommendations = recommender.mostSimilarItems(1213, 7);
 
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("배열의 갯수" + recommendItemIds.size());
+        System.out.println("아이템 배열의 갯수" + recommendItemIds.size());
         return recommendItemIds;
     }
-
 
 
     @Override
@@ -137,14 +133,21 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public List<IndustryStore> selectBestStores(String id) {
         Optional<User> searchUser = userRepository.findById(Long.parseLong(id));
-        String townName = searchUser.get().getDefaultAddr().split("\\s")[2];
+        String address = searchUser.get().getDefaultAddr().split("\\s")[2];
+        String[] town = address.split("");
+        StringBuilder townName= new StringBuilder();
+        for (String s : town) {
+            townName.append(s);
+        }
         System.out.println(townName);
+
+
         if (searchUser.isPresent()) {
             System.out.println("유저 있음");
         } else {
             System.out.println("유저 없대");
         }
-        return recommendRepository.fetchByBestStore(townName);
+        return recommendRepository.fetchByBestStore(townName.toString());
 
 
     }
@@ -191,9 +194,13 @@ public class RecommendServiceImpl implements RecommendService {
         return resultList;
 
     }
-    public Long fetchStoreId(String id){
-        return recommendRepository.fetchedStoreId(id).getStore().getId();
+
+    public Long fetchStoreIdByUserId(String id){
+
+        return recommendRepository.fetchedStoreId(id);
+
     }
+
 
 }
 
