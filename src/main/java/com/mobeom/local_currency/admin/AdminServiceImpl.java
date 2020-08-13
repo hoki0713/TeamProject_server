@@ -24,11 +24,11 @@ interface AdminService{
     Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
     Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeChart();
-    List<Sales> salesMonthChart();
+    List<SalesVoucher> salesMonthChart();
     List<User> getAllUserList();
     Optional<User> findOneUser(String userId);
     Integer useChartTest(String useSelect,String localName);
-    SalesVoucher voucherNameChart(String voucherName);
+    Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end);
 }
 
 @Service
@@ -76,7 +76,7 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<Sales> salesMonthChart() {
+    public List<SalesVoucher> salesMonthChart() {
         return adminRepository.salesMonthChart();
     }
 
@@ -96,8 +96,8 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public SalesVoucher voucherNameChart(String voucherName) {
-        return adminRepository.voucherNameChart(voucherName);
+    public Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end) {
+        return adminRepository.voucherNameChart(voucherName,start,end);
     }
 
 

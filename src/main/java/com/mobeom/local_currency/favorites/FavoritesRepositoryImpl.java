@@ -26,3 +26,4 @@ public class FavoritesRepositoryImpl extends QuerydslRepositorySupport implement
         return favorites;
     }
 }
+

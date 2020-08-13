@@ -24,6 +24,7 @@ public class StatisticRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public Map<String, Long> getUserRegionStat(List<String> listOfRegion) {
         QUser qUser = QUser.user;
+
         Map<String,Long> result = new HashMap<>();
         listOfRegion.forEach(regionName -> {
             Long numOfUser = queryFactory.selectFrom(qUser)

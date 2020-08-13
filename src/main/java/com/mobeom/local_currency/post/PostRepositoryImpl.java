@@ -55,12 +55,9 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     @Override
 
     public List<Post> postList() {
-  // List<Post> list= queryFactory.select(Projections.fields(post,user.userId,user.name)).from(post).innerJoin(user).fetch();
         List<Post> list= queryFactory.select(Projections.fields(Post.class,post.postTitle,
                 post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
-                .where(post.noticeYn.eq(true)).fetch();
-    Map<String,List<Post>> test = new HashMap<>();
-    test.put("postList",list);
+                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
         return list;
     }
 
