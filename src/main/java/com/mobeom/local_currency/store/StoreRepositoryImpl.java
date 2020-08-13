@@ -2,6 +2,7 @@ package com.mobeom.local_currency.store;
 
 import com.mobeom.local_currency.recommend.QIndustry;
 import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.recommend.QIndustry;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -49,12 +50,14 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 store.longitude,
                 store.storeTypeCode,
                 store.storeType,
+                store.mainCode,
                 store.searchResultCount,
                 industry.industryImageUrl.as("imgUrl")
                 )).from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin()
-                .where(store.localName.like('%'+clickedState+'%')).limit(200).fetch();
+                .where(store.localName.like('%'+clickedState+'%'))
+                .orderBy(store.searchResultCount.desc()).limit(200).fetch();
 
     }
 
