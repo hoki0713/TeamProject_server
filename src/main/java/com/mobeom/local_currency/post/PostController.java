@@ -1,13 +1,11 @@
 package com.mobeom.local_currency.post;
 
-import com.mobeom.local_currency.rating.Rating;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -93,7 +91,7 @@ public class PostController {
     }
   
   
-   @PostMapping("/reviews/{storeId}")
+    @PostMapping("/reviews/{storeId}")
     public ResponseEntity<Post> createReview(@PathVariable String storeId,
                                              @RequestBody ReviewVO review) {
         Post userReview = postService.createReview(storeId, review);
@@ -114,7 +112,7 @@ public class PostController {
 
     @PatchMapping("/reviews/{reviewId}")
     public ResponseEntity<Post> updateReview(@PathVariable String reviewId, @RequestBody ReviewVO review) {
-        Post selectPost = postService.findReview(Long.parseLong(reviewId));
+        Post selectPost = postService.findPost(Long.parseLong(reviewId));
         Optional.ofNullable(review.getContents()).ifPresent(contents -> selectPost.setContents(contents));
         Optional.ofNullable(review.getStarRating()).ifPresent(rating -> selectPost.getRating().setStarRating(rating));
         return ResponseEntity.ok(postService.updatePost(selectPost));
@@ -122,9 +120,51 @@ public class PostController {
 
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<Post> deleteReview(@PathVariable String reviewId) {
-        Post findOne = postService.findReview(Long.parseLong(reviewId));
-        postService.deleteReview(findOne);
+        Post findOne = postService.findPost(Long.parseLong(reviewId));
+        postService.deletePost(findOne);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/questions/{userId}")
+    public ResponseEntity<Post> createQuestion(@PathVariable String userId,
+                                               @RequestBody QuestionVO question) {
+        Post userQuestion = postService.createQuestion(userId, question);
+        return ResponseEntity.ok(userQuestion);
+    }
+
+    @GetMapping("/questions/{userId}")
+    public ResponseEntity<Map<Long, QuestionVO>> getAllQuestionsByUserId(@PathVariable String userId) {
+        Map<Long,QuestionVO> questions = postService.getAllQuestionsByUserId(Long.parseLong(userId));
+        return ResponseEntity.ok(questions);
+    }
+
+    @GetMapping("/questions/detail/{questionId}")
+    public ResponseEntity<QuestionVO> getOneQuestionById(@PathVariable String questionId) {
+        QuestionVO question = postService.getOneQuestionById(Long.parseLong(questionId));
+        return ResponseEntity.ok(question);
+    }
+
+    @PatchMapping("/questions/{questionId}")
+    public ResponseEntity<Post> updateQuestion(@PathVariable String questionId, @RequestBody QuestionVO question) {
+        Post selectPost = postService.findPost(Long.parseLong(questionId));
+        Optional.ofNullable(question.getContents()).ifPresent(contents -> selectPost.setContents(contents));
+        return ResponseEntity.ok(postService.updatePost(selectPost));
+    }
+
+    @DeleteMapping("/questions/{questionId}")
+    public ResponseEntity<Post> deleteQuestion(@PathVariable String questionId) {
+        Post findOne = postService.findPost(Long.parseLong(questionId));
+        postService.deletePost(findOne);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/questions")
+    public ResponseEntity<Map<Long, QuestionVO>> getAllQuestionsBySelectedOption(@RequestParam String selectedOption,
+                                                                                 @RequestParam String searchWord) {
+        System.out.println(selectedOption);
+        System.out.println(searchWord);
+        Map<Long,QuestionVO> questions = postService.getAllQuestionsBySelectedOption(selectedOption, searchWord);
+        return ResponseEntity.ok(questions);
     }
 
 }
