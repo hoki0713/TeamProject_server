@@ -5,11 +5,13 @@ import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
 import com.querydsl.core.Tuple;
+import org.mortbay.util.ajax.JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,7 +54,7 @@ public class AdminController {
 
     @GetMapping("/userTotal-chart/{localSelect}")
     public Map<?,?> userLocalGenderChart(@PathVariable String localSelect){
-        System.out.println(localSelect+"들어옴");
+
         Map<String,Long> testChart1 = adminService.userLocalGenderChart(localSelect);
         Map<String,Integer> testChart2 = adminService.userAgeTotal(localSelect);
        box.put("gender",testChart1);
@@ -95,15 +97,30 @@ public class AdminController {
 
 
     @GetMapping("/currency/month/total")
-    public ResponseEntity<List<Sales>> currencySalesMonthTotalChart(){
-        List<Sales> monthList = adminService.salesMonthChart();
-       return ResponseEntity.ok(monthList);
+    public ResponseEntity<Map<String,Integer>> currencySalesMonthTotalChart(){
+        Map<String,Integer> result = new HashMap<>();
+        List<SalesVoucher> monthList = adminService.salesMonthChart();
+        monthList.forEach(sales->{
+            String year=sales.getSalesDate().toString().split("-")[0];
+            String month=sales.getSalesDate().toString().split("-")[1];
+           result.put(year+"-"+month,sales.getUnitPrice());
+        });
+       return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/voucher/name-list/{voucherName}")
-    public SalesVoucher voucherNameChart(@PathVariable String voucherName){ //SalesVoucher voucherNameChart(String voucherName)
-        System.out.println(adminService.voucherNameChart(voucherName).toString());
-        return adminRepository.voucherNameChart(voucherName);
+    @GetMapping("/voucher/sales-total")
+    public Map<String,Long> test (){
+        return adminRepository.voucherSalesTotalChart();
+    }
+
+    @GetMapping("/voucher/name-list/{currencyName}/{startDate}/{endDate}")
+    public Map<String,SalesVoucher> voucherNameChart(@PathVariable String currencyName,@PathVariable String startDate,@PathVariable String endDate){ //SalesVoucher voucherNameChart(String voucherName)
+
+        String start = startDate.split("-")[1];
+        String end = endDate.split("-")[1];
+        System.out.println(startDate+"end"+endDate);
+        System.out.println(currencyName);
+        return adminService.voucherNameChart(currencyName,start,end);
     }
 
     @GetMapping("/useChart/test/{useSelect}/{localName}")

@@ -1,5 +1,7 @@
 package com.mobeom.local_currency.store;
 
+
+import com.mobeom.local_currency.recommend.QIndustry;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.recommend.QIndustry;
 import com.querydsl.core.types.Projections;

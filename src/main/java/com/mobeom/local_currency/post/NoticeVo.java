@@ -12,4 +12,5 @@ public class NoticeVo {
     private String contents;
     private boolean noticeYn;
     private Long userId;
+    private Long postId;
 }
