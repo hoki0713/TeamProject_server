@@ -27,7 +27,7 @@ interface AdminService{
     List<SalesVoucher> salesMonthChart();
     List<User> getAllUserList();
     Optional<User> findOneUser(String userId);
-    Integer useChartTest(String useSelect,String localName);
+    Map<String,Integer> useChartTest(String localName,LocalDate startDate,LocalDate endDate);
     Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end);
 }
 
@@ -91,8 +91,8 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public Integer useChartTest(String useSelect, String localName) {
-        return adminRepository.useChart(useSelect,localName);
+    public Map<String,Integer> useChartTest(String localName,LocalDate startDate,LocalDate endDate) {
+        return adminRepository.useChart(localName,startDate,endDate);
     }
 
     @Override

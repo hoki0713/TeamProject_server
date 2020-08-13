@@ -38,7 +38,7 @@ interface CustomAdminRepository {
     Map<String,Long> storeTypeLocal();
     List<SalesVoucher> salesMonthChart();
     Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end);
-    Integer useChart(String useSelect , String localName);
+    Map<String,Integer>  useChart(String localName,LocalDate startDate,LocalDate endDate);
     Map<String,Long> voucherSalesTotalChart();
     Map<?,?> useTest(String useSelect);
 
@@ -284,7 +284,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
             SalesVoucher monthTotal=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),
                     localCurrencyVoucher.localCurrencyName))
                     .from(sales).where(sales.salesDate.stringValue().substring(0,7).like("2020-"+"%"+i)
-                            .and(localCurrencyVoucher.localCurrencyName.like("%"+voucherName+"%"))).fetchOne();
+                            .and(localCurrencyVoucher.localCurrencyName.like(voucherName+"%"))).fetchOne();
 
             if(monthTotal.getUnitPrice()!=0){
                 voucherMap.put("2020-"+i,monthTotal);
@@ -297,20 +297,66 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     }
 
-    /*
 
-SELECT SUM(unit_price),local_currency_voucher.local_name FROM sales inner JOIN local_currency_voucher ON sales.local_currency_voucher_id = local_currency_voucher.local_currency_voucher_id
-WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.local_name LIKE '%가평%'
-     */
+
     @Override
-    public Integer useChart(String useSelect , String localName) {
-        Integer useTest = query.select(sales.unitPrice.sum())
+    public Map<String,Integer> useChart( String localName,LocalDate startDate,LocalDate endDate) {
+
+        String[] useYn = {"사용완료","취소완료","미사용"};
+
+        Map<String,Integer> result = new HashMap<>();
+
+        if(localName.equals("null")){
+            for (String s : useYn) {
+                Integer useTest = query.select(sales.unitPrice.sum())
                         .from(sales)
                         .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
-                        .where(sales.currencyState.like("%"+useSelect+"%").and(localCurrencyVoucher.localName.like("%"+localName+"%"))).fetchOne();
+                        .where(sales.currencyState.like("%"+s+"%")).fetchOne();
+                        result.put(s,useTest);
+                System.out.println("null:"+useTest.toString());
+            }
+        }else{
+
+                Integer useTest = query.select(sales.unitPrice.sum())
+                        .from(sales)
+                        .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                        .where(sales.useDate.between(startDate,endDate)
+                                .and(sales.currencyState.like("%"+"사용완료"+"%"))
+                                .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%"))
+                        ).fetchOne();
+                        result.put("사용 완료",useTest);
+
+                 Integer useCancel = query.select(sales.unitPrice.sum())
+                                    .from(sales)
+                                    .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                                    .where(sales.cancelDate.between(startDate,endDate)
+                                            .and(sales.currencyState.like("%"+"취소완료"+"%"))
+                                            .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%"))).fetchOne();
+                    result.put("취소 완료",useCancel);
+
+                 Integer unUse = query.select(sales.unitPrice.sum())
+                                .from(sales)
+                                .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                                .where(sales.salesDate.between(startDate,endDate)
+                                        .and(sales.useDate.between(startDate,endDate).stringValue().like(""))
+                                        .and(sales.cancelDate.between(startDate,endDate).stringValue().like(""))
+                                        .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%")))
+                                        .fetchOne();
+
+            result.put("미사용",unUse);
+
+            System.out.println("null이아닌것: 사용완료"+useTest+"취소완료"+useCancel+"미사용"+unUse);
+
+            /*
+            where(sales.salesDate.stringValue().substring(0,7).like("2020-"+"%"+i)
+                            .and(localCurrencyVoucher.localCurrencyName.like("%"+voucherName+"%"))).fetchOne()
+             */
+        }
 
 
-        return useTest;
+
+
+        return result;
     }
 
     @Override
@@ -345,12 +391,18 @@ WHERE sales.currency_state LIKE '%사용완료%' AND local_currency_voucher.loca
 
         Map<String,Long> result = new HashMap<>();
 
-        if(useSelect.equals("")){
+        if(useSelect.equals("null")){
             for (String s : useYn) {
                Long useResult = query.selectFrom(sales).where(sales.currencyState.like(s)).fetchCount();
                 result.put(s,useResult);
+                System.out.println(useResult.toString());
             }
 
+        }else{
+
+            for(String s:useYn) {
+//                Long useResult = query.selectFrom(sales).where(sales.currencyState.like(s).and(sales.))
+            }
         }
         return null;
     }

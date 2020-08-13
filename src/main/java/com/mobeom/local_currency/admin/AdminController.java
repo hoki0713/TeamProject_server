@@ -124,9 +124,12 @@ public class AdminController {
         return adminService.voucherNameChart(currencyName,start,end);
     }
 
-    @GetMapping("/useChart/test/{useSelect}/{localName}")
-    public Integer test3(@PathVariable String useSelect, @PathVariable String localName){
-        System.out.println(adminService.useChartTest(useSelect,localName));
-        return adminService.useChartTest(useSelect,localName);
+    @GetMapping("/useChart/test/{localName}/{startDate}/{endDate}")
+    public Map<String,Integer> test3(@PathVariable String localName,@PathVariable String startDate,@PathVariable String endDate){
+
+        LocalDate start_date = LocalDate.parse(startDate,DateTimeFormatter.ISO_DATE);
+        LocalDate end_date = LocalDate.parse(endDate,DateTimeFormatter.ISO_DATE);
+        System.out.println(start_date+"end:"+end_date);
+        return adminService.useChartTest(localName,start_date,end_date);
     }
 }
