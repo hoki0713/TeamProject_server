@@ -15,7 +15,13 @@ import java.util.List;
 
 public interface AdminRepository extends JpaRepository<Admin,Long>,CustomAdminRepository {
 
-   @Query(value=" select * from sales sa where sa.sales_date like '%07%' ",nativeQuery=true)
-    int currencySales();
-
+    /*
+    SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price FROM sales a INNER Join local_currency_voucher b
+ ON a.local_currency_voucher_id = b.local_currency_voucher_id where a.use_date
+ BETWEEN 2020-07-01 AND 2020-07-31 IS NULL AND a.cancel_date  BETWEEN 2020-07-01 AND 2020-07-31 IS NULL
+ AND b.local_currency_name LIKE '%고양%';
+     */
+//  @Query(value="select sum(a.unit_price) from sales a (inner join local_currency_voucher b on a.local_currency_voucher_id =: b.local_currency_voucher_id)" +
+//          "where a.use_date between start and endDate is null and a.cancel_date between start and endDate is null and b.local_currency_name like %localName%")
+//int testRepository(@Param("start")LocalDate start,@Param("endDate")LocalDate endDate,@Param("localName") String localName);
 }

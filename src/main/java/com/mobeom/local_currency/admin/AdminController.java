@@ -5,6 +5,7 @@ import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
 import com.querydsl.core.Tuple;
+import lombok.AllArgsConstructor;
 import org.mortbay.util.ajax.JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,17 +20,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/admins")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@AllArgsConstructor
 public class AdminController {
 
     private final AdminRepository adminRepository;
     private final AdminService adminService;
     private final Box box;
 
-    public AdminController(AdminRepository adminRepository, AdminService adminService, Box box) {
-        this.adminRepository = adminRepository;
-        this.adminService = adminService;
-        this.box = box;
-    }
 
 
     @GetMapping("/list")
@@ -119,17 +116,22 @@ public class AdminController {
 
         String start = startDate.split("-")[1];
         String end = endDate.split("-")[1];
-        System.out.println(startDate+"end"+endDate);
-        System.out.println(currencyName);
+
         return adminService.voucherNameChart(currencyName,start,end);
     }
 
+
+    @GetMapping("/useChart/total")
+    public Map<String,Integer> useChartTotal(){
+        return adminRepository.useTotalLocalChart();
+    }
+
     @GetMapping("/useChart/test/{localName}/{startDate}/{endDate}")
-    public Map<String,Integer> test3(@PathVariable String localName,@PathVariable String startDate,@PathVariable String endDate){
+    public Map<String,Integer> useLocalChart(@PathVariable String localName,@PathVariable String startDate,@PathVariable String endDate){
 
         LocalDate start_date = LocalDate.parse(startDate,DateTimeFormatter.ISO_DATE);
         LocalDate end_date = LocalDate.parse(endDate,DateTimeFormatter.ISO_DATE);
-        System.out.println(start_date+"end:"+end_date);
-        return adminService.useChartTest(localName,start_date,end_date);
+
+        return adminService.useLocalChart(localName,start_date,end_date);
     }
 }
