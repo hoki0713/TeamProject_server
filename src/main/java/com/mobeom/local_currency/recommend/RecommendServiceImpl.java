@@ -1,41 +1,27 @@
 package com.mobeom.local_currency.recommend;
 
-import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.store.Store;
-import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.common.LongPrimitiveArrayIterator;
-import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
-import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.impl.recommender.ItemAverageRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.GenericItemSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.ItemBasedRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 interface RecommendService {
@@ -47,17 +33,19 @@ interface RecommendService {
 
     List<String> itemBasedRecommend(String itemId) throws TasteException;
 
-    //    List<StoreVo> testRecommend(String storeName, String storeType);
-    List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
 
-    List<GenderAge> industryByGenderAndAge(String searchWord, int age);
+    List<GenderAge> industryByGenderAndAge(String searchWord, int birthYear);
 
     List<GenderAge> industryByAge(int age);
 
     List<GenderAge> industryByGender(String gender);
 
-    List<List<IndustryStore>> fetchStores(String searchWord, int age, String town);
+    List<GenderAge> industryByTotal();
 
+    Map<String, List<IndustryStore>> fetchStores(String searchWord, int age, String town);
+
+    Map<String, List<IndustryStore>> findStoreByIndustryList(List<GenderAge> industryList);
 }
 
 @Service
@@ -66,6 +54,8 @@ public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
     private final UserRepository userRepository;
     private final FavoritesRepository favoritesRepository;
+
+
 
     @Override
     public List<String> userBasedRecommend(String id) throws TasteException {
@@ -153,20 +143,15 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
 
-//    @Override
-//    public List<StoreVo> testRecommend(String storeName, String storeType) {
-//        return recommendRepository.testRecommend(storeName, storeType);
-//    }
-
     @Override
-    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town) {
-        return recommendRepository.fetchStoreByIndustry(searchIndustry, town);
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
+        return recommendRepository.fetchStoreByIndustry(searchIndustry);
     }
 
     @Override
-    public List<GenderAge> industryByGenderAndAge(String searchWord, int age) {
-        return recommendRepository.industryByGenderAndAge(searchWord, age);
-    }
+    public List<GenderAge> industryByGenderAndAge(String searchWord, int ageGroup) {
+        return recommendRepository.industryByGenderAndAge(searchWord, ageGroup);}
+
 
     @Override
     public List<GenderAge> industryByAge(int age) {
@@ -185,20 +170,40 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<List<IndustryStore>> fetchStores(String searchWord, int age, String town) {
-        List<List<IndustryStore>> resultList = new ArrayList<>();
+    public Map<String, List<IndustryStore>> fetchStores(String searchWord, int age, String town) {
+        Map<String, List<IndustryStore>> resultList = new HashMap<>();
         for (GenderAge industryName : industryByGenderAndAge(searchWord, age)) {
-            resultList.add(recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), town));
+            resultList.put("", recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()));
         }
 
         return resultList;
 
     }
 
-    public Long fetchStoreIdByUserId(String id){
+    @Override
+    public Map<String, List<IndustryStore>> findStoreByIndustryList(List<GenderAge> industryList) {
+        Map<String, List<IndustryStore>> result = new HashMap<>();
+        for (GenderAge industryName :industryList) {
+            result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()));
+        }
+        return result;
+    }
 
+    public Long fetchStoreIdByUserId(String id){
+//        Optional<User> findUser = userRepository.findById(Long.parseLong(id));
+//        if (findUser.isPresent()){
+//            List<Favorites> favoriteStores = favoritesRepository.findAllStoreByUserId(findUser.get().getId());
+//            List<Store> favoritesStores = new ArrayList<>();
+//            for(Favorites favorites : favoriteStores){
+//                favoritesStores.add(favorites.getStore());
+//            }
+//        }
         return recommendRepository.fetchedStoreId(id);
 
+    }
+    @Override
+    public List<GenderAge> industryByTotal(){
+        return recommendRepository.industryByTotal();
     }
 
 

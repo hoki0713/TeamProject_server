@@ -1,14 +1,18 @@
 package com.mobeom.local_currency.favorites;
 
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.util.List;
 
+
 interface CustomFavoritesRepository {
 
     List<Favorites> findAllByUserId(long userId);
+
+
 }
 
 public class FavoritesRepositoryImpl extends QuerydslRepositorySupport implements CustomFavoritesRepository {
@@ -25,5 +29,8 @@ public class FavoritesRepositoryImpl extends QuerydslRepositorySupport implement
         List<Favorites> favorites = queryFactory.selectFrom(qFavorites).where(qFavorites.user.id.eq(userId)).fetch();
         return favorites;
     }
+
+
+
 }
 
