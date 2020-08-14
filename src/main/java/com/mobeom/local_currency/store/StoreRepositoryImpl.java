@@ -5,6 +5,7 @@ import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.recommend.QIndustry;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +17,10 @@ interface IStoreRepository {
     List<Store> uiList();
     List<IndustryStore> findByLocal(String clickedState);
     List<Store> findAllByStoreName(String storeName);
+
+    List<Store> findAllByLocalName(String localName, PageRequest pageRequest);
+
+    //List<Store> findAllByLocalName(String localName);
 }
 
 @Repository
@@ -66,6 +71,17 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         QStore qStore = QStore.store;
         List<Store> storeList = queryFactory.selectFrom(qStore).where(qStore.storeName.like(storeName)).fetch();
         return storeList;
+    }
+
+    @Override
+    public List<Store> findAllByLocalName(String localName, PageRequest pageRequest) {
+        QStore qStore = QStore.store;
+        if(localName.equals("양주시")) {
+            return queryFactory.selectFrom(qStore).where(qStore.localName.like(localName)).limit(100).fetch();
+        } else {
+            return queryFactory.selectFrom(qStore).where(qStore.localName.like("%" + localName + "%")).limit(100).fetch();
+        }
+
     }
 
     @Override
