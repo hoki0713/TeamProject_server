@@ -53,13 +53,11 @@ public class PostController {
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
 
         Post updatePost = findOne.get();
-        if (findOne.isPresent()) {
-            updatePost.setContents(updateNotice.getContents());
-            updatePost.setPostTitle(updateNotice.getPostTitle());
-            updatePost.setCategory(updateNotice.getCategory());
-            updatePost.setModiDate(LocalDate.now());
-            postService.updatePost(updatePost);
-        }
+        updatePost.setContents(updateNotice.getContents());
+        updatePost.setPostTitle(updateNotice.getPostTitle());
+        updatePost.setCategory(updateNotice.getCategory());
+        updatePost.setModiDate(LocalDate.now());
+        postService.updatePost(updatePost);
         return updatePost;
     }
 
