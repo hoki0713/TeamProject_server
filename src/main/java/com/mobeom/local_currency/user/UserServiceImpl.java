@@ -2,12 +2,16 @@ package com.mobeom.local_currency.user;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -26,6 +30,9 @@ interface UserService {
     Optional<User> findUserbyNameAndEmail(String name, String email);
 
     Optional<User> findUserForResetPassword(String userId, String name, String email);
+
+    Page<User> getAllUsers();
+
 }
 
 @Service
@@ -67,8 +74,6 @@ public class UserServiceImpl implements UserService {
         createUser.setJoinDate(LocalDate.now());
         createUser.setDefaultAddr(user.getDefaultAddr());
         createUser.setOptionalAddr(user.getOptionalAddr());
-
-        System.out.println(createUser);
         User savedUser = userRepository.save(createUser);
         return Optional.of(savedUser);
     }
@@ -83,6 +88,11 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findUserForResetPassword(String userId, String name, String email) {
         Optional<User> findUser = userRepository.findByUserIdNameEmail(userId, name, email);
         return findUser;
+    }
+
+    @Override
+    public Page<User> getAllUsers() {
+        return userRepository.findAll(PageRequest.of(0,20));
     }
 
 }

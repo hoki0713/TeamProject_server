@@ -1,8 +1,9 @@
 package com.mobeom.local_currency.favorites;
 
-import com.mobeom.local_currency.rating.Rating;
-import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.store.Store;
+import com.mobeom.local_currency.store.StoreRepository;
+import com.mobeom.local_currency.user.User;
+import com.mobeom.local_currency.user.UserRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,20 @@ import java.util.Optional;
 interface FavoritesService {
 
     Optional<Map<Long, FavoritesVO>> getFavoritesList(long userId);
+
+    Favorites saveFavorite(FavoritesVO favorite);
 }
 
 @Service
 public class FavoritesServiceImpl implements FavoritesService{
     private final FavoritesRepository favoritesRepository;
+    private final UserRepository userRepository;
+    private final StoreRepository storeRepository;
 
-    public FavoritesServiceImpl(FavoritesRepository favoritesRepository) {
+    public FavoritesServiceImpl(FavoritesRepository favoritesRepository, UserRepository userRepository, StoreRepository storeRepository) {
         this.favoritesRepository = favoritesRepository;
+        this.userRepository = userRepository;
+        this.storeRepository = storeRepository;
     }
 
     @Override
@@ -38,5 +45,17 @@ public class FavoritesServiceImpl implements FavoritesService{
             favorites.put(store.getId(), oneFavoriteStore);
         });
         return Optional.of(favorites);
+    }
+
+    @Override
+    public Favorites saveFavorite(FavoritesVO favorite) {
+        Optional<User> findUser = userRepository.findById(favorite.getUserId());
+        User user = findUser.get();
+        Optional<Store> findStore = storeRepository.findById(favorite.getStoreId());
+        Store store = findStore.get();
+        Favorites newFavorite = new Favorites();
+        newFavorite.setUser(user);
+        newFavorite.setStore(store);
+        return favoritesRepository.save(newFavorite);
     }
 }

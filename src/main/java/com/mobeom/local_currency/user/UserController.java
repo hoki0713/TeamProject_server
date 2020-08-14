@@ -1,9 +1,11 @@
 package com.mobeom.local_currency.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -120,6 +122,15 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // 삭제할거
+    @GetMapping("/test")
+    public ResponseEntity<Page<User>> getAllUsers() {
+        System.out.println("test 들어옴");
+        Page<User> userList = userService.getAllUsers();
+        System.out.println(userList);
+        return ResponseEntity.ok(userList);
     }
 
 }
