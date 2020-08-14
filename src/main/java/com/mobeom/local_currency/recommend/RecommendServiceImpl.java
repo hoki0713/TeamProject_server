@@ -33,7 +33,7 @@ interface RecommendService {
 
     List<String> itemBasedRecommend(String itemId) throws TasteException;
 
-    List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
 
     List<GenderAge> industryByGenderAndAge(String searchWord, int birthYear);
 
@@ -43,8 +43,9 @@ interface RecommendService {
 
     List<GenderAge> industryByTotal();
 
-    List<List<IndustryStore>> fetchStores(String searchWord, int age, String town);
+    Map<String, List<IndustryStore>> fetchStores(String searchWord, int age, String town);
 
+    Map<String, List<IndustryStore>> findStoreByIndustryList(List<GenderAge> industryList);
 }
 
 @Service
@@ -143,8 +144,8 @@ public class RecommendServiceImpl implements RecommendService {
 
 
     @Override
-    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town) {
-        return recommendRepository.fetchStoreByIndustry(searchIndustry, town);
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
+        return recommendRepository.fetchStoreByIndustry(searchIndustry);
     }
 
     @Override
@@ -169,14 +170,23 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<List<IndustryStore>> fetchStores(String searchWord, int age, String town) {
-        List<List<IndustryStore>> resultList = new ArrayList<>();
+    public Map<String, List<IndustryStore>> fetchStores(String searchWord, int age, String town) {
+        Map<String, List<IndustryStore>> resultList = new HashMap<>();
         for (GenderAge industryName : industryByGenderAndAge(searchWord, age)) {
-            resultList.add(recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), town));
+            resultList.put("", recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()));
         }
 
         return resultList;
 
+    }
+
+    @Override
+    public Map<String, List<IndustryStore>> findStoreByIndustryList(List<GenderAge> industryList) {
+        Map<String, List<IndustryStore>> result = new HashMap<>();
+        for (GenderAge industryName :industryList) {
+            result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()));
+        }
+        return result;
     }
 
     public Long fetchStoreIdByUserId(String id){
@@ -191,7 +201,7 @@ public class RecommendServiceImpl implements RecommendService {
         return recommendRepository.fetchedStoreId(id);
 
     }
-
+    @Override
     public List<GenderAge> industryByTotal(){
         return recommendRepository.industryByTotal();
     }

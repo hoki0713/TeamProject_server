@@ -22,7 +22,7 @@ interface CustomRecommendRepository {
 
     List<IndustryStore> fetchByBestStore(String searchLocalWord);
 
-    List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
 
     List<GenderAge> industryByGenderAndAge(String gender, int ageGroup);
 
@@ -83,7 +83,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
 
     @Override //업종명으로 가맹점 찾기(img 연결된 ver)
-    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, String town) {
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -94,7 +94,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
         )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(industry.mainCode.contains(searchIndustry), store.address.contains(town))
+                .fetchJoin().where(industry.mainCode.contains(searchIndustry))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
     //고양시도 검색되는데 상관 없나... 헷갈린다.
