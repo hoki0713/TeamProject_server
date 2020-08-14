@@ -31,37 +31,39 @@ private final Box box;
 
     }
     @GetMapping("/tag/{gender}/{birthYear}")
-    public Map<String, List<Industry>> IndustryByTag(@PathVariable String gender, @PathVariable int birthYear){
+    public Map<String, List<GenderAge>> IndustryByTag(@PathVariable String gender, @PathVariable int birthYear){
         Calendar cal = Calendar.getInstance();
         int thisYear = cal.get (Calendar.YEAR);
         int ageGroup = ((thisYear-birthYear+1)/10)*10;
-        System.out.println(ageGroup);
-        if (ageGroup<10){ birthYear = 10;}
+        if (ageGroup<=10){ ageGroup = 10;}
         box.clear();
         box.put("byTotal", recommendService.industryByTotal());
-        box.put("byGenderAge", recommendService.industryByGenderAndAge(gender, birthYear));
-        box.put("byGender", recommendService.industryByGender(gender));
-        box.put("byAge", recommendService.industryByAge(birthYear));
+        box.put("byGenderAge", recommendService.industryByGenderAndAge(gender, ageGroup));
+        box.put("byAge", recommendService.industryByGender(gender));
+        box.put("byGender", recommendService.industryByAge(ageGroup));
         return box.get();
     }
 
     @GetMapping("/search/{gender}/{ageGroup}")
     public Map<String, List<Industry>> IndustryBySearch(@PathVariable String gender, @PathVariable int ageGroup){
-        box.clear();
         System.out.println(gender+ageGroup);
-        if(gender.equals("None") && ageGroup ==0){
+        if(gender.equals("null") && ageGroup ==0){
+            box.clear();
             System.out.println("몇개냐"+recommendService.industryByTotal().size());
             box.put("searchResult", recommendService.industryByTotal());
         }
         else if(gender.equals("None")){
+            box.clear();
             System.out.println("나이 몇개냐"+recommendService.industryByTotal().size());
             box.put("searchResult", recommendService.industryByAge(ageGroup));
         }
         else if(ageGroup == 0){
+            box.clear();
             System.out.println("성별 몇개냐"+recommendService.industryByTotal().size());
             box.put("searchResult", recommendService.industryByGender(gender));
         }
         else {
+            box.clear();
             System.out.println("답있음"+recommendService.industryByTotal().size());
             box.put("searchResult", recommendService.industryByGenderAndAge(gender, ageGroup));}
         return box.get();
