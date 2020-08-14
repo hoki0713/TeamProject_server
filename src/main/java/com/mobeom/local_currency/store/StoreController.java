@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequestMapping("/stores")
 @AllArgsConstructor
 public class StoreController {
-    private StoreService storeService;
+    private final StoreService storeService;
     static Logger logger = LoggerFactory.getLogger(StoreController.class);
 
     @Autowired Box box;
@@ -63,4 +63,11 @@ public class StoreController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/getStores/{localName}")
+    public ResponseEntity<Map<Long,StoresVO>> getAllStoresByLocalName (@PathVariable String localName) {
+        Map<Long,StoresVO> storesMap = storeService.getAllStoresByLocalName(localName.trim());
+        return ResponseEntity.ok(storesMap);
+    }
+
 }
