@@ -150,6 +150,7 @@ public class PostController {
     public ResponseEntity<Post> updateQuestion(@PathVariable String questionId, @RequestBody QuestionVO question) {
         Post selectPost = postService.findPost(Long.parseLong(questionId));
         Optional.ofNullable(question.getContents()).ifPresent(contents -> selectPost.setContents(contents));
+        Optional.ofNullable(question.getComment()).ifPresent(comment -> selectPost.setComment(comment));
         return ResponseEntity.ok(postService.updatePost(selectPost));
     }
 
