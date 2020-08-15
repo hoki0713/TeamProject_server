@@ -30,7 +30,7 @@ public class ReportListServiceImpl implements ReportListService{
             ReportList selectedReport = findReport.get();
             int addReportedCount = selectedReport.getReportedCount() + 1;
             selectedReport.setReportedCount(addReportedCount);
-            return selectedReport;
+            return reportListRepository.save(selectedReport);
         } else {
             ReportList newReport = new ReportList();
             newReport.setStore(reportedStore.get());

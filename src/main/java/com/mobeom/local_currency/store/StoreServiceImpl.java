@@ -5,12 +5,11 @@ import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.proxy.JpaService;
 import com.mobeom.local_currency.recommend.Industry;
 import com.mobeom.local_currency.recommend.IndustryRepository;
-import org.springframework.data.domain.Page;
+import com.mobeom.local_currency.reportList.ReportList;
+import com.mobeom.local_currency.reportList.ReportListRepository;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +36,13 @@ interface StoreService extends JpaService<Store> {
 public class StoreServiceImpl implements StoreService {
     private final StoreRepository repository;
     private final IndustryRepository industryRepository;
+    private final ReportListRepository reportListRepository;
     private final Box<List<Store>> stores;
 
-    public StoreServiceImpl(StoreRepository repository, IndustryRepository industryRepository, Box<List<Store>> stores) {
+    public StoreServiceImpl(StoreRepository repository, IndustryRepository industryRepository, ReportListRepository reportListRepository, Box<List<Store>> stores) {
         this.repository = repository;
         this.industryRepository = industryRepository;
+        this.reportListRepository = reportListRepository;
         this.stores = stores;
     }
 
@@ -92,7 +93,10 @@ public class StoreServiceImpl implements StoreService {
         Map<Long, StoresVO> storesMap = new HashMap<>();
         List<Store> stores = repository.findAllByLocalName(localName, PageRequest.of(0, 20));
         List<Industry> industries = industryRepository.findAll();
+        List<ReportList> reports = reportListRepository.findAll();
+        System.out.println(reports);
         Map<Integer, String> industryImgUrls = industries.stream().collect(toMap(Industry::getIndustryCode, Industry::getIndustryImageUrl));
+        Map<Store, Integer> storeReportCountMap = reports.stream().collect(toMap(ReportList::getStore, ReportList::getReportedCount));
         stores.forEach(store -> {
             StoresVO oneStore = new StoresVO();
             oneStore.setStoreName(store.getStoreName());
@@ -102,6 +106,9 @@ public class StoreServiceImpl implements StoreService {
             oneStore.setLatitude(store.getLatitude());
             oneStore.setLongitude(store.getLongitude());
             oneStore.setImgUrl(industryImgUrls.get(store.getStoreTypeCode()));
+            if(storeReportCountMap.containsKey(store)) {
+                oneStore.setReportedCount(storeReportCountMap.get(store));
+            }
             storesMap.put(store.getId(), oneStore);
         });
         return storesMap;
