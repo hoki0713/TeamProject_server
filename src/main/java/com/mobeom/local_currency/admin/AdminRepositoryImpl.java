@@ -64,31 +64,27 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
    @Override
     public Map<String,Long> localTotalChart() {
 
-       String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
-               "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
-               "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
-               "광명", "성남", "시흥"}; //enum으로처리
+
 
         Map<String,Long> localChart = new HashMap<>();
 
-        for(int i=0;i<local.length;i++){
-            if(local[i].equals("양주")) {
+       LocalName[] locals = LocalName.values();
+
+        for(LocalName i : locals){
+
+            if(i.toString().equals("양주")) {
                 Long num = query.selectFrom(user)
-                        .where(user.defaultAddr.like("경기도 " + local[i] + "%"))
+                        .where(user.defaultAddr.like("경기도 " +i + "%"))
                     .fetchCount();
-                localChart.put(local[i],num);
+                localChart.put(i.toString(),num);
             } else {
                 Long num = query.selectFrom(user)
-                        .where(user.defaultAddr.like("%" + local[i] + "%"))
+                        .where(user.defaultAddr.like("%" + i + "%"))
                         .fetchCount();
-                localChart.put(local[i],num);
+                localChart.put(i.toString(),num);
             }
 
         }
-
-
-
-
 
        return localChart;
     }
@@ -130,8 +126,6 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     @Override
     public Map<String, Integer> userAgeChart(String localSelect) {
-
-
         Map<String,Integer> userAge = new HashMap<>();
 
         String formatDate= LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
@@ -254,8 +248,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         Long storeNum= query.selectFrom(store).where(store.storeTypeCode.like("3099").and(store.address.like("%"+"고양"+"%"))).fetchCount();
         List<?> list = query.selectFrom(store).where(store.storeTypeCode.like("3099").and(store.address.like("%"+"고양"+"%"))).fetch();
 
-        System.out.println("storenum-"+storeNum);
-        System.out.println(list.toString());
+
 
         storeType.put("a",storeNum);
 
@@ -302,8 +295,6 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     @Override
     public Map<String,Integer> useLocalChart( String localName,LocalDate startDate,LocalDate endDate) {
 
-
-
         Map<String,Integer> result = new HashMap<>();
 
                 Integer useTest = query.select(sales.unitPrice.sum())
@@ -325,15 +316,11 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 //                 Integer unUse = query.select(sales.unitPrice.sum())
 //                                .from(sales)
-//                                .join(sales.localCurrencyVoucher,localCurrencyVoucher)
+//                                .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
 //                                .where(sales.useDate.between(startDate,endDate).isNull()
-//                                .and(sales.cancelDate.between(startDate,endDate).isNull())
-//                                .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%")))
+//                                    .and(sales.cancelDate.between(startDate,endDate).isNull())
+//                                    .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%")))
 //                                .fetchOne();
-//                                .where((sales.useDate.between(startDate,endDate).isNull())
-//                                        .and(sales.cancelDate.between(startDate,endDate).isNull())
-//                                        .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%")))
-//                                        .fetchOne();.and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%")))
 
             /*
 
@@ -345,8 +332,6 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
 //            result.put("미사용",unUse);
 
 
-
-
         return result;
     }
 
@@ -354,20 +339,18 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
     public Map<String, Long> voucherSalesTotalChart() {
 
         Map<String,Long> voucherSales = new HashMap<>();
-        String[] local ={"연천", "포천", "파주", "동두천", "양주", "의정부", "가평", "고양",
-                "김포", "남양주", "구리", "하남", "양평", "광주", "여주", "이천", "용인", "안성",
-                "평택", "화성", "수원", "오산", "안산", "군포", "의왕", "안양", "과천", "부천",
-                "광명", "성남", "시흥"};
+
+        LocalName[] locals = LocalName.values();
 
 
-
-        for(int i=0;i<local.length;i++){
+        for(LocalName i : locals){
         Long result=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),
                     localCurrencyVoucher.localCurrencyName))
-                    .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where(localCurrencyVoucher.localCurrencyName.like(local[i]+"%"))
+                    .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where(localCurrencyVoucher.localCurrencyName.like(i+"%"))
                     .fetchCount();
 
-        voucherSales.put(local[i]+"사랑상품권",result);
+        voucherSales.put(i+"사랑상품권",result);
+
         }
 
 

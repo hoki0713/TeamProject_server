@@ -9,6 +9,9 @@ import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +19,7 @@ import java.util.*;
 
 @Component
 interface PostService {
-    List<Post>  postNoticeList();
+    Page<Post>  postNoticeList(Pageable pageable);
     Optional<Post> onePost(long postId);
     Post insertNotice(NoticeVo notice);
     Post updatePost(Post notice);
@@ -62,8 +65,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> postNoticeList() {
-        return postRepository.postList();
+    public Page<Post> postNoticeList(Pageable pageable) {
+         pageable = PageRequest.of(0,5);
+        return postRepository.postList(pageable);
     }
 
     @Override
