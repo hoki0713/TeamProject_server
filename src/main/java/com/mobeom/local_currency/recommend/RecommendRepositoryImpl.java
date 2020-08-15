@@ -6,8 +6,6 @@ import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
 import static com.mobeom.local_currency.user.QUser.user;
 
-
-import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
