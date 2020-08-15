@@ -3,6 +3,7 @@ package com.mobeom.local_currency.favorites;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,6 +26,11 @@ public class FavoritesController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+    @PostMapping("")
+    public ResponseEntity<Favorites> createFavorite(@RequestBody FavoritesVO favorite) {
+        Favorites userFavorite = favoritesService.saveFavorite(favorite);
+        return ResponseEntity.ok(userFavorite);
     }
 
 }

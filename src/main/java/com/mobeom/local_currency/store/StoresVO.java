@@ -14,4 +14,5 @@ public class StoresVO {
     private double latitude;
     private double longitude;
     private String imgUrl;
+    private int reportedCount;
 }
