@@ -26,6 +26,7 @@ public class StoreController {
     @GetMapping("/list")
     public Map<?,?> getAll(){
         logger.info("list()");
+        box.clear();
         Iterable<Store> storeList = storeService.findAll();
         box.put("list", storeList);
         return box.get();
@@ -34,6 +35,7 @@ public class StoreController {
     @GetMapping("/ui")
     public Map<?,?> getuiList(){
         logger.info("getuiList()");
+        box.clear();
         box.put("list",storeService.getUi());
         return box.get();
     }
@@ -41,6 +43,7 @@ public class StoreController {
     @GetMapping("/mapClick/{clickedState}")
     public Map<?,?> getMapClick(@PathVariable String clickedState){
         logger.info("getMapClick()");
+        box.clear();
         box.put("list",storeService.getMap(clickedState));
         return box.get();
     }
@@ -68,6 +71,20 @@ public class StoreController {
     public ResponseEntity<Map<Long,StoresVO>> getAllStoresByLocalName (@PathVariable String localName) {
         Map<Long,StoresVO> storesMap = storeService.getAllStoresByLocalName(localName.trim());
         return ResponseEntity.ok(storesMap);
+    }
+
+    @GetMapping("/realTimeSearch/{searchWD}")
+    public Map<?,?>  realTimeSearch(@PathVariable String searchWD){
+        logger.info("realTimeSearch()"+"searchWD:"+searchWD);
+        Object results = storeService.getSeveral(searchWD);
+        box.clear();
+        if (results != null) {
+            box.put("msg", "success");
+            box.put("list", results);
+        } else {
+            box.put("msg", "검색결과가 없습니다.");
+        }
+        return box.get();
     }
 
 }

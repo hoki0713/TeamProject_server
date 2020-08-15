@@ -2,7 +2,6 @@ package com.mobeom.local_currency.store;
 
 import com.mobeom.local_currency.recommend.QIndustry;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.recommend.QIndustry;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.PageRequest;
@@ -11,16 +10,16 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Map;
 
 interface IStoreRepository {
     List<Store> findAllStoreByUserDefaultAddr(String defaultAddr);
     List<Store> uiList();
     List<IndustryStore> findByLocal(String clickedState);
     List<Store> findAllByStoreName(String storeName);
-
     List<Store> findAllByLocalName(String localName, PageRequest pageRequest);
+    List<Store> findSeveral(String searchWD);
 
-    //List<Store> findAllByLocalName(String localName);
 }
 
 @Repository
@@ -41,7 +40,7 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         QStore qStore = QStore.store;
         JPAQueryFactory queryFactory = new JPAQueryFactory(getEntityManager());
         return queryFactory.select(qStore).from(qStore).where(qStore.localName.like("의정부시")).limit(200).fetch();
-    }
+    }//은송 정리필요
 
     @Override
     public List<IndustryStore> findByLocal(String clickedState) {
@@ -64,7 +63,7 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 .where(store.localName.like('%'+clickedState+'%'))
                 .orderBy(store.searchResultCount.desc()).limit(200).fetch();
 
-    }
+    }//은송 findbymap
 
     @Override
     public List<Store> findAllByStoreName(String storeName) {
@@ -83,6 +82,14 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         }
 
     }
+
+    @Override
+    public List<Store> findSeveral(String searchWD) {
+        QStore qStore = QStore.store;
+        return queryFactory.selectFrom(qStore)
+                .where(qStore.storeName.like("%"+searchWD+"%"))
+                .limit(3).fetch();
+    }// 은송 findbestroute
 
     @Override
     public List<Store> findAllStoreByUserDefaultAddr(String defaultAddr) {
