@@ -40,6 +40,6 @@ public class LocalCurrencyVoucherRepositoryImpl extends QuerydslRepositorySuppor
 
         return queryFactory.select(Projections.fields(LocalCurrencyVoucher.class, localCurrencyVoucher.localCurrencyVoucherId))
                 .from(localCurrencyVoucher)
-                .where(localCurrencyVoucher.localName.contains(localName)
-                        ,localCurrencyVoucher.voucherValue.eq(unitPrice)).fetchOne();
+                .where(localCurrencyVoucher.localName.endsWith(" "+localName)
+                        ,localCurrencyVoucher.voucherValue.eq(unitPrice)).fetchFirst();
 }}

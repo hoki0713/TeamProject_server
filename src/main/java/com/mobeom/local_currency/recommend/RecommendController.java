@@ -2,10 +2,10 @@ package com.mobeom.local_currency.recommend;
 
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.proxy.Box;
-import com.mobeom.local_currency.store.Store;
+import com.mobeom.local_currency.store.LatLngVo;
+import com.mobeom.local_currency.store.UserLatLngVo;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
@@ -78,11 +78,12 @@ public class RecommendController {
         return box.get();
     }
 
-    @GetMapping("/storesByIndustry/{gender}/{ageGroup}")
-    public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup){
+    @PostMapping("/storesByIndustry/{gender}/{ageGroup}")
+    public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup,
+                                                                 @RequestBody LatLngVo latLng){
         System.out.println("가게 리스트 입성");
         List<GenderAge> industryList=findIndustryByTag(gender, ageGroup).get("searchResult");
-        return recommendService.findStoresByIndustryList(industryList);
+        return recommendService.findStoresByIndustryList(industryList, latLng);
     }}
 
 

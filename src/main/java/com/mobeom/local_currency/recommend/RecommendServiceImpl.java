@@ -2,7 +2,9 @@ package com.mobeom.local_currency.recommend;
 
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.store.LatLngVo;
 import com.mobeom.local_currency.user.User;
+import com.mobeom.local_currency.store.UserLatLngVo;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import lombok.AllArgsConstructor;
@@ -44,7 +46,7 @@ interface RecommendService {
     List<GenderAge> findIndustryByTotal();
 
 
-    Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList);
+    Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, LatLngVo userLatLng);
 }
 
 @Service
@@ -166,10 +168,13 @@ public class RecommendServiceImpl implements RecommendService {
 //    }
 
     @Override
-    public Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList) {
+    public Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, LatLngVo latLng) {
+        System.out.println(latLng);
+        double lat = latLng.getLatitude();
+        double lng = latLng.getLongitude();
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
-            result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()));
+            result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()), lat, lng);
         }
         return result;
     }

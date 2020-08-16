@@ -5,8 +5,10 @@ import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
 import static com.mobeom.local_currency.user.QUser.user;
+import static java.lang.Math.*;
 
 import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.store.UserLatLngVo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -20,7 +22,7 @@ interface CustomRecommendRepository {
 
     List<IndustryStore> fetchByBestStore(String searchLocalWord);
 
-    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng);
 
     List<GenderAge> industryByGenderAndAge(String gender, int ageGroup);
 
@@ -81,7 +83,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
 
     @Override //업종명으로 가맹점 찾기(img 연결된 ver)
-    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -89,10 +91,11 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeType.as("storeType"),
                 store.localName.as("localName"),
                 store.address.as("address"))
-        )
+        )*,(((acos(sin((@latitude*pi()/180)) * sin((Latitude*pi()/180))+cos((@latitude*pi()/180)) * cos((Latitude*pi()/180)) * cos(((@longitude - Longitude)*pi()/180))))*180/pi())*60*1.1515*1.609344) as distance FROM Distances) t
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(industry.mainCode.contains(searchIndustry))
+                .fetchJoin().where(industry.mainCode.contains(searchIndustry),
+                        (store.latitude).between(lat-150, userLatLng.getLatitude()+150))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
     //고양시도 검색되는데 상관 없나... 헷갈린다.
