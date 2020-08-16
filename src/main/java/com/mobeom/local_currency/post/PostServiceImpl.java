@@ -19,7 +19,7 @@ import java.util.*;
 
 @Component
 interface PostService {
-    Page<Post>  postNoticeList(Pageable pageable);
+    List<Post>  postNoticeList();
     Optional<Post> onePost(long postId);
     Post insertNotice(NoticeVo notice);
     Post updatePost(Post notice);
@@ -65,9 +65,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> postNoticeList(Pageable pageable) {
-         pageable = PageRequest.of(0,5);
-        return postRepository.postList(pageable);
+    public List<Post> postNoticeList() {
+         //pageable = PageRequest.of(0,5);
+        return postRepository.postList();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post insertNotice(NoticeVo notice) {
         Optional<User> user = userRepository.findById(notice.getUserId());
-        Optional<Board> board = boardRepository.findById((long)2);
+        Optional<Board> board = boardRepository.findById((long)4);
 
         Post insertNotice = new Post();
         insertNotice.setCategory(notice.getCategory());

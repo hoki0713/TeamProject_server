@@ -42,6 +42,7 @@ public class StoreController {
     public Map<?,?> getMapClick(@PathVariable String clickedState){
         logger.info("getMapClick()");
         box.put("list",storeService.getMap(clickedState));
+        System.out.println(box.get());
         return box.get();
     }
 

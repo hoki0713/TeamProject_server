@@ -97,7 +97,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .fetchJoin().where(industry.mainCode.contains(searchIndustry))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
-    //고양시도 검색되는데 상관 없나... 헷갈린다.
+
 
     @Override //성별 및 연령 입력시 대분류 안내
     public List<GenderAge> industryByGenderAndAge(String gender, int ageGroup) {

@@ -28,18 +28,18 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId){
-
+        System.out.println("들어옴oneNotice"+postId);
        Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
         return oneNotice.isPresent()? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
-       //return oneNotice.orElse(null);
+
 
     }
 
     @GetMapping("/postlist")
-    public ResponseEntity<Page<Post>> postList(){
+    public ResponseEntity<List<Post>> postList(){
         //Page<Post> a=postRepository.findAll(PageRequest.of(1,5));
-        Page<Post> list = postService.postNoticeList(PageRequest.of(0,5));
-        System.out.println(list.toString());
+        List<Post> list = postService.postNoticeList();
+
         return ResponseEntity.ok(list);
     }
 

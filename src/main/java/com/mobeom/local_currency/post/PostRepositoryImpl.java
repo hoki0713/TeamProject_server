@@ -20,7 +20,7 @@ import java.util.Map;
 interface CustomPostRepository {
     Post findByPostId(long postId);
     List<Post> inquiryList();
-    Page<Post> postList(Pageable pageable);
+    List<Post>  postList();
     List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId);
     Post findOnePostByReviewId(long reviewId);
 
@@ -58,12 +58,17 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
 
     @Override
 
-    public Page<Post> postList(Pageable pageable) {
-        JPQLQuery page= queryFactory.select(Projections.fields(Post.class,post.postTitle,
+    public List<Post> postList() {
+//        JPQLQuery page= queryFactory.select(Projections.fields(Post.class,post.postTitle,
+//                post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
+//                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse()));
+//       List<Post>  list =getQuerydsl().applyPagination(pageable,page).fetch();
+//        return new PageImpl<>(list, pageable, page.fetchCount());
+        List<Post> list = queryFactory.select(Projections.fields(Post.class,post.postTitle,
                 post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
-                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse()));
-       List<Post>  list =getQuerydsl().applyPagination(pageable,page).fetch();
-        return new PageImpl<>(list, pageable, page.fetchCount());
+                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
+
+        return list;
     }
 
     public List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId) {

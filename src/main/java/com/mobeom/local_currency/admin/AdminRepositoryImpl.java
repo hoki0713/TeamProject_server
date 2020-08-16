@@ -15,8 +15,11 @@ import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
+import static com.mobeom.local_currency.recommend.QIndustry.industry;
 
+import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.join.SalesVoucher;
+import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.querydsl.core.types.Projections;
@@ -197,7 +200,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public Map<?, ?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate) { //객체 vo 달 /mm값 으로요
+    public Map<?, ?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate) { //구현하지않을생각
 
         LocalDate fixedEndDate = joinStartDate.plusMonths(1).minusDays(1);
         for(int i=1;i<=3;i++){
@@ -245,12 +248,13 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
         Map<String,Long> storeType = new HashMap<>();
 
 
-        Long storeNum= query.selectFrom(store).where(store.storeTypeCode.like("3099").and(store.address.like("%"+"고양"+"%"))).fetchCount();
-        List<?> list = query.selectFrom(store).where(store.storeTypeCode.like("3099").and(store.address.like("%"+"고양"+"%"))).fetch();
 
+       Long test = query.selectFrom(store).where(store.mainCode.like("레저업소").and(store.localName.like("의정부시"))).fetchCount();
+        List<Store> test2 = query.selectFrom(store)
+                .where(store.mainCode.like("레저업소")
+                        .and(store.localName.like("의정부시"))).fetch();
 
-
-        storeType.put("a",storeNum);
+        storeType.put("test",test);
 
         return storeType;
     }
@@ -301,7 +305,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                         .from(sales)
                         .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
                         .where(sales.useDate.between(startDate,endDate)
-                                .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%"))
+                                .and(localCurrencyVoucher.localCurrencyName.like(localName+"%"))
                         ).fetchOne();
 
                         result.put("사용 완료",useTest);
@@ -310,7 +314,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                                     .from(sales)
                                     .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
                                     .where(sales.cancelDate.between(startDate,endDate)
-                                            .and(localCurrencyVoucher.localCurrencyName.like("%"+localName+"%"))).fetchOne();
+                                            .and(localCurrencyVoucher.localCurrencyName.like(localName+"%"))).fetchOne();
 
                     result.put("취소 완료",useCancel);
 

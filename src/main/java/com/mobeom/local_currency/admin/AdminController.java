@@ -134,4 +134,9 @@ public class AdminController {
 
         return adminService.useLocalChart(localName,start_date,end_date);
     }
+
+    @GetMapping("/chart/test")
+    public void testchart(){
+        adminRepository.storeTypeLocal();
+    }
 }
