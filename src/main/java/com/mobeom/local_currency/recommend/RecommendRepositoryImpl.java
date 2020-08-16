@@ -5,10 +5,10 @@ import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
 import static com.mobeom.local_currency.user.QUser.user;
-import static java.lang.Math.*;
+import static java.lang.Math.acos;
+import static java.lang.Math.cos;
 
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.store.UserLatLngVo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -20,7 +20,7 @@ import java.util.List;
 interface CustomRecommendRepository {
     IndustryStore recommendStores(String searchWord);
 
-    List<IndustryStore> fetchByBestStore(String searchLocalWord);
+    List<IndustryStore> fetchByBestStore(double lat, double lng);
 
     List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng);
 
@@ -65,7 +65,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override //단순 가맹점 추천(서치 순)
-    public List<IndustryStore> fetchByBestStore(String searchLocalWord) {
+    public List<IndustryStore> fetchByBestStore(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -75,7 +75,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.address.as("address"))
         ) .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.address.endsWith(searchLocalWord+")"))
+                .fetchJoin().where(  store.latitude.between(lat-0.045, lat+0.045),
+                        store.longitude.between(lng-0.06, lng+0.06))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -91,11 +92,12 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeType.as("storeType"),
                 store.localName.as("localName"),
                 store.address.as("address"))
-        )*,(((acos(sin((@latitude*pi()/180)) * sin((Latitude*pi()/180))+cos((@latitude*pi()/180)) * cos((Latitude*pi()/180)) * cos(((@longitude - Longitude)*pi()/180))))*180/pi())*60*1.1515*1.609344) as distance FROM Distances) t
+        )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin().where(industry.mainCode.contains(searchIndustry),
-                        (store.latitude).between(lat-150, userLatLng.getLatitude()+150))
+                        store.latitude.between(lat-0.045, lat+0.045),
+                        store.longitude.between(lng-0.06, lng+0.06))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
     //고양시도 검색되는데 상관 없나... 헷갈린다.

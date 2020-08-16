@@ -1,13 +1,12 @@
 package com.mobeom.local_currency.recommend;
 
+import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.LatLngVo;
 import com.mobeom.local_currency.user.User;
-import com.mobeom.local_currency.store.UserLatLngVo;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
-import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -28,8 +27,9 @@ import java.util.*;
 @Component
 interface RecommendService {
 
+    boolean isPresentFavorites(String id);
 
-    List<IndustryStore> findBestStores(String id);
+    List<IndustryStore> findBestStores(String lat, String Lng);
 
     List<String> findUserBasedRecommend(String id) throws TasteException;
 
@@ -45,16 +45,20 @@ interface RecommendService {
 
     List<GenderAge> findIndustryByTotal();
 
-
     Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, LatLngVo userLatLng);
 }
 
 @Service
-@AllArgsConstructor
 public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
     private final UserRepository userRepository;
     private final FavoritesRepository favoritesRepository;
+
+    public RecommendServiceImpl(RecommendRepository recommendRepository, UserRepository userRepository, FavoritesRepository favoritesRepository) {
+        this.recommendRepository = recommendRepository;
+        this.userRepository = userRepository;
+        this.favoritesRepository = favoritesRepository;
+    }
 
 
     @Override
@@ -81,6 +85,7 @@ public class RecommendServiceImpl implements RecommendService {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
         System.out.println("유저 배열의 갯수" + recommendItemIds.size());
+
         return recommendItemIds;
     }
 
@@ -121,16 +126,10 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<IndustryStore> findBestStores(String id) {
-        Optional<User> oneUser = userRepository.findById(Long.parseLong(id));
-        String address = oneUser.get().getDefaultAddr().split("\\s")[2];
-        String[] town = address.split("");
-        StringBuilder townName = new StringBuilder();
-        for (String s : town) {
-            townName.append(s);
-        }
-        System.out.println(townName);
-        return recommendRepository.fetchByBestStore(townName.toString());
+    public List<IndustryStore> findBestStores(String lat, String lng) {
+        double latDouble = Double.parseDouble(lat);
+        double lngDouble = Double.parseDouble(lng);
+        return recommendRepository.fetchByBestStore(latDouble, lngDouble);
     }
 
 
@@ -174,21 +173,23 @@ public class RecommendServiceImpl implements RecommendService {
         double lng = latLng.getLongitude();
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
-            result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()), lat, lng);
+            result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
         }
         return result;
     }
 
+    @Override
+    public boolean isPresentFavorites(String id) {
+        List<Favorites> favorites = favoritesRepository.findAllByUserId(Long.parseLong(id));
+        if (favorites.size() != 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 
     public Long fetchStoreIdByUserId(String id) {
-//        Optional<User> findUser = userRepository.findById(Long.parseLong(id));
-//        if (findUser.isPresent()){
-//            List<Favorites> favoriteStores = favoritesRepository.findAllStoreByUserId(findUser.get().getId());
-//            List<Store> favoritesStores = new ArrayList<>();
-//            for(Favorites favorites : favoriteStores){
-//                favoritesStores.add(favorites.getStore());
-//            }
-//        }
         return recommendRepository.fetchedStoreId(id);
 
     }

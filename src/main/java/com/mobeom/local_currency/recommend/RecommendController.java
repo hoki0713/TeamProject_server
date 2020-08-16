@@ -3,10 +3,10 @@ package com.mobeom.local_currency.recommend;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.LatLngVo;
-import com.mobeom.local_currency.store.UserLatLngVo;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.Calendar;
 import java.util.List;
@@ -22,11 +22,25 @@ public class RecommendController {
     private final Box box;
 
     @GetMapping("/individual/{id}")
-    public Map<String, List<IndustryStore>> getIndividualRecommend(@PathVariable String id) throws TasteException {
+    public Map<String, ?> getIndividualRecommend(@PathVariable String id) throws TasteException {
         box.clear();
-        box.put("bestStore", recommendService.findBestStores(id));
-        box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
-//        box.put("itemBased", recommendService.recommendStore(recommendService.itemBasedRecommend(id)));
+        if(recommendService.findUserBasedRecommend(id).size() !=0){
+            box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
+        } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");};
+        if(recommendService.isPresentFavorites(id)){
+            box.put("itemBased", recommendService.findRecommendStores(recommendService.findItemBasedRecommend(id)));
+        } else{
+            box.put("noItemBased", "즐겨찾기 데이터가 부족합니다. 더 많은 가맹점들을 즐겨찾기해주세요.");
+        };
+        return box.get();
+    }
+
+
+    @GetMapping("/best/{lat}/{lng}")
+    public Map<String, List<IndustryStore>> getBestRecommend(@PathVariable String lat, @PathVariable String lng) {
+        box.clear();
+        box.put("bestStore", recommendService.findBestStores(lat, lng));
+
         return box.get();
 
     }
@@ -80,11 +94,12 @@ public class RecommendController {
 
     @PostMapping("/storesByIndustry/{gender}/{ageGroup}")
     public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup,
-                                                                 @RequestBody LatLngVo latLng){
-        System.out.println("가게 리스트 입성");
-        List<GenderAge> industryList=findIndustryByTag(gender, ageGroup).get("searchResult");
+                                                                 @RequestBody LatLngVo latLng) {
+        System.out.println("가게 리스트 입성" + latLng.getLatitude() + latLng.getLongitude());
+        List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
         return recommendService.findStoresByIndustryList(industryList, latLng);
-    }}
+    }
+}
 
 
 //    @GetMapping("/resultStore/{gender}/{age}/{town}")
