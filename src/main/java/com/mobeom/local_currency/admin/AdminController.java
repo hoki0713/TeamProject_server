@@ -10,6 +10,7 @@ import org.mortbay.util.ajax.JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -134,4 +135,12 @@ public class AdminController {
 
         return adminService.useLocalChart(localName,start_date,end_date);
     }
+
+    // Emilia code
+    @GetMapping("/userList/{pageNumber}")
+    public ResponseEntity<List<User>> getAllUsers(@PathVariable int pageNumber) {
+        List<User> userList = adminService.getAllUsers(pageNumber);
+        return ResponseEntity.ok(userList);
+    }
+
 }

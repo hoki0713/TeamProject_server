@@ -7,10 +7,13 @@ import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.querydsl.core.Tuple;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +33,9 @@ interface AdminService{
     Map<String,Integer> useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
     Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end);
     Map<String,Integer> useTotalLocalChart();
+
+    List<User> getAllUsers(int pageNumber);
+
 }
 
 @Service
@@ -105,6 +111,16 @@ public class AdminServiceImpl implements AdminService{
     @Override
     public Map<String, Integer> useTotalLocalChart() {
         return adminRepository.useTotalLocalChart();
+    }
+
+    @Override
+    public List<User> getAllUsers(int pageNumber) {
+        List<User> resultUserList = new ArrayList<User>();
+        Page<User> pageUserList = userRepository.findAll(PageRequest.of(pageNumber, 20));
+        pageUserList.forEach(user -> {
+            resultUserList.add(user);
+        });
+        return resultUserList;
     }
 
 
