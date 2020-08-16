@@ -64,7 +64,7 @@ public class RecommendController {
         box.put("byGenderAge", recommendService.findIndustryByGenderAndAge(gender, ageGroup));
         box.put("byGender", recommendService.findIndustryByGender(gender));
         box.put("byAge", recommendService.findIndustryByAge(ageGroup));
-        box.put("userAgeGroup", String.valueOf(ageGroup) + "대");
+        box.put("userAgeGroup", ageGroup );
         box.put("userGenderKor", userGender);
         return box.get();
     }

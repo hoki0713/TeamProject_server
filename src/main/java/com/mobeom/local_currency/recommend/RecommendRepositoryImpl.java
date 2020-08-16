@@ -95,12 +95,11 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
         )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(industry.mainCode.contains(searchIndustry),
+                .fetchJoin().where(industry.mainCode.eq(searchIndustry),
                         store.latitude.between(lat-0.045, lat+0.045),
                         store.longitude.between(lng-0.06, lng+0.06))
-                .orderBy(store.searchResultCount.desc()).limit(7).fetch();
+                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
     }
-    //고양시도 검색되는데 상관 없나... 헷갈린다.
 
     @Override //성별 및 연령 입력시 대분류 안내
     public List<GenderAge> industryByGenderAndAge(String gender, int ageGroup) {
