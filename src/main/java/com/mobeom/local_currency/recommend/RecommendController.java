@@ -44,7 +44,7 @@ public class RecommendController {
 
 
     @PostMapping("/all/{id}")
-    public Map<String, List<IndustryStore>> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng){
+    public Map<String, ?> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng){
         box.clear();
         double lat = latLng.getLatitude();
         double lng = latLng.getLongitude();
@@ -57,7 +57,7 @@ public class RecommendController {
 
         box.put("bestStore", recommendService.findBestStores(lat, lng));
 
-//        box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
+        box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
         box.put("bestRated", recommendService.findBestRatedStores(lat, lng));
 
         if (recommendService.fetchStoreIdByUserId(id) != null){
@@ -122,8 +122,9 @@ public class RecommendController {
         return box.get();
     }
 
-    @PostMapping("/storesByIndustry/{gender}/{ageGroup}")
+    @PostMapping("/storesByIndustry/{gender}/{ageGroup}/{option}")
     public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup,
+                                                                 @PathVariable int option,
                                                                  @RequestBody LatLngVo latLng) {
         double lat = latLng.getLatitude();
         double lng = latLng.getLongitude();

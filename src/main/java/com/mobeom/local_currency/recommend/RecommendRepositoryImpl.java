@@ -7,13 +7,11 @@ import static com.mobeom.local_currency.favorites.QFavorites.favorites;
 import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.rating.QRating.rating;
 
-import static java.lang.Math.acos;
-import static java.lang.Math.cos;
 
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.Store;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
@@ -175,7 +173,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
                 .where(store.latitude.between(lat - 0.027, lat + 0.027),
                         store.longitude.between(lng - 0.036, lng + 0.036))
-                .groupBy(favorites.store.id).orderBy(favorites.user.id.count().desc(),
+                .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc(),
                         store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -192,7 +190,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
                 .where(store.latitude.between(lat - 0.027, lat + 0.027),
                         store.longitude.between(lng - 0.036, lng + 0.036))
-                .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
+                .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
     }
 
