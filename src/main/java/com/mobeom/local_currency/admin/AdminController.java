@@ -80,11 +80,6 @@ public class AdminController {
         adminService.joinChart(start_date,end_date);
     }
 
-    @GetMapping("/localChart/{localSelect}")
-    public Long storeLocalChart(@PathVariable String localSelect){
-        return adminService.storeLocalsChart(localSelect);
-
-    }
 
 
     @GetMapping("/storeTypeChart")
@@ -135,8 +130,12 @@ public class AdminController {
         return adminService.useLocalChart(localName,start_date,end_date);
     }
 
-    @GetMapping("/chart/test")
-    public void testchart(){
-        adminRepository.storeTypeLocal();
+    @GetMapping("/store/chart-local/{localSelect}")
+    public Map<String,Long> storeLocalChart(@PathVariable String localSelect){
+        return adminService.storeLocalsChart(localSelect);
     }
+
+    @GetMapping("/store/chart-all")
+    public Map<String,Long> storeIndustryChartAll() {
+    return adminService.storeIndustryChartAll(); }
 }

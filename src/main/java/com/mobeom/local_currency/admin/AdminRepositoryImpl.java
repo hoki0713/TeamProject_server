@@ -1,15 +1,5 @@
 package com.mobeom.local_currency.admin;
-/*
-전체 지역별xx
 
-지역별로 나눠서 업종으로 세분화
-
--사용여부
-지역 다띄울지
-아니면
-지역정해서 사용얼마 미사용얼마 띄울지
-
- */
 
 import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.user.QUser.user;
@@ -37,7 +27,7 @@ interface CustomAdminRepository {
      Map<String,Long> userLocalGenderChart(String localSelect);
      Map<String,Integer> userAgeChart(String localSelect);
      Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
-    Long storeLocalsChart(String localSelect);
+    Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
     List<SalesVoucher> salesMonthChart();
     Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end);
@@ -223,20 +213,20 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
     @Override
-    public Long storeLocalsChart(String localSelect) {
-//        Map<String,Long> localStoreChart = new HashMap<>();
-//
-//        Long num = query.selectFrom(store)
-//                .where(store.address.like("%"+localSelect+"%"))
-//                .fetchCount();
+    public Map<String,Long> storeLocalsChart(String localSelect) {
 
 
-        //localStoreChart.put("local",num);
+        Map<String,Long> storeType = new HashMap<>();
 
-        //return localStoreChart;
-        return query.selectFrom(store)
-                .where(store.address.like("%"+localSelect+"%"))
-                .fetchCount();
+        IndustryType[] industryType = IndustryType.values();
+
+        for(IndustryType type: industryType){
+            Long result = query.selectFrom(store)
+                    .where(store.mainCode.like("%"+type+"%").and(store.localName.like("%"+localSelect+"%"))).fetchCount();
+            storeType.put(type.toString()+"업",result);
+        }
+
+        return storeType;
 
     }
 
@@ -245,18 +235,19 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     @Override
     public Map<String, Long> storeTypeLocal() {
 
-        Map<String,Long> storeType = new HashMap<>();
+    Map<String,Long> storeResult = new HashMap<>();
 
 
+    IndustryType[] industryType = IndustryType.values();
 
-       Long test = query.selectFrom(store).where(store.mainCode.like("레저업소").and(store.localName.like("의정부시"))).fetchCount();
-        List<Store> test2 = query.selectFrom(store)
-                .where(store.mainCode.like("레저업소")
-                        .and(store.localName.like("의정부시"))).fetch();
+    for(IndustryType type: industryType){
+        Long result = query.selectFrom(store)
+                .where(store.mainCode.like(type+"%")).fetchCount();
 
-        storeType.put("test",test);
+        storeResult.put(type.toString()+"업",result);
+    }
 
-        return storeType;
+        return storeResult;
     }
 
     @Override
