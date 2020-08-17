@@ -5,9 +5,9 @@ import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
 import static com.mobeom.local_currency.user.QUser.user;
+import static java.lang.Math.acos;
+import static java.lang.Math.cos;
 
-
-import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,9 +20,9 @@ import java.util.List;
 interface CustomRecommendRepository {
     IndustryStore recommendStores(String searchWord);
 
-    List<IndustryStore> fetchByBestStore(String searchLocalWord);
+    List<IndustryStore> fetchByBestStore(double lat, double lng);
 
-    List<IndustryStore> fetchStoreByIndustry(String searchIndustry);
+    List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng);
 
     List<GenderAge> industryByGenderAndAge(String gender, int ageGroup);
 
@@ -65,7 +65,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override //단순 가맹점 추천(서치 순)
-    public List<IndustryStore> fetchByBestStore(String searchLocalWord) {
+    public List<IndustryStore> fetchByBestStore(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -75,7 +75,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.address.as("address"))
         ) .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.address.endsWith(searchLocalWord+")"))
+                .fetchJoin().where(  store.latitude.between(lat-0.045, lat+0.045),
+                        store.longitude.between(lng-0.06, lng+0.06))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -83,7 +84,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
 
     @Override //업종명으로 가맹점 찾기(img 연결된 ver)
-    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry) {
+    public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -94,10 +95,11 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
         )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(industry.mainCode.contains(searchIndustry))
-                .orderBy(store.searchResultCount.desc()).limit(7).fetch();
+                .fetchJoin().where(industry.mainCode.eq(searchIndustry),
+                        store.latitude.between(lat-0.045, lat+0.045),
+                        store.longitude.between(lng-0.06, lng+0.06))
+                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
     }
-
 
     @Override //성별 및 연령 입력시 대분류 안내
     public List<GenderAge> industryByGenderAndAge(String gender, int ageGroup) {
