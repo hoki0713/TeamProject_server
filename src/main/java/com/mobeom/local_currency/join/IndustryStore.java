@@ -10,4 +10,7 @@ import lombok.NoArgsConstructor;
 public class IndustryStore extends Store {
     private String storeName, mainCode, industryType, imgUrl, localName, address;
             double starRanking;
+            int storeTypeCode;
+
+
 }
