@@ -53,7 +53,6 @@ public class StoreController {
         logger.info(lat+lng);
         box.clear();
         box.put("list", storeService.getStores(lat,lng));
-
         return box.get();
     }
 
@@ -81,6 +80,12 @@ public class StoreController {
     public ResponseEntity<Map<Long,StoresVO>> getAllStoresByLocalName (@PathVariable String localName) {
         Map<Long,StoresVO> storesMap = storeService.getAllStoresByLocalName(localName.trim());
         return ResponseEntity.ok(storesMap);
+    }
+
+    @GetMapping("/searchStore/{searchWord}")
+    public ResponseEntity<List<Store>> searchStore(@PathVariable String searchWord) {
+        List<Store> storeList = storeService.findStoreBySearchWord(searchWord);
+        return ResponseEntity.ok(storeList);
     }
 
     @GetMapping("/realTimeSearch/{searchWD}")
