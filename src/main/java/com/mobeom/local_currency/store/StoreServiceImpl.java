@@ -85,7 +85,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public Object getMap(String clickedState) {
-        return (clickedState!="")?repository.findByLocal(clickedState):findAll();
+        return (clickedState.equals(""))?repository.findByLocal(clickedState):findAll();
     }
 
     @Override
