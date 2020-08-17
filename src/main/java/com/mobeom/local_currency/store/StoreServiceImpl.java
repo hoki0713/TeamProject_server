@@ -31,6 +31,8 @@ interface StoreService extends JpaService<Store> {
     Map<Long, StoresVO> getAllStoresByLocalName(String localName);
 
     Object getSeveral(String searchWD);
+
+    Object getStores(String s, String s1);
 }
 
 
@@ -119,5 +121,10 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public Object getSeveral(String searchWD) {
         return repository.findSeveral(searchWD);
+    }
+
+    @Override
+    public Object getStores(String s, String s1) {
+        return repository.findByLatLng(s,s1);
     }
 }

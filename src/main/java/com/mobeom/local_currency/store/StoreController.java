@@ -46,6 +46,17 @@ public class StoreController {
         box.put("list",storeService.getMap(clickedState));
         return box.get();
     }
+    @GetMapping("/fromAddr/{lat}/{lng}")
+    public Map<?,?> getStoreByAddr(@PathVariable String lat, @PathVariable String lng){
+        logger.info("getStoreByAddr()");
+        logger.info(lat+lng);
+        box.clear();
+        box.put("list", storeService.getStores(lat,lng));
+
+        return box.get();
+    }
+
+
 
     @GetMapping("/findStore/{storeName}")
     public ResponseEntity<Map<Long, SearchStoreVO>> findStoreByName(@PathVariable String storeName) {
