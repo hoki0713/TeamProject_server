@@ -3,6 +3,7 @@ package com.mobeom.local_currency.recommend;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.LatLngVo;
+import com.mobeom.local_currency.store.Store;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +22,18 @@ public class RecommendController {
     private final RecommendService recommendService;
     private final Box box;
 
-    @GetMapping("/individual/{id}")
-    public Map<String, ?> getIndividualRecommend(@PathVariable String id) throws TasteException {
+    @GetMapping("/individualUser/{id}")
+    public Map<String, ?> getIndividualUserRecommend(@PathVariable String id) throws TasteException {
         box.clear();
         if(recommendService.findUserBasedRecommend(id).size() !=0){
             box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
         } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");};
+
+        return box.get();
+    }
+    @GetMapping("/individualItem/{id}")
+    public Map<String, ?> getIndividualItemRecommend(@PathVariable String id) throws TasteException {
+        box.clear();
         if(recommendService.isPresentFavorites(id)){
             box.put("itemBased", recommendService.findRecommendStores(recommendService.findItemBasedRecommend(id)));
         } else{
@@ -36,14 +43,37 @@ public class RecommendController {
     }
 
 
-    @GetMapping("/best/{lat}/{lng}")
-    public Map<String, List<IndustryStore>> getBestRecommend(@PathVariable String lat, @PathVariable String lng) {
+    @PostMapping("/all/{id}")
+    public Map<String, ?> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng){
         box.clear();
+        double lat = latLng.getLatitude();
+        double lng = latLng.getLongitude();
+
+        String[] industryName = {"일반휴게음식", "음료식품", "의원"};
+        box.put("industryName", industryName);
+        box.put("restaurant", recommendService.findStoresByIndustry("일반휴게음식", lat, lng));
+        box.put("drinks", recommendService.findStoresByIndustry("음료식품", lat, lng));
+        box.put("hospital", recommendService.findStoresByIndustry("의원", lat, lng));
+
         box.put("bestStore", recommendService.findBestStores(lat, lng));
 
-        return box.get();
+        box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
+        box.put("bestRated", recommendService.findBestRatedStores(lat, lng));
 
+        if (recommendService.fetchStoreIdByUserId(id) != null){
+            String favoriteIndustry = recommendService.fetchStoreIdByUserId(id).getMainCode();
+            box.put("userFavBased", recommendService.findStoresByIndustry(favoriteIndustry, lat, lng));
+            box.put("userFavStore", recommendService.fetchStoreIdByUserId(id).getStoreName());
+        }
+        else {
+             box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
+        }
+        return box.get();
     }
+
+
+
+
 
     @GetMapping("/tag/{gender}/{birthYear}")
     public Map<String, ?> findIndustryByProps(@PathVariable String gender, @PathVariable int birthYear) {
@@ -92,12 +122,15 @@ public class RecommendController {
         return box.get();
     }
 
-    @PostMapping("/storesByIndustry/{gender}/{ageGroup}")
+    @PostMapping("/storesByIndustry/{gender}/{ageGroup}/{option}")
     public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup,
+                                                                 @PathVariable int option,
                                                                  @RequestBody LatLngVo latLng) {
+        double lat = latLng.getLatitude();
+        double lng = latLng.getLongitude();
         System.out.println("가게 리스트 입성" + latLng.getLatitude() + latLng.getLongitude());
         List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
-        return recommendService.findStoresByIndustryList(industryList, latLng);
+        return recommendService.findStoresByIndustryList(industryList, lat, lng);
     }
 }
 
