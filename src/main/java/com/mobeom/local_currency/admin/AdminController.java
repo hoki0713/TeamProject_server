@@ -3,6 +3,7 @@ package com.mobeom.local_currency.admin;
 import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.querydsl.core.Tuple;
 import lombok.AllArgsConstructor;
@@ -134,8 +135,8 @@ public class AdminController {
 
     // Emilia code
     @GetMapping("/userList/{pageNumber}")
-    public ResponseEntity<List<User>> getAllUsers(@PathVariable int pageNumber) {
-        List<User> userList = adminService.getAllUsers(pageNumber);
+    public ResponseEntity<UserPageVO> getAllUsers(@PathVariable int pageNumber) {
+        UserPageVO userList = adminService.getUserPage(pageNumber);
         return ResponseEntity.ok(userList);
     }
 
