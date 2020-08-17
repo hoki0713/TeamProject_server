@@ -30,7 +30,7 @@ interface RecommendService {
 
     boolean isPresentFavorites(String id);
 
-    List<IndustryStore> findBestStores(String lat, String Lng);
+    List<IndustryStore> findBestStores(double lnt, double lng);
 
     List<String> findUserBasedRecommend(String id) throws TasteException;
 
@@ -47,8 +47,14 @@ interface RecommendService {
     List<GenderAge> findIndustryByTotal();
 
     Store fetchStoreIdByUserId(String id);
-    List<IndustryStore> findStoresByIndustry(String id, LatLngVo latLng);
-    Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, LatLngVo userLatLng);
+
+    List<IndustryStore> findStoresByIndustry(String id, double lnt, double lng);
+
+    Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, double lnt, double lng);
+
+    List<IndustryStore> findMostFavoriteStores(double lat, double lng);
+
+    List<IndustryStore> findBestRatedStores(double lat, double lng);
 }
 
 @Service
@@ -99,7 +105,9 @@ public class RecommendServiceImpl implements RecommendService {
         dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
-        MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
+        MySQLJDBCDataModel model = new MySQLJDBCDataModel
+                (dataSource, "rating", "user_id",
+                        "store_id", "star_rating", null);
 
         ItemSimilarity similarity = new PearsonCorrelationSimilarity(model);
         ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
@@ -129,10 +137,9 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<IndustryStore> findBestStores(String lat, String lng) {
-        double latDouble = Double.parseDouble(lat);
-        double lngDouble = Double.parseDouble(lng);
-        return recommendRepository.fetchByBestStore(latDouble, lngDouble);
+    public List<IndustryStore> findBestStores(double lat, double lng) {
+
+        return recommendRepository.fetchByBestStore(lat, lng);
     }
 
 
@@ -170,10 +177,7 @@ public class RecommendServiceImpl implements RecommendService {
 //    }
 
     @Override
-    public Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, LatLngVo latLng) {
-        System.out.println(latLng);
-        double lat = latLng.getLatitude();
-        double lng = latLng.getLongitude();
+    public Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
             result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
@@ -199,11 +203,21 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public List<IndustryStore> findStoresByIndustry(String industry, LatLngVo latLng) {
-        double lat = latLng.getLatitude();
-        double lng = latLng.getLongitude();
+    public List<IndustryStore> findStoresByIndustry(String industry, double lat, double lng) {
         return recommendRepository.fetchStoreByIndustry(industry, lat, lng);
 
+    }
+
+    @Override
+    public List<IndustryStore> findBestRatedStores(double lat, double lng) {
+
+        return recommendRepository.fetchedBestRatedStores(lat, lng);
+    }
+
+    @Override
+    public List<IndustryStore> findMostFavoriteStores(double lat, double lng) {
+
+        return recommendRepository.fetchedMostFavoriteStores(lat, lng);
     }
 
 

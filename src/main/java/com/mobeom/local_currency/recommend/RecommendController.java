@@ -43,11 +43,26 @@ public class RecommendController {
     }
 
 
-    @PostMapping("/favoritesRecommend/{id}")
-    public Map<String, List<IndustryStore>> getFavoritesRecommend(@PathVariable String id, @RequestBody LatLngVo latLngVo){
+    @PostMapping("/all/{id}")
+    public Map<String, List<IndustryStore>> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng){
+        box.clear();
+        double lat = latLng.getLatitude();
+        double lng = latLng.getLongitude();
+
+        String[] industryName = {"일반휴게음식", "음료식품", "의원"};
+        box.put("industryName", industryName);
+        box.put("restaurant", recommendService.findStoresByIndustry("일반휴게음식", lat, lng));
+        box.put("drinks", recommendService.findStoresByIndustry("음료식품", lat, lng));
+        box.put("hospital", recommendService.findStoresByIndustry("의원", lat, lng));
+
+        box.put("bestStore", recommendService.findBestStores(lat, lng));
+
+        box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
+        box.put("bestRated", recommendService.findBestRatedStores(lat, lng));
+
         if (recommendService.fetchStoreIdByUserId(id) != null){
             String favoriteIndustry = recommendService.fetchStoreIdByUserId(id).getMainCode();
-            box.put("favoriteIndustry", recommendService.findStoresByIndustry(favoriteIndustry, latLngVo));
+            box.put("favoriteIndustry", recommendService.findStoresByIndustry(favoriteIndustry, lat, lng));
             box.put("storeName", recommendService.fetchStoreIdByUserId(id).getStoreName());
         }
         else {
@@ -56,26 +71,9 @@ public class RecommendController {
         return box.get();
     }
 
-    @PostMapping("/bestIndustry")
-    public Map<String, List<IndustryStore>> getFavoritesIndustry(@PathVariable String id, @RequestBody LatLngVo latLng){
-        box.put("restaurant", recommendService.findStoresByIndustry("일반휴게음식", latLng));
-        String[] industryName = {"일반휴게음식", "음료식품", "의원"};
-        box.put("industryName", industryName);
-        box.put("drinks", recommendService.findStoresByIndustry("음료식품", latLng));
-        box.put("hospital", recommendService.findStoresByIndustry("의원", latLng));
-
-        return box.get();
-    }
 
 
-    @GetMapping("/best/{lat}/{lng}")
-    public Map<String, List<IndustryStore>> getBestRecommend(@PathVariable String lat, @PathVariable String lng) {
-        box.clear();
-        box.put("bestStore", recommendService.findBestStores(lat, lng));
 
-        return box.get();
-
-    }
 
     @GetMapping("/tag/{gender}/{birthYear}")
     public Map<String, ?> findIndustryByProps(@PathVariable String gender, @PathVariable int birthYear) {
@@ -127,9 +125,11 @@ public class RecommendController {
     @PostMapping("/storesByIndustry/{gender}/{ageGroup}")
     public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup,
                                                                  @RequestBody LatLngVo latLng) {
+        double lat = latLng.getLatitude();
+        double lng = latLng.getLongitude();
         System.out.println("가게 리스트 입성" + latLng.getLatitude() + latLng.getLongitude());
         List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
-        return recommendService.findStoresByIndustryList(industryList, latLng);
+        return recommendService.findStoresByIndustryList(industryList, lat, lng);
     }
 }
 

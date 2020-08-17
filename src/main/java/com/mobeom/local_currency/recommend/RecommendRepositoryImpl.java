@@ -38,6 +38,9 @@ interface CustomRecommendRepository {
 
     Store fetchedFavoriteStoreByUserId(String id);
 
+    List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng);
+
+    List<IndustryStore> fetchedBestRatedStores(double lat, double lng);
 }
 @Repository
 public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
@@ -158,26 +161,9 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                         orderBy(store.searchResultCount.desc()).fetchFirst();
     }
 
-    @Override
-    public List<IndustryStore> bestRatedStores(double lat, double lng){
-        return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"))
-        ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
-                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
-                .where(stor
-                        e.latitude.between(lat-0.027, lat+0.027),
-                        store.longitude.between(lng-0.036, lng+0.036)).
-                        orderBy(store.searchResultCount.desc()).fetch();
-    }
-
 
     @Override
-    public List<IndustryStore> bestRatedStores(double lat, double lng){
+    public List<IndustryStore> fetchedBestRatedStores(double lat, double lng){
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -190,11 +176,12 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
                 .where(store.latitude.between(lat-0.027, lat+0.027),
                         store.longitude.between(lng-0.036, lng+0.036))
-                .groupBy(favorites.user.id).orderBy(favorites.store.id.count().desc()).limit(7).fetch();
+                .groupBy(favorites.store.id).orderBy(favorites.user.id.count().desc(),
+                        store.searchResultCount.desc()).limit(7).fetch();
     }
 
     @Override
-    public List<IndustryStore> MostFavoriteStores(double lat, double lng){
+    public List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng){
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -202,26 +189,17 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeType.as("storeType"),
                 store.localName.as("localName"),
                 store.address.as("address"),
-                Mathrating.starRating.avg().as("starRanking"))
+                rating.starRating.avg().as("starRanking"))
         ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
                 .where(store.latitude.between(lat-0.027, lat+0.027),
         store.longitude.between(lng-0.036, lng+0.036))
                 .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
 
-
-
-
-
     }
 
 
 
-    SELECT s.store_name, COUNT(f.store_id)  FROM store s INNER JOIN favorites f ON f.store_id = s.id GROUP BY f.user_id ORDER BY COUNT(f.store_id) DESC ;
-
-
-
-    SELECT s.store_name, r.user_id, AVG(r.star_rating)  FROM store s INNER JOIN rating r ON r.store_id = s.id GROUP BY r.store_id ORDER BY COUNT(r.star_rating) DESC ;
 
 
 
