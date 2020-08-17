@@ -25,17 +25,18 @@ interface AdminService{
     Map<String,Long> userLocalGenderChart(String localSelect);
     Map<String,Integer> userAgeTotal(String localSelect);
     Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
-    Long storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeChart();
     List<SalesVoucher> salesMonthChart();
     List<User> getAllUserList();
     Optional<User> findOneUser(String userId);
     Map<String,Integer> useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
     Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end);
+    Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Integer> useTotalLocalChart();
 
     List<User> getAllUsers(int pageNumber);
 
+    Map<String,Long> storeIndustryChartAll();
 }
 
 @Service
@@ -72,10 +73,7 @@ public class AdminServiceImpl implements AdminService{
         return adminRepository.joinDateChart(joinStartDate,joinEndDate);
     }
 
-    @Override
-    public Long storeLocalsChart(String localSelect) {
-        return adminRepository.storeLocalsChart(localSelect);
-    }
+
 
     @Override
     public Map<String, Long> storeTypeChart() {
@@ -122,6 +120,17 @@ public class AdminServiceImpl implements AdminService{
         });
         return resultUserList;
     }
+
+    @Override
+    public Map<String, Long> storeIndustryChartAll() {
+        return adminRepository.storeTypeLocal();
+    }
+
+    @Override
+    public Map<String,Long> storeLocalsChart(String localSelect) {
+        return adminRepository.storeLocalsChart(localSelect);
+    }
+
 
 
 }

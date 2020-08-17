@@ -6,7 +6,6 @@ import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ public class Sales {
     private Long salesId;
 
     @Column(name = "sales_date", nullable = false)
-    private LocalDate salesDate;
+    private LocalDate salesDate = LocalDate.now();
 
     @Column(name = "unit_price", nullable = false)
     private int unitPrice;

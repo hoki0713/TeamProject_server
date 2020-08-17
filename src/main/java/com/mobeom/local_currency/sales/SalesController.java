@@ -1,8 +1,7 @@
 package com.mobeom.local_currency.sales;
 
-import com.mobeom.local_currency.user.User;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
+import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,26 +11,38 @@ import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@AllArgsConstructor
 @RequestMapping("/sales")
 public class SalesController {
     private final SalesService salesService;
+    private final LocalCurrencyVoucherRepository repository;
+
+    public SalesController(SalesService salesService, LocalCurrencyVoucherRepository repository) {
+        this.salesService = salesService;
+        this.repository = repository;
+    }
 
     @GetMapping(value = "/purchase-history/{userId}")
-    public ResponseEntity<Map<Long,RequestedPurchaseHistoryVO>> getSalesHistory(@PathVariable String userId) {
+    public ResponseEntity<Map<Long, RequestedPurchaseHistoryVO>> getSalesHistory(@PathVariable String userId) {
         Optional<Map<Long, RequestedPurchaseHistoryVO>> historyVOMap = salesService.getHistoryByUserId(Long.parseLong(userId));
-        if(historyVOMap.isPresent()) {
+        if (historyVOMap.isPresent()) {
             return ResponseEntity.ok(historyVOMap.get());
-        } else {
+        } else
             return ResponseEntity.notFound().build();
-        }
+
     }
+
+    @PostMapping(value = "/create-sales/{id}")
+    public void createSales(@PathVariable String id, @RequestBody NewSalesVo salesInfo){
+        System.out.println(salesInfo.getLocalName());
+        salesService.createSalesRecode(id, salesInfo);
+    }
+
 
     @PatchMapping(value = "/{voucherCode}")
     public ResponseEntity<Sales> patchVoucherState(@PathVariable String voucherCode,
                                                    @RequestBody Sales voucherInfo) {
         Optional<Sales> findVoucher = salesService.findVoucher(Long.parseLong(voucherCode));
-        if(findVoucher.isPresent()) {
+        if (findVoucher.isPresent()) {
             Sales selectedHistory = findVoucher.get();
             Optional.ofNullable(voucherInfo.getUseDate()).ifPresent(useDate -> selectedHistory.setUseDate(useDate));
             Optional.ofNullable(voucherInfo.getCurrencyState()).ifPresent(currencyState -> selectedHistory.setCurrencyState(currencyState));
@@ -43,8 +54,6 @@ public class SalesController {
         }
 
     }
-    @PostMapping("/{userId}")
-    public ResponseEntity<Sales> createSales(@PathVariable String userId, @RequestBody Sales salesInfo){
-        return ResponseEntity.ok(salesService.addSalesRecode(userId, salesInfo));
-    }
+
+
 }

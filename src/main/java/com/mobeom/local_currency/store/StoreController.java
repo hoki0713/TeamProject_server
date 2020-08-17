@@ -26,14 +26,15 @@ public class StoreController {
     @GetMapping("/list")
     public Map<?,?> getAll(){
         logger.info("list()");
-        Iterable<Store> storeList = storeService.findAll();
-        box.put("list", storeList);
+        box.clear();
+        box.put("list", storeService.findAll());
         return box.get();
     }
 
     @GetMapping("/ui")
     public Map<?,?> getuiList(){
         logger.info("getuiList()");
+        box.clear();
         box.put("list",storeService.getUi());
         return box.get();
     }
@@ -41,9 +42,22 @@ public class StoreController {
     @GetMapping("/mapClick/{clickedState}")
     public Map<?,?> getMapClick(@PathVariable String clickedState){
         logger.info("getMapClick()");
+        box.clear();
         box.put("list",storeService.getMap(clickedState));
+        System.out.println(box.get());
         return box.get();
     }
+    @GetMapping("/fromAddr/{lat}/{lng}")
+    public Map<?,?> getStoreByAddr(@PathVariable String lat, @PathVariable String lng){
+        logger.info("getStoreByAddr()");
+        logger.info(lat+lng);
+        box.clear();
+        box.put("list", storeService.getStores(lat,lng));
+
+        return box.get();
+    }
+
+
 
     @GetMapping("/findStore/{storeName}")
     public ResponseEntity<Map<Long, SearchStoreVO>> findStoreByName(@PathVariable String storeName) {
@@ -67,6 +81,20 @@ public class StoreController {
     public ResponseEntity<Map<Long,StoresVO>> getAllStoresByLocalName (@PathVariable String localName) {
         Map<Long,StoresVO> storesMap = storeService.getAllStoresByLocalName(localName.trim());
         return ResponseEntity.ok(storesMap);
+    }
+
+    @GetMapping("/realTimeSearch/{searchWD}")
+    public Map<?,?>  realTimeSearch(@PathVariable String searchWD){
+        logger.info("realTimeSearch()  "+"searchWD:"+searchWD);
+        Object results = storeService.getSeveral(searchWD);
+        box.clear();
+        if (results != null) {
+            box.put("msg", "success");
+            box.put("list", results);
+        } else {
+            box.put("msg", "fail");
+        }
+        return box.get();
     }
 
 }
