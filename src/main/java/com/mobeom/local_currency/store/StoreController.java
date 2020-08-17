@@ -44,6 +44,7 @@ public class StoreController {
         logger.info("getMapClick()");
         box.clear();
         box.put("list",storeService.getMap(clickedState));
+        System.out.println(box.get());
         return box.get();
     }
     @GetMapping("/fromAddr/{lat}/{lng}")

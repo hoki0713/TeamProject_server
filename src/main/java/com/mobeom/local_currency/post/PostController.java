@@ -1,5 +1,7 @@
 package com.mobeom.local_currency.post;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,16 +28,18 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId){
-        System.out.println("들어옴"+postId);
+        System.out.println("들어옴oneNotice"+postId);
        Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
         return oneNotice.isPresent()? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
-       //return oneNotice.orElse(null);
+
 
     }
 
     @GetMapping("/postlist")
     public ResponseEntity<List<Post>> postList(){
+        //Page<Post> a=postRepository.findAll(PageRequest.of(1,5));
         List<Post> list = postService.postNoticeList();
+
         return ResponseEntity.ok(list);
     }
 
@@ -160,8 +164,7 @@ public class PostController {
     @GetMapping("/questions")
     public ResponseEntity<Map<Long, QuestionVO>> getAllQuestionsBySelectedOption(@RequestParam String selectedOption,
                                                                                  @RequestParam String searchWord) {
-        System.out.println(selectedOption);
-        System.out.println(searchWord);
+
         Map<Long,QuestionVO> questions = postService.getAllQuestionsBySelectedOption(selectedOption, searchWord);
         return ResponseEntity.ok(questions);
     }
