@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class IndustryStore extends Store {
-    private String storeName, mainCode, industryType, imgUrl, localName, address, starRanking;
+    private String storeName, mainCode, industryType, imgUrl, localName, address;
+            double starRanking;
 }

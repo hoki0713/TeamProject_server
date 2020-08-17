@@ -42,6 +42,7 @@ interface CustomRecommendRepository {
 
     List<IndustryStore> fetchedBestRatedStores(double lat, double lng);
 }
+
 @Repository
 public class RecommendRepositoryImpl extends QuerydslRepositorySupport implements CustomRecommendRepository {
     private final JPAQueryFactory queryFactory;
@@ -80,14 +81,12 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeType.as("storeType"),
                 store.localName.as("localName"),
                 store.address.as("address"))
-        ) .from(store).innerJoin(industry)
+        ).from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(  store.latitude.between(lat-0.045, lat+0.045),
-                        store.longitude.between(lng-0.06, lng+0.06))
+                .fetchJoin().where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
-
-
 
 
     @Override //업종명으로 가맹점 찾기(img 연결된 ver)
@@ -103,9 +102,9 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin().where(industry.mainCode.eq(searchIndustry),
-                        store.latitude.between(lat-0.027, lat+0.027),
-                        store.longitude.between(lng-0.036, lng+0.036))
-                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+                        store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
+                .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
     @Override //성별 및 연령 입력시 대분류 안내
@@ -151,11 +150,11 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
 
-
     @Override
-    public Store fetchedFavoriteStoreByUserId(String id){
+    public Store fetchedFavoriteStoreByUserId(String id) {
         return queryFactory.select(Projections.fields(Store.class,
-                store.id, store.mainCode, store.storeName)).from(favorites).innerJoin(store).on(store.id.eq(favorites.store.id))
+                store.id, store.mainCode, store.storeName)).from(favorites)
+                .innerJoin(store).on(store.id.eq(favorites.store.id))
                 .innerJoin(user).on(user.id.eq(favorites.user.id)).fetchJoin()
                 .where(user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
                         orderBy(store.searchResultCount.desc()).fetchFirst();
@@ -163,25 +162,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
 
     @Override
-    public List<IndustryStore> fetchedBestRatedStores(double lat, double lng){
-        return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"))
-
-        ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
-                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
-                .where(store.latitude.between(lat-0.027, lat+0.027),
-                        store.longitude.between(lng-0.036, lng+0.036))
-                .groupBy(favorites.store.id).orderBy(favorites.user.id.count().desc(),
-                        store.searchResultCount.desc()).limit(7).fetch();
-    }
-
-    @Override
-    public List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng){
+    public List<IndustryStore> fetchedBestRatedStores(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.storeName.as("storeName"),
                 store.mainCode.as("mainCode"),
@@ -189,19 +170,31 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeType.as("storeType"),
                 store.localName.as("localName"),
                 store.address.as("address"),
-                rating.starRating.avg().as("starRanking"))
-        ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                rating.starRating.avg().as("starRanking")))
+        .from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
+                .where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036))
+                .groupBy(favorites.store.id).orderBy(favorites.user.id.count().desc(),
+                        store.searchResultCount.desc()).limit(7).fetch();
+    }
+
+    @Override
+    public List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address")
+        )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
-                .where(store.latitude.between(lat-0.027, lat+0.027),
-        store.longitude.between(lng-0.036, lng+0.036))
+                .where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036))
                 .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
 
     }
-
-
-
-
-
 
 
 }

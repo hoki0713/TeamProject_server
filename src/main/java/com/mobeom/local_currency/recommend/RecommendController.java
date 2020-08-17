@@ -57,13 +57,13 @@ public class RecommendController {
 
         box.put("bestStore", recommendService.findBestStores(lat, lng));
 
-        box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
+//        box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
         box.put("bestRated", recommendService.findBestRatedStores(lat, lng));
 
         if (recommendService.fetchStoreIdByUserId(id) != null){
             String favoriteIndustry = recommendService.fetchStoreIdByUserId(id).getMainCode();
-            box.put("favoriteIndustry", recommendService.findStoresByIndustry(favoriteIndustry, lat, lng));
-            box.put("storeName", recommendService.fetchStoreIdByUserId(id).getStoreName());
+            box.put("userFavBased", recommendService.findStoresByIndustry(favoriteIndustry, lat, lng));
+            box.put("userFavStore", recommendService.fetchStoreIdByUserId(id).getStoreName());
         }
         else {
              box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
