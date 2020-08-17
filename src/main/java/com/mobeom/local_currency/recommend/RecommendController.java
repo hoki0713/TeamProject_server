@@ -3,6 +3,7 @@ package com.mobeom.local_currency.recommend;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.store.LatLngVo;
+import com.mobeom.local_currency.store.Store;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +22,48 @@ public class RecommendController {
     private final RecommendService recommendService;
     private final Box box;
 
-    @GetMapping("/individual/{id}")
-    public Map<String, ?> getIndividualRecommend(@PathVariable String id) throws TasteException {
+    @GetMapping("/individualUser/{id}")
+    public Map<String, ?> getIndividualUserRecommend(@PathVariable String id) throws TasteException {
         box.clear();
         if(recommendService.findUserBasedRecommend(id).size() !=0){
             box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
         } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");};
+
+        return box.get();
+    }
+    @GetMapping("/individualItem/{id}")
+    public Map<String, ?> getIndividualItemRecommend(@PathVariable String id) throws TasteException {
+        box.clear();
         if(recommendService.isPresentFavorites(id)){
             box.put("itemBased", recommendService.findRecommendStores(recommendService.findItemBasedRecommend(id)));
         } else{
             box.put("noItemBased", "즐겨찾기 데이터가 부족합니다. 더 많은 가맹점들을 즐겨찾기해주세요.");
         };
+        return box.get();
+    }
+
+
+    @PostMapping("/favoritesRecommend/{id}")
+    public Map<String, List<IndustryStore>> getFavoritesRecommend(@PathVariable String id, @RequestBody LatLngVo latLngVo){
+        if (recommendService.fetchStoreIdByUserId(id) != null){
+            String favoriteIndustry = recommendService.fetchStoreIdByUserId(id).getMainCode();
+            box.put("favoriteIndustry", recommendService.findStoresByIndustry(favoriteIndustry, latLngVo));
+            box.put("storeName", recommendService.fetchStoreIdByUserId(id).getStoreName());
+        }
+        else {
+             box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
+        }
+        return box.get();
+    }
+
+    @PostMapping("/bestIndustry")
+    public Map<String, List<IndustryStore>> getFavoritesIndustry(@PathVariable String id, @RequestBody LatLngVo latLng){
+        box.put("restaurant", recommendService.findStoresByIndustry("일반휴게음식", latLng));
+        String[] industryName = {"일반휴게음식", "음료식품", "의원"};
+        box.put("industryName", industryName);
+        box.put("drinks", recommendService.findStoresByIndustry("음료식품", latLng));
+        box.put("hospital", recommendService.findStoresByIndustry("의원", latLng));
+
         return box.get();
     }
 

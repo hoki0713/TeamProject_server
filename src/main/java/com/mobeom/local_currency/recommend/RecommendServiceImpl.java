@@ -4,6 +4,7 @@ import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.store.LatLngVo;
+import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -45,6 +46,8 @@ interface RecommendService {
 
     List<GenderAge> findIndustryByTotal();
 
+    Store fetchStoreIdByUserId(String id);
+    List<IndustryStore> findStoresByIndustry(String id, LatLngVo latLng);
     Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, LatLngVo userLatLng);
 }
 
@@ -101,7 +104,7 @@ public class RecommendServiceImpl implements RecommendService {
         ItemSimilarity similarity = new PearsonCorrelationSimilarity(model);
         ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
 
-        Long itemId = fetchStoreIdByUserId(id);
+        Long itemId = fetchStoreIdByUserId(id).getId();
         System.out.println(itemId);
         List<RecommendedItem> recommendations = recommender.mostSimilarItems(1213, 7);
 
@@ -189,8 +192,17 @@ public class RecommendServiceImpl implements RecommendService {
 
     }
 
-    public Long fetchStoreIdByUserId(String id) {
-        return recommendRepository.fetchedStoreId(id);
+    @Override
+    public Store fetchStoreIdByUserId(String id) {
+        return recommendRepository.fetchedFavoriteStoreByUserId(id);
+
+    }
+
+    @Override
+    public List<IndustryStore> findStoresByIndustry(String industry, LatLngVo latLng) {
+        double lat = latLng.getLatitude();
+        double lng = latLng.getLongitude();
+        return recommendRepository.fetchStoreByIndustry(industry, lat, lng);
 
     }
 

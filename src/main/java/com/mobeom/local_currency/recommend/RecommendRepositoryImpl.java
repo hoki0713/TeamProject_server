@@ -5,11 +5,15 @@ import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
 import static com.mobeom.local_currency.user.QUser.user;
+import static com.mobeom.local_currency.rating.QRating.rating;
+
 import static java.lang.Math.acos;
 import static java.lang.Math.cos;
 
 import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.store.Store;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
@@ -32,7 +36,7 @@ interface CustomRecommendRepository {
 
     List<GenderAge> industryByTotal();
 
-    Long fetchedStoreId(String id);
+    Store fetchedFavoriteStoreByUserId(String id);
 
 }
 @Repository
@@ -96,8 +100,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin().where(industry.mainCode.eq(searchIndustry),
-                        store.latitude.between(lat-0.045, lat+0.045),
-                        store.longitude.between(lng-0.06, lng+0.06))
+                        store.latitude.between(lat-0.027, lat+0.027),
+                        store.longitude.between(lng-0.036, lng+0.036))
                 .orderBy(store.searchResultCount.desc()).limit(10).fetch();
     }
 
@@ -146,12 +150,80 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
 
     @Override
-    public Long fetchedStoreId(String id){
-        return queryFactory.select(favorites.store.id)
-                .from(favorites).innerJoin(store).on(store.id.eq(favorites.store.id))
+    public Store fetchedFavoriteStoreByUserId(String id){
+        return queryFactory.select(Projections.fields(Store.class,
+                store.id, store.mainCode, store.storeName)).from(favorites).innerJoin(store).on(store.id.eq(favorites.store.id))
                 .innerJoin(user).on(user.id.eq(favorites.user.id)).fetchJoin()
                 .where(user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
                         orderBy(store.searchResultCount.desc()).fetchFirst();
     }
+
+    @Override
+    public List<IndustryStore> bestRatedStores(double lat, double lng){
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address"))
+        ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
+                .where(stor
+                        e.latitude.between(lat-0.027, lat+0.027),
+                        store.longitude.between(lng-0.036, lng+0.036)).
+                        orderBy(store.searchResultCount.desc()).fetch();
+    }
+
+
+    @Override
+    public List<IndustryStore> bestRatedStores(double lat, double lng){
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address"))
+
+        ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
+                .where(store.latitude.between(lat-0.027, lat+0.027),
+                        store.longitude.between(lng-0.036, lng+0.036))
+                .groupBy(favorites.user.id).orderBy(favorites.store.id.count().desc()).limit(7).fetch();
+    }
+
+    @Override
+    public List<IndustryStore> MostFavoriteStores(double lat, double lng){
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address"),
+                Mathrating.starRating.avg().as("starRanking"))
+        ).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
+                .where(store.latitude.between(lat-0.027, lat+0.027),
+        store.longitude.between(lng-0.036, lng+0.036))
+                .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
+
+
+
+
+
+    }
+
+
+
+    SELECT s.store_name, COUNT(f.store_id)  FROM store s INNER JOIN favorites f ON f.store_id = s.id GROUP BY f.user_id ORDER BY COUNT(f.store_id) DESC ;
+
+
+
+    SELECT s.store_name, r.user_id, AVG(r.star_rating)  FROM store s INNER JOIN rating r ON r.store_id = s.id GROUP BY r.store_id ORDER BY COUNT(r.star_rating) DESC ;
+
+
+
 
 }
