@@ -81,6 +81,12 @@ public class StoreController {
         return ResponseEntity.ok(storesMap);
     }
 
+    @GetMapping("/searchStore/{searchWord}")
+    public ResponseEntity<List<Store>> searchStore(@PathVariable String searchWord) {
+        List<Store> storeList = storeService.findStoreBySearchWord(searchWord);
+        return ResponseEntity.ok(storeList);
+    }
+
     @GetMapping("/realTimeSearch/{searchWD}")
     public Map<?,?>  realTimeSearch(@PathVariable String searchWD){
         logger.info("realTimeSearch()  "+"searchWD:"+searchWD);
