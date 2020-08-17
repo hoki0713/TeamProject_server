@@ -1,7 +1,8 @@
 package com.mobeom.local_currency.store;
 
-import com.mobeom.local_currency.rating.QRating;
-import com.mobeom.local_currency.recommend.QIndustry;
+import static com.mobeom.local_currency.store.QStore.store;
+import static com.mobeom.local_currency.recommend.QIndustry.industry;
+import static com.mobeom.local_currency.rating.QRating.rating;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -45,8 +46,6 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
 
     @Override
     public List<IndustryStore> findByLocal(String clickedState) {
-        QStore store = QStore.store;
-        QIndustry industry = QIndustry.industry;
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -87,40 +86,36 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
 
     @Override
     public List<Store> findSeveral(String searchWD) {
-        QStore qStore = QStore.store;
-        return queryFactory.selectFrom(qStore)
-                .where(qStore.storeName.like("%"+searchWD+"%"))
+        return queryFactory.selectFrom(store)
+                .where(store.storeName.like("%"+searchWD+"%"))
                 .limit(3).fetch();
     }// 은송 findbestroute
 
     @Override
     public List<IndustryStore> findByLatLng(String s, String s1) {
-        QStore qStore = QStore.store;
-        QIndustry industry = QIndustry.industry;
-        QRating rating = QRating.rating;
         double lat = Double.parseDouble(s);
         double lng = Double.parseDouble(s1);
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                qStore.id,
-                qStore.storeName,
-                qStore.storePhone,
-                qStore.address,
-                qStore.latitude,
-                qStore.longitude,
-                qStore.storeTypeCode,
-                qStore.storeType,
-                qStore.mainCode,
-                qStore.searchResultCount,
-                rating.starRating.avg(),
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                rating.starRating.avg().as("starRanking"),
                 industry.industryImageUrl.as("imgUrl")
-        )).from(qStore).innerJoin(industry)
-                .on(qStore.storeTypeCode.eq(industry.industryCode))
-                .innerJoin(rating).on(qStore.id.eq(rating.store.id))
+        )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
                 .fetchJoin()
-                .where(qStore.latitude.between(lat-0.045, lat+0.045))
-                .where(qStore.longitude.between(lng-0.06, lng+0.06))
+                .where(store.latitude.between(lat-0.045, lat+0.045))
+                .where(store.longitude.between(lng-0.06, lng+0.06))
                 .groupBy(rating.store.id)
-                .orderBy(qStore.searchResultCount.desc()).limit(200).fetch();
+                .orderBy(rating.starRating.avg().desc(),store.searchResultCount.desc()).limit(200).fetch();
     }//eunsong FindByMap when user Logined
 
     @Override
