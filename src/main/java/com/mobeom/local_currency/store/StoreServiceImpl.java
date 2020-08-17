@@ -98,7 +98,6 @@ public class StoreServiceImpl implements StoreService {
         List<Store> stores = repository.findAllByLocalName(localName, PageRequest.of(0, 20));
         List<Industry> industries = industryRepository.findAll();
         List<ReportList> reports = reportListRepository.findAll();
-        System.out.println(reports);
         Map<Integer, String> industryImgUrls = industries.stream().collect(toMap(Industry::getIndustryCode, Industry::getIndustryImageUrl));
         Map<Store, Integer> storeReportCountMap = reports.stream().collect(toMap(ReportList::getStore, ReportList::getReportedCount));
         stores.forEach(store -> {

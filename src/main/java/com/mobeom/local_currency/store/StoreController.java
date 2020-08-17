@@ -61,7 +61,6 @@ public class StoreController {
 
     @GetMapping("/findStore/{storeName}")
     public ResponseEntity<Map<Long, SearchStoreVO>> findStoreByName(@PathVariable String storeName) {
-        System.out.println(storeName);
         Map<Long, SearchStoreVO> resultStores = new HashMap<>();
         Optional<List<Store>> storeList = storeService.findAllStoreByName(storeName);
         if(storeList.isPresent()) {
