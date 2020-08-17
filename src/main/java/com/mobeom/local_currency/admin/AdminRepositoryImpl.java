@@ -9,6 +9,7 @@ import static com.mobeom.local_currency.recommend.QIndustry.industry;
 
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.join.SalesVoucher;
+import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
@@ -34,6 +35,7 @@ interface CustomAdminRepository {
     Map<String,Integer>  useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
     Map<String,Long> voucherSalesTotalChart();
     Map<String,Integer> useTotalLocalChart();
+    Map<String,List<Sales>> salesList();
 
 
 }
@@ -299,6 +301,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
                                 .and(localCurrencyVoucher.localCurrencyName.like(localName+"%"))
                         ).fetchOne();
 
+
                         result.put("사용 완료",useTest);
 
                  Integer useCancel = query.select(sales.unitPrice.sum())
@@ -374,6 +377,15 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
 
 
         return result;
+    }
+
+    @Override
+    public Map<String, List<Sales>> salesList() {
+        Map<String,List<Sales>> list = new HashMap<>();
+
+       // query.select(Projections.fields(sales.salesId))
+
+        return null;
     }
 
 

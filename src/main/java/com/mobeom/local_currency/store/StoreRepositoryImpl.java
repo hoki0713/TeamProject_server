@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.store;
 
+import com.mobeom.local_currency.rating.QRating;
 import com.mobeom.local_currency.recommend.QIndustry;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.querydsl.core.types.Projections;
@@ -47,6 +48,7 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
         QStore store = QStore.store;
         QIndustry industry = QIndustry.industry;
         return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
                 store.storeName,
                 store.storePhone,
                 store.address,
@@ -95,9 +97,11 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
     public List<IndustryStore> findByLatLng(String s, String s1) {
         QStore qStore = QStore.store;
         QIndustry industry = QIndustry.industry;
+        QRating rating = QRating.rating;
         double lat = Double.parseDouble(s);
         double lng = Double.parseDouble(s1);
         return queryFactory.select(Projections.fields(IndustryStore.class,
+                qStore.id,
                 qStore.storeName,
                 qStore.storePhone,
                 qStore.address,
@@ -107,12 +111,15 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 qStore.storeType,
                 qStore.mainCode,
                 qStore.searchResultCount,
+                rating.starRating.avg(),
                 industry.industryImageUrl.as("imgUrl")
         )).from(qStore).innerJoin(industry)
                 .on(qStore.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(qStore.id.eq(rating.store.id))
                 .fetchJoin()
                 .where(qStore.latitude.between(lat-0.045, lat+0.045))
                 .where(qStore.longitude.between(lng-0.06, lng+0.06))
+                .groupBy(rating.store.id)
                 .orderBy(qStore.searchResultCount.desc()).limit(200).fetch();
     }//eunsong FindByMap when user Logined
 

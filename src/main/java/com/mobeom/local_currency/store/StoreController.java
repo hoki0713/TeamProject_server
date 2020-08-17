@@ -50,7 +50,6 @@ public class StoreController {
     @GetMapping("/fromAddr/{lat}/{lng}")
     public Map<?,?> getStoreByAddr(@PathVariable String lat, @PathVariable String lng){
         logger.info("getStoreByAddr()");
-        logger.info(lat+lng);
         box.clear();
         box.put("list", storeService.getStores(lat,lng));
         return box.get();

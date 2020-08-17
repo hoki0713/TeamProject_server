@@ -28,7 +28,6 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId){
-        System.out.println("들어옴oneNotice"+postId);
        Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
         return oneNotice.isPresent()? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
 
