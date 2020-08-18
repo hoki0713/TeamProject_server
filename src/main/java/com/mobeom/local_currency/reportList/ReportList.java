@@ -3,6 +3,7 @@ package com.mobeom.local_currency.reportList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mobeom.local_currency.store.Store;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 

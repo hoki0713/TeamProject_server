@@ -11,17 +11,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 interface CustomPostRepository {
     Post findByPostId(long postId);
     List<Post> inquiryList();
     List<Post>  postList();
+    List<Post> noticeSearch(String searchWord,String category);
     List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId);
+
     Post findOnePostByReviewId(long reviewId);
 
     List<Post> findAllByBoardId(long boardId);
@@ -59,16 +58,33 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     @Override
 
     public List<Post> postList() {
-//        JPQLQuery page= queryFactory.select(Projections.fields(Post.class,post.postTitle,
-//                post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
-//                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse()));
-//       List<Post>  list =getQuerydsl().applyPagination(pageable,page).fetch();
-//        return new PageImpl<>(list, pageable, page.fetchCount());
+
         List<Post> list = queryFactory.select(Projections.fields(Post.class,post.postTitle,
                 post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
                 .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
 
         return list;
+    }
+
+    @Override
+    public List<Post> noticeSearch(String searchWord,String category) {
+        List<Post> result =null;
+        if(searchWord.equals("")){
+             result =queryFactory.select(post).from(post).where(post.category.like("%"+category+"%")
+                     .and(post.noticeYn.eq(true).and(post.deleteYn.isFalse()))).fetch();
+        }else if(category.equals("")){
+           result = queryFactory.select(Projections.fields(Post.class,post.postTitle,
+                    post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
+                    .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
+        }
+        else{
+              result= queryFactory.select(post).from(post).where(post.category.like("%"+category+"%")
+                      .and(post.noticeYn.eq(true).and(post.deleteYn.isFalse()))
+                    .and(post.contents.like("%"+searchWord+"%").or(post.postTitle.like("%"+searchWord+"%"))))
+                    .fetch();
+        }
+
+        return result;
     }
 
     public List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId) {
@@ -120,6 +136,8 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
                     ).fetch();
         }
     }
+
+
 
 
 }
