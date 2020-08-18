@@ -98,8 +98,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 industry.industryImageUrl.as("imgUrl"))
         ).from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036))
+                .fetchJoin().where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -122,8 +122,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin().where(industry.mainCode.eq(searchIndustry),
-                        store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036))
+                        store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -194,8 +194,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 rating.starRating.avg().as("starRanking")))
         .from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036))
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc(),
                         store.searchResultCount.desc()).limit(7).fetch();
     }
@@ -216,8 +216,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 industry.industryImageUrl.as("imgUrl")))
                 .from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036))
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
     }
@@ -238,8 +238,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 industry.industryImageUrl.as("imgUrl")
         )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036),
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06),
                         store.mainCode.eq(searchIndustry))
                 .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
@@ -262,8 +262,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 rating.starRating.avg().as("starRanking")
         )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036),
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06),
                         store.mainCode.eq(searchIndustry))
                 .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
 

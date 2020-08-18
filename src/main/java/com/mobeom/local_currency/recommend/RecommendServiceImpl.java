@@ -3,9 +3,8 @@ package com.mobeom.local_currency.recommend;
 import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.store.LatLngVo;
+import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.store.Store;
-import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -59,17 +58,19 @@ interface RecommendService {
     Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
 
     Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
+
+    boolean findUserByUserIdInRating(String id);
 }
 
 @Service
 public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
-    private final UserRepository userRepository;
+    private final RatingRepository ratingRepository;
     private final FavoritesRepository favoritesRepository;
 
-    public RecommendServiceImpl(RecommendRepository recommendRepository, UserRepository userRepository, FavoritesRepository favoritesRepository) {
+    public RecommendServiceImpl(RecommendRepository recommendRepository, UserRepository userRepository, RatingRepository ratingRepository, FavoritesRepository favoritesRepository) {
         this.recommendRepository = recommendRepository;
-        this.userRepository = userRepository;
+        this.ratingRepository = ratingRepository;
         this.favoritesRepository = favoritesRepository;
     }
 
@@ -248,6 +249,13 @@ public class RecommendServiceImpl implements RecommendService {
     public List<IndustryStore> findMostFavoriteStores(double lat, double lng) {
 
         return recommendRepository.fetchedMostFavoriteStores(lat, lng);
+    }
+
+    @Override
+    public boolean findUserByUserIdInRating(String id){
+        Optional<Long> ratingUser = Optional.ofNullable(ratingRepository.findByUserId(id));
+        return ratingUser.isPresent();
+
     }
 
 
