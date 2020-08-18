@@ -23,7 +23,6 @@ interface PostService {
     Optional<Post> onePost(long postId);
     Post insertNotice(NoticeVo notice);
     Post updatePost(Post notice);
-    void deleteNotice(Post notice);
     List<Post> noticeSearch(String searchWord,String category);
     List<Post> inquiryList();
     Post createReview(String storeId, ReviewVO review);
@@ -82,7 +81,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post insertNotice(NoticeVo notice) {
         Optional<User> user = userRepository.findById(notice.getUserId());
-        Optional<Board> board = boardRepository.findById((long)4);
+        Optional<Board> board = boardRepository.findById((long)2);
 
         Post insertNotice = new Post();
         insertNotice.setCategory(notice.getCategory());
@@ -98,12 +97,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post updatePost(Post notice) {
         return postRepository.save(notice);
-    }
-
-    @Override
-    public void deleteNotice(Post notice) {
-        postRepository.delete(notice);
-
     }
 
     @Override

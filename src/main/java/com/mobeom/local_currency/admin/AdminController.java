@@ -131,6 +131,13 @@ public class AdminController {
         return ResponseEntity.ok(userList);
     }
 
+    @GetMapping("/searchUserList/{selectedOption}/{searchWord}/{pageNumber}")
+    public ResponseEntity<UserPageVO> getSearchedUsers(@PathVariable String selectedOption,
+                                                       @PathVariable String searchWord) {
+        UserPageVO userList = adminService.getSearchedUsers(selectedOption, searchWord);
+        return ResponseEntity.ok(userList);
+    }
+
 
     @GetMapping("/store/chart-local/{localSelect}")
     public Map<String,Long> storeLocalChart(@PathVariable String localSelect){
