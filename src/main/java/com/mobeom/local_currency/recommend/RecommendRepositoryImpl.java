@@ -39,6 +39,12 @@ interface CustomRecommendRepository {
     List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng);
 
     List<IndustryStore> fetchedBestRatedStores(double lat, double lng);
+
+    List<IndustryStore> fetchedMostFavStoresByIndustry(String industryName, double lat, double lng);
+
+    List<IndustryStore> fetchedBestRatedStoresByIndustry(String industryName, double lat, double lng);
+
+
 }
 
 @Repository
@@ -193,6 +199,44 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
     }
+
+    @Override
+    public List<IndustryStore> fetchedMostFavStoresByIndustry(String searchIndustry, double lat, double lng) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address")
+        )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
+                .where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036),
+                        store.mainCode.eq(searchIndustry))
+                .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
+
+    }
+
+    @Override
+    public List<IndustryStore> fetchedBestRatedStoresByIndustry(String searchIndustry, double lat, double lng) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address")
+        )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
+                .where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036),
+                        store.mainCode.eq(searchIndustry))
+                .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
+
+    }
+
+
 
 
 }
