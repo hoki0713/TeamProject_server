@@ -97,7 +97,7 @@ public class RecommendServiceImpl implements RecommendService {
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("유저 배열의 갯수" + recommendItemIds.size());
+        System.out.println("유저 추천" + recommendItemIds.size());
 
         return recommendItemIds;
     }
@@ -126,7 +126,7 @@ public class RecommendServiceImpl implements RecommendService {
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("아이템 배열의 갯수" + recommendItemIds.size());
+        System.out.println("아이템 추천" + recommendItemIds.size());
         return recommendItemIds;
     }
 
@@ -137,7 +137,7 @@ public class RecommendServiceImpl implements RecommendService {
         for (String StoreId : recommendItemIds) {
             recommendList.add(recommendRepository.recommendStores(StoreId));
         }
-
+        System.out.println("추천된 최종결과 스토어의 갯수"+recommendList.size());
         return recommendList;
     }
 
@@ -195,7 +195,9 @@ public class RecommendServiceImpl implements RecommendService {
     public Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
-            result.put(industryName.getIndustryName(), recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));
+            if(recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
+            {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
+            else {result.put(industryName.getIndustryName(), recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));}
         }
         return result;
     }
@@ -204,7 +206,9 @@ public class RecommendServiceImpl implements RecommendService {
     public Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
-            result.put(industryName.getIndustryName(), recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));
+            if(recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
+            {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
+            else {result.put(industryName.getIndustryName(), recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));}
         }
         return result;
     }

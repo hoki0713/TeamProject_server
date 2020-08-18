@@ -78,7 +78,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
         )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.id.eq(Long.valueOf(searchWord))).fetchOne();
+                .fetchJoin().where(store.id.eq(Long.valueOf(searchWord))).fetchFirst();
 
     }
 
@@ -98,8 +98,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 industry.industryImageUrl.as("imgUrl"))
         ).from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.latitude.between(lat - 0.045, lat + 0.045),
-                        store.longitude.between(lng - 0.06, lng + 0.06))
+                .fetchJoin().where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
@@ -122,8 +122,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin().where(industry.mainCode.eq(searchIndustry),
-                        store.latitude.between(lat - 0.045, lat + 0.045),
-                        store.longitude.between(lng - 0.06, lng + 0.06))
+                        store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036))
                 .orderBy(store.searchResultCount.desc()).limit(7).fetch();
     }
 
