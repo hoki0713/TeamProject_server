@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sun.tools.jconsole.JConsole;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,38 +24,48 @@ public class StoreController {
 
     @Autowired Box box;
 
-    @GetMapping("/list")
-    public Map<?,?> getAll(){
-        logger.info("list()");
-        box.clear();
-        box.put("list", storeService.findAll());
-        return box.get();
-    }
 
-    @GetMapping("/ui")
-    public Map<?,?> getuiList(){
-        logger.info("getuiList()");
-        box.clear();
-        box.put("list",storeService.getUi());
-        return box.get();
-    }
 
-    @GetMapping("/mapClick/{clickedState}")
-    public Map<?,?> getMapClick(@PathVariable String clickedState){
-        logger.info("getMapClick()");
-        box.clear();
-        box.put("list",storeService.getMap(clickedState));
-        System.out.println(box.get());
-        return box.get();
-    }
     @GetMapping("/fromAddr/{lat}/{lng}")
     public Map<?,?> getStoreByAddr(@PathVariable String lat, @PathVariable String lng){
         logger.info("getStoreByAddr()");
         box.clear();
         box.put("list", storeService.getStores(lat,lng));
         return box.get();
-    }
+    }// 좌표근처 가맹점 찾기
 
+
+    @GetMapping("/realTimeSearch/{searchWD}")
+    public Map<?,?>  realTimeSearch(@PathVariable String searchWD){
+        logger.info("realTimeSearch()  "+"searchWD:"+searchWD);
+        Object results = storeService.getSeveral(searchWD);
+        box.clear();
+        if (results != null) {
+            box.put("msg", "success");
+            box.put("list", results);
+        } else {
+            box.put("msg", "fail");
+        }
+        return box.get();
+    }// eunsong findBestRoute addStore search
+
+    @GetMapping("/getSome/{stateName}/{category}/{pageNow}")
+    public Map<?,?> getStoreList(@PathVariable(name = "stateName") String stateName,
+                                 @PathVariable(name = "category") String category,
+                                 @PathVariable(name = "pageNow") int pageNow){
+        logger.info("getStoreList()");
+        box.clear();
+        Object results = storeService.getSome(stateName, category, pageNow);
+        System.out.println(results);
+        if (results != null) {
+            box.put("msg", "success");
+            box.put("list", results);
+        } else {
+            box.put("msg", "fail");
+        }
+
+        return box.get();
+    }// eunsong MerchanList //have to add pagenation
 
 
     @GetMapping("/findStore/{storeName}")
@@ -87,18 +98,5 @@ public class StoreController {
         return ResponseEntity.ok(storeList);
     }
 
-    @GetMapping("/realTimeSearch/{searchWD}")
-    public Map<?,?>  realTimeSearch(@PathVariable String searchWD){
-        logger.info("realTimeSearch()  "+"searchWD:"+searchWD);
-        Object results = storeService.getSeveral(searchWD);
-        box.clear();
-        if (results != null) {
-            box.put("msg", "success");
-            box.put("list", results);
-        } else {
-            box.put("msg", "fail");
-        }
-        return box.get();
-    }
 
 }
