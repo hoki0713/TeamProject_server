@@ -168,4 +168,11 @@ public class PostController {
         return ResponseEntity.ok(questions);
     }
 
+    @GetMapping("/notice/search")
+    public List<Post> noticeSearch(@RequestParam("searchWord") String searchWord,
+                                   @RequestParam("categorySelect") String category){
+
+        return postService.noticeSearch(searchWord,category);
+    }
+
 }

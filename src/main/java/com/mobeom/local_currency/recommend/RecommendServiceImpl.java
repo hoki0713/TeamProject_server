@@ -3,9 +3,8 @@ package com.mobeom.local_currency.recommend;
 import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.store.LatLngVo;
+import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.store.Store;
-import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -59,17 +58,19 @@ interface RecommendService {
     Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
 
     Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
+
+    boolean findUserByUserIdInRating(String id);
 }
 
 @Service
 public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
-    private final UserRepository userRepository;
+    private final RatingRepository ratingRepository;
     private final FavoritesRepository favoritesRepository;
 
-    public RecommendServiceImpl(RecommendRepository recommendRepository, UserRepository userRepository, FavoritesRepository favoritesRepository) {
+    public RecommendServiceImpl(RecommendRepository recommendRepository, UserRepository userRepository, RatingRepository ratingRepository, FavoritesRepository favoritesRepository) {
         this.recommendRepository = recommendRepository;
-        this.userRepository = userRepository;
+        this.ratingRepository = ratingRepository;
         this.favoritesRepository = favoritesRepository;
     }
 
@@ -78,8 +79,8 @@ public class RecommendServiceImpl implements RecommendService {
     public List<String> findUserBasedRecommend(String id) throws TasteException {
 
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
@@ -97,7 +98,7 @@ public class RecommendServiceImpl implements RecommendService {
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("유저 배열의 갯수" + recommendItemIds.size());
+        System.out.println("유저 추천" + recommendItemIds.size());
 
         return recommendItemIds;
     }
@@ -105,8 +106,9 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public List<String> findItemBasedRecommend(String id) throws TasteException {
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel
@@ -125,7 +127,7 @@ public class RecommendServiceImpl implements RecommendService {
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("아이템 배열의 갯수" + recommendItemIds.size());
+        System.out.println("아이템 추천" + recommendItemIds.size());
         return recommendItemIds;
     }
 
@@ -136,7 +138,7 @@ public class RecommendServiceImpl implements RecommendService {
         for (String StoreId : recommendItemIds) {
             recommendList.add(recommendRepository.recommendStores(StoreId));
         }
-
+        System.out.println("추천된 최종결과 스토어의 갯수"+recommendList.size());
         return recommendList;
     }
 
@@ -194,7 +196,9 @@ public class RecommendServiceImpl implements RecommendService {
     public Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
-            result.put(industryName.getIndustryName(), recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));
+            if(recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
+            {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
+            else {result.put(industryName.getIndustryName(), recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));}
         }
         return result;
     }
@@ -203,7 +207,9 @@ public class RecommendServiceImpl implements RecommendService {
     public Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (GenderAge industryName : industryList) {
-            result.put(industryName.getIndustryName(), recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));
+            if(recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
+            {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
+            else {result.put(industryName.getIndustryName(), recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));}
         }
         return result;
     }
@@ -243,6 +249,13 @@ public class RecommendServiceImpl implements RecommendService {
     public List<IndustryStore> findMostFavoriteStores(double lat, double lng) {
 
         return recommendRepository.fetchedMostFavoriteStores(lat, lng);
+    }
+
+    @Override
+    public boolean findUserByUserIdInRating(String id){
+        Optional<Long> ratingUser = Optional.ofNullable(ratingRepository.findByUserId(id));
+        return ratingUser.isPresent();
+
     }
 
 

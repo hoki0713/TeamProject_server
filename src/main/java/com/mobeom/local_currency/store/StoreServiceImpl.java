@@ -78,8 +78,6 @@ public class StoreServiceImpl implements StoreService {
         return repository.existsById(Long.parseLong(id));
     }
 
-
-
     @Override
     public Optional<List<Store>> findAllStoreByName(String storeName) {
         List<Store> storeList = repository.findAllByStoreName(storeName);
