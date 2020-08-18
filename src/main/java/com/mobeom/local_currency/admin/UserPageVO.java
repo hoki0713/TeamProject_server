@@ -8,5 +8,6 @@ import java.util.List;
 @Data
 public class UserPageVO {
     private long totalPages;
+    private long totalUsers;
     private List<RequestedUsersVO> users;
 }

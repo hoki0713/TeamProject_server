@@ -25,9 +25,11 @@ public class RecommendController {
     @GetMapping("/individualUser/{id}")
     public Map<String, ?> getIndividualUserRecommend(@PathVariable String id) throws TasteException {
         box.clear();
-        if(recommendService.findUserBasedRecommend(id).size() !=0){
-            box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
-        } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");};
+        if(recommendService.findUserByUserIdInRating(id)){
+            if(recommendService.findUserBasedRecommend(id).size() !=0){
+                box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
+            } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");};
+        } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");}
 
         return box.get();
     }
@@ -134,8 +136,8 @@ public class RecommendController {
         double lng = latLng.getLng();
         System.out.println("가게 리스트 입성" + lat + lng);
         List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
-        if(option == 0) return recommendService.findStoresByIndustryList(industryList, lat, lng);
-        else if(option == 1) return recommendService.findMostFavStoresByIndustryList(industryList, lat, lng);
+        if(option == 1) return recommendService.findStoresByIndustryList(industryList, lat, lng);
+        else if(option == 2) return recommendService.findMostFavStoresByIndustryList(industryList, lat, lng);
         else return recommendService.findBestRatedStoresByIndustryList(industryList, lat, lng);
 
     }

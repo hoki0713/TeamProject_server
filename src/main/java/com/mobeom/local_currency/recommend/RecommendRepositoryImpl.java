@@ -64,28 +64,38 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override //mahout을 통한 가맹점 추천
     public IndustryStore recommendStores(String searchWord) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"))
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl"))
         )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.id.eq(Long.valueOf(searchWord))).fetchOne();
+                .fetchJoin().where(store.id.eq(Long.valueOf(searchWord))).fetchFirst();
 
     }
 
     @Override //단순 가맹점 추천(서치 순)
     public List<IndustryStore> fetchByBestStore(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"))
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl"))
         ).from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
                 .fetchJoin().where(store.latitude.between(lat - 0.045, lat + 0.045),
@@ -97,12 +107,17 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override //업종명으로 가맹점 찾기(img 연결된 ver)
     public List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"))
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl"))
         )
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
@@ -165,17 +180,22 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public List<IndustryStore> fetchedBestRatedStores(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
                 industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"),
                 rating.starRating.avg().as("starRanking")))
         .from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036))
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc(),
                         store.searchResultCount.desc()).limit(7).fetch();
     }
@@ -183,16 +203,21 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address")
-        )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl")))
+                .from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036))
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06))
                 .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
     }
@@ -200,16 +225,21 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public List<IndustryStore> fetchedMostFavStoresByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
-                industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address")
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl")
         )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036),
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06),
                         store.mainCode.eq(searchIndustry))
                 .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
@@ -218,17 +248,22 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public List<IndustryStore> fetchedBestRatedStoresByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.storeName.as("storeName"),
-                store.mainCode.as("mainCode"),
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
                 industry.industryImageUrl.as("imgUrl"),
-                store.storeType.as("storeType"),
-                store.localName.as("localName"),
-                store.address.as("address"),
                 rating.starRating.avg().as("starRanking")
         )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
                 .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
-                .where(store.latitude.between(lat - 0.027, lat + 0.027),
-                        store.longitude.between(lng - 0.036, lng + 0.036),
+                .where(store.latitude.between(lat - 0.045, lat + 0.045),
+                        store.longitude.between(lng - 0.06, lng + 0.06),
                         store.mainCode.eq(searchIndustry))
                 .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
 

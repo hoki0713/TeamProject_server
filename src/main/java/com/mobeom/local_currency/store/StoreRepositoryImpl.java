@@ -20,7 +20,7 @@ interface IStoreRepository {
     List<Store> findSeveral(String searchWD);
     List<IndustryStore> findByLatLng(String s, String s1);
 
-    Object findSome(String stateName, String category, int pageNow);
+    Object findSome(String stateName, String category, int pageNow,int limitSize);
 }
 
 @Repository
@@ -91,9 +91,10 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
     }//eunsong FindByMap when user Logined
 
     @Override
-    public Object findSome(String stateName, String category, int pageNow) {
+    public Object findSome(String stateName, String category, int pageNow,int limitSize) {
         if(stateName.equals("시/군")){stateName="";}
         if(category.equals("업종")){category="";}
+
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -105,17 +106,14 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 store.storeType,
                 store.mainCode,
                 store.searchResultCount,
-                rating.starRating.avg().as("starRanking"),
                 industry.industryImageUrl.as("imgUrl")))
                 .from(store).innerJoin(industry)
                 .on(store.storeTypeCode.eq(industry.industryCode))
-                .innerJoin(rating).on(store.id.eq(rating.store.id))
-                .fetchJoin()
-                .groupBy(rating.store.id)
-//                .where(store.mainCode.like("%"+category+"%"))
-//                .where(store.address.like("%"+stateName+"%"))
-                .limit(100).fetch();
-    }
+                .groupBy(store.id)
+                .orderBy(store.id.asc())
+                .offset(pageNow)
+                .limit(limitSize).fetch();
+    }//rating 추후에 추가
 
     @Override
     public List<Store> findAllStoreByUserDefaultAddr(String defaultAddr) {
