@@ -44,6 +44,7 @@ interface CustomRecommendRepository {
 
     List<IndustryStore> fetchedBestRatedStoresByIndustry(String industryName, double lat, double lng);
 
+//    IndustryStore fetchAvgRating(IndustryStore oneStore);
 
 }
 
@@ -127,10 +128,6 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .orderBy(genderAge.amount.sum().desc())
                 .limit(7).fetch();
     }
-//    SELECT age_group, industry_name, SUM(amount) AS total
-//    FROM consume
-//    GROUP BY age_group, industry_name
-//    ORDER BY total DESC
 
 
     @Override
@@ -226,15 +223,27 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 industry.industryImageUrl.as("imgUrl"),
                 store.storeType.as("storeType"),
                 store.localName.as("localName"),
-                store.address.as("address")
+                store.address.as("address"),
+                rating.starRating.avg().as("starRanking")
         )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
-                .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
+                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
                 .where(store.latitude.between(lat - 0.027, lat + 0.027),
                         store.longitude.between(lng - 0.036, lng + 0.036),
                         store.mainCode.eq(searchIndustry))
-                .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
+                .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
 
     }
+
+//    @Override
+//    public IndustryStore fetchAvgRating(IndustryStore oneStore) {
+//        return queryFactory.select(Projections.fields(IndustryStore.class, rating.starRating.avg().as("starRanking"))
+//                )
+//                .from(store)
+//                .leftJoin(rating).on(store.id.eq(rating.store.id))
+//                .groupBy(rating.store.id).fetchFirst();
+//    }
+
+
 
 
 

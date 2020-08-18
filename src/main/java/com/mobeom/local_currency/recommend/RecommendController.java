@@ -106,15 +106,15 @@ public class RecommendController {
     @GetMapping("/search/{gender}/{ageGroup}")
     public Map<String, List<GenderAge>> findIndustryByTag(@PathVariable String gender, @PathVariable int ageGroup) {
         System.out.println(gender + ageGroup);
-        if (gender.equals("null") && ageGroup == 0) {
+        if (gender.equals("none") && ageGroup == 100) {
             box.clear();
             System.out.println("몇개냐" + recommendService.findIndustryByTotal().size());
             box.put("searchResult", recommendService.findIndustryByTotal());
-        } else if (gender.equals("null")) {
+        } else if (gender.equals("none")) {
             box.clear();
             System.out.println("나이 몇개냐" + recommendService.findIndustryByAge(ageGroup).size());
             box.put("searchResult", recommendService.findIndustryByAge(ageGroup));
-        } else if (ageGroup == 0) {
+        } else if (ageGroup == 100) {
             box.clear();
             System.out.println("성별 몇개냐" + recommendService.findIndustryByGender(gender).size());
             box.put("searchResult", recommendService.findIndustryByGender(gender));
