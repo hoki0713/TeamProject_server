@@ -49,17 +49,18 @@ public class StoreController {
         return box.get();
     }// eunsong findBestRoute addStore search
 
-    @GetMapping("/getSome/{stateName}/{category}/{pageNow}")
+    @GetMapping("/getSome/{stateName}/{category}/{pageNow}/{limitSize}")
     public Map<?,?> getStoreList(@PathVariable(name = "stateName") String stateName,
                                  @PathVariable(name = "category") String category,
-                                 @PathVariable(name = "pageNow") int pageNow){
+                                 @PathVariable(name = "pageNow") int pageNow,
+                                 @PathVariable(name = "limitSize") int limitSize){
         logger.info("getStoreList()");
         box.clear();
-        Object results = storeService.getSome(stateName, category, pageNow);
-        System.out.println(results);
+        Object results = storeService.getSome(stateName, category, pageNow,limitSize);
         if (results != null) {
             box.put("msg", "success");
             box.put("list", results);
+            box.put("count",storeService.count());
         } else {
             box.put("msg", "fail");
         }
