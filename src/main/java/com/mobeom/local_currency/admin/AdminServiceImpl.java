@@ -6,6 +6,7 @@ import com.mobeom.local_currency.join.SalesVoucherUser;
 
 import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.reportList.ReportListRepository;
+import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,7 @@ interface AdminService{
     ReportListStore oneStore(Long id);
     Optional<ReportList> oneStroeReport(Long id);
     ReportList updateInitial(ReportList reportList);
+    List<Store> storeSearch(String searchWord);
 }
 
 @Service
@@ -157,9 +159,15 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
+    public List<Store> storeSearch(String searchWord) {
+        return adminRepository.storeSearch(searchWord);
+    }
+
+    @Override
     public Map<String,Long> storeLocalsChart(String localSelect) {
         return adminRepository.storeLocalsChart(localSelect);
     }
+
 
 
 

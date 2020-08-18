@@ -9,8 +9,6 @@ import static com.mobeom.local_currency.reportList.QReportList.reportList;
 
 import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
-import com.mobeom.local_currency.rating.Rating;
-import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.UserRepository;
 import com.querydsl.core.types.Projections;
@@ -36,6 +34,9 @@ interface CustomAdminRepository {
     Map<String, List<SalesVoucherUser>> salesList();
     Map<String,List<ReportListStore>> reportList();
     ReportListStore getOneStore(Long id);
+    List<SalesVoucherUser> salesListSearch();
+    List<Store> storeSearch(String searchWord);
+
 
 }
 
@@ -402,8 +403,29 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
         return result;
     }
 
+    @Override
+    public List<SalesVoucherUser> salesListSearch() {
 
+        List<SalesVoucherUser> searchResult= query.select(Projections.fields(SalesVoucherUser.class,user.userId,user.name,
+                sales.salesId,localCurrencyVoucher.localCurrencyName,sales.currencyState,sales.salesDate,
+                sales.useDate,sales.cancelDate)).from(sales)
+                .innerJoin(user).on(user.userId.like(sales.user.userId))
+                .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                .on(localCurrencyVoucher.localCurrencyVoucherId.eq
+                        (sales.localCurrencyVoucher.localCurrencyVoucherId))
+                .where(localCurrencyVoucher.localCurrencyName.like("%"+"고양"+"%")
+                        .and(sales.currencyState.like("사용완료"))
+                        .and(user.userId.like("%"+"%"))).fetch();
+        System.out.println("나오는지"+searchResult.toString());
+        return searchResult;
+    }
 
+    @Override
+    public List<Store> storeSearch(String searchWord) {
+        List<Store> storeSearchResult = query.select(store).from(store)
+                .where(store.storeName.like("%"+searchWord+"%")).fetch();
+        return storeSearchResult;
+    }
 
 
 }

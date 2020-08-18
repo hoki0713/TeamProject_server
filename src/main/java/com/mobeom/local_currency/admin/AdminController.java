@@ -155,7 +155,6 @@ public class AdminController {
 
     @GetMapping("/store/detail/{id}")
     public ReportListStore storeOne(@PathVariable String id){
-        System.out.println(adminService.oneStore(Long.parseLong(id)).toString());
         return adminService.oneStore(Long.parseLong(id));
     }
 
@@ -166,5 +165,32 @@ public class AdminController {
         updateReport.setReportedCount(0);
         adminService.updateInitial(updateReport);
         return updateReport;
+    }
+
+    @GetMapping("/sales/search")
+    public List<SalesVoucherUser> salesSearch(@RequestParam("currencyListStartDate") String start,
+                            @RequestParam("currencyListEndDate") String end,
+                            @RequestParam("useStatusSelect") String useStatus,
+                            @RequestParam("citySelect") String citySelect,
+                            @RequestParam("searchWord") String searchWord){
+        System.out.println(start);
+        System.out.println(end);
+        System.out.println(useStatus);
+        System.out.println(citySelect);
+        System.out.println(searchWord);
+        if(searchWord.equals("")){
+            System.out.println("%%");
+        }
+
+        LocalDate start_date = LocalDate.parse(start,DateTimeFormatter.ISO_DATE);
+        LocalDate end_date = LocalDate.parse(end,DateTimeFormatter.ISO_DATE);
+        System.out.println("search"+adminRepository.salesListSearch().toString());
+ return adminRepository.salesListSearch();
+
+    }
+
+    @GetMapping("/store/search/{searchWord}")
+    public List<Store> storeSearch(@PathVariable String searchWord){
+        return adminService.storeSearch(searchWord);
     }
 }

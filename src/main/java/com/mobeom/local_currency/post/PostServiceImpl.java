@@ -24,6 +24,7 @@ interface PostService {
     Post insertNotice(NoticeVo notice);
     Post updatePost(Post notice);
     void deleteNotice(Post notice);
+    List<Post> noticeSearch(String searchWord,String category);
     List<Post> inquiryList();
     Post createReview(String storeId, ReviewVO review);
 
@@ -103,6 +104,11 @@ public class PostServiceImpl implements PostService {
     public void deleteNotice(Post notice) {
         postRepository.delete(notice);
 
+    }
+
+    @Override
+    public List<Post> noticeSearch(String searchWord, String category) {
+        return postRepository.noticeSearch(searchWord,category);
     }
 
     @Override
