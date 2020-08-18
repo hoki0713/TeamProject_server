@@ -1,17 +1,14 @@
 package com.mobeom.local_currency.admin;
 
-import com.mobeom.local_currency.join.SalesVoucher;
+import com.mobeom.local_currency.join.ReportListStore;
+import com.mobeom.local_currency.join.SalesVoucherUser;
 import com.mobeom.local_currency.proxy.Box;
-import com.mobeom.local_currency.sales.Sales;
-import com.mobeom.local_currency.user.RequestedUsersVO;
+import com.mobeom.local_currency.reportList.ReportList;
+import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
-import com.querydsl.core.Tuple;
 import lombok.AllArgsConstructor;
-import org.mortbay.util.ajax.JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -75,12 +72,6 @@ public class AdminController {
         return userAge;
     }
 
-    @GetMapping("/joinDate-chart/{startDate}/{endDate}") //* 아직 구현 xx
-    public void joinChart(@PathVariable String startDate, @PathVariable String endDate){
-        LocalDate start_date = LocalDate.parse(startDate,DateTimeFormatter.ISO_DATE);
-        LocalDate end_date = LocalDate.parse(endDate,DateTimeFormatter.ISO_DATE);
-        adminService.joinChart(start_date,end_date);
-    }
 
 
 
@@ -93,7 +84,7 @@ public class AdminController {
     @GetMapping("/currency/month/total")
     public ResponseEntity<Map<String,Integer>> currencySalesMonthTotalChart(){
         Map<String,Integer> result = new HashMap<>();
-        List<SalesVoucher> monthList = adminService.salesMonthChart();
+        List<SalesVoucherUser> monthList = adminService.salesMonthChart();
         monthList.forEach(sales->{
             String year=sales.getSalesDate().toString().split("-")[0];
             String month=sales.getSalesDate().toString().split("-")[1];
@@ -104,12 +95,12 @@ public class AdminController {
     }
 
     @GetMapping("/voucher/sales-total")
-    public Map<String,Long> test (){
+    public Map<String,Long> oucherSalesTotalChart (){
         return adminRepository.voucherSalesTotalChart();
     }
 
     @GetMapping("/voucher/name-list/{currencyName}/{startDate}/{endDate}")
-    public Map<String,SalesVoucher> voucherNameChart(@PathVariable String currencyName,@PathVariable String startDate,@PathVariable String endDate){ //SalesVoucher voucherNameChart(String voucherName)
+    public Map<String, SalesVoucherUser> voucherNameChart(@PathVariable String currencyName, @PathVariable String startDate, @PathVariable String endDate){ //SalesVoucher voucherNameChart(String voucherName)
 
         String start = startDate.split("-")[1];
         String end = endDate.split("-")[1];
@@ -149,4 +140,56 @@ public class AdminController {
     @GetMapping("/store/chart-all")
     public Map<String,Long> storeIndustryChartAll() {
     return adminService.storeIndustryChartAll(); }
+
+    @GetMapping("/sales/list")
+    public Map<String, List<SalesVoucherUser>> salesList(){
+        return adminService.salesList();
+    }
+
+    @GetMapping("/report/list")
+    public Map<String, List<ReportListStore>> reportList() {
+
+        return adminService.reportList();
+    }
+
+    @GetMapping("/store/detail/{id}")
+    public ReportListStore storeOne(@PathVariable String id){
+        return adminService.oneStore(Long.parseLong(id));
+    }
+
+    @GetMapping("/store/report/initialization/{id}")
+    public ReportList reportInitial (@PathVariable String id){
+        Optional<ReportList> result = adminService.oneStroeReport(Long.parseLong(id));
+        ReportList updateReport = result.get();
+        updateReport.setReportedCount(0);
+        adminService.updateInitial(updateReport);
+        return updateReport;
+    }
+
+    @GetMapping("/sales/search")
+    public List<SalesVoucherUser> salesSearch(@RequestParam("currencyListStartDate") String start,
+                            @RequestParam("currencyListEndDate") String end,
+                            @RequestParam("useStatusSelect") String useStatus,
+                            @RequestParam("citySelect") String citySelect,
+                            @RequestParam("searchWord") String searchWord){
+        System.out.println(start);
+        System.out.println(end);
+        System.out.println(useStatus);
+        System.out.println(citySelect);
+        System.out.println(searchWord);
+        if(searchWord.equals("")){
+            System.out.println("%%");
+        }
+
+        LocalDate start_date = LocalDate.parse(start,DateTimeFormatter.ISO_DATE);
+        LocalDate end_date = LocalDate.parse(end,DateTimeFormatter.ISO_DATE);
+        System.out.println("search"+adminRepository.salesListSearch().toString());
+ return adminRepository.salesListSearch();
+
+    }
+
+    @GetMapping("/store/search/{searchWord}")
+    public List<Store> storeSearch(@PathVariable String searchWord){
+        return adminService.storeSearch(searchWord);
+    }
 }
