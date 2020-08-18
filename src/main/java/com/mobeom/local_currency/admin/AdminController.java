@@ -4,6 +4,7 @@ import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.reportList.ReportList;
+import com.mobeom.local_currency.sales.PurchaseVO;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
 import lombok.AllArgsConstructor;
@@ -56,7 +57,6 @@ public class AdminController {
        box.put("gender",testChart1);
         box.put("age",testChart2);
 
-        //return adminService.userLocalGenderChart(localSelect);
         return box.get();
     }
 
@@ -83,6 +83,7 @@ public class AdminController {
 
     @GetMapping("/currency/month/total")
     public ResponseEntity<Map<String,Integer>> currencySalesMonthTotalChart(){
+
         Map<String,Integer> result = new HashMap<>();
         List<SalesVoucherUser> monthList = adminService.salesMonthChart();
         monthList.forEach(sales->{
@@ -95,8 +96,8 @@ public class AdminController {
     }
 
     @GetMapping("/voucher/sales-total")
-    public Map<String,Long> oucherSalesTotalChart (){
-        return adminRepository.voucherSalesTotalChart();
+    public Map<String,SalesVoucherUser> oucherSalesTotalChart (){
+        return adminService.voucherSalesTotalChart();
     }
 
     @GetMapping("/voucher/name-list/{currencyName}/{startDate}/{endDate}")
@@ -167,29 +168,18 @@ public class AdminController {
     }
 
     @GetMapping("/sales/search")
-    public List<SalesVoucherUser> salesSearch(@RequestParam("currencyListStartDate") String start,
-                            @RequestParam("currencyListEndDate") String end,
-                            @RequestParam("useStatusSelect") String useStatus,
-                            @RequestParam("citySelect") String citySelect,
-                            @RequestParam("searchWord") String searchWord){
-        System.out.println(start);
-        System.out.println(end);
-        System.out.println(useStatus);
-        System.out.println(citySelect);
-        System.out.println(searchWord);
-        if(searchWord.equals("")){
-            System.out.println("%%");
-        }
+    public Map<String, List<SalesVoucherUser>> salesSearch(@RequestParam("useStatusSelect") String useStatus,
+                                                     @RequestParam("citySelect") String citySelect,
+                                                     @RequestParam("searchWord") String searchWord){
 
-        LocalDate start_date = LocalDate.parse(start,DateTimeFormatter.ISO_DATE);
-        LocalDate end_date = LocalDate.parse(end,DateTimeFormatter.ISO_DATE);
-        System.out.println("search"+adminRepository.salesListSearch().toString());
- return adminRepository.salesListSearch();
+            Map<String,List<SalesVoucherUser>> result = new HashMap<>();
+            result.put("sales",adminRepository.salesListSearch(useStatus,citySelect,searchWord));
+        return result;
 
     }
 
     @GetMapping("/store/search/{searchWord}")
-    public List<Store> storeSearch(@PathVariable String searchWord){
+    public List<ReportListStore> storeSearch(@PathVariable String searchWord){
         return adminService.storeSearch(searchWord);
     }
 }

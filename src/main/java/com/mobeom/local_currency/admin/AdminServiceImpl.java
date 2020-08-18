@@ -6,7 +6,6 @@ import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
 import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.reportList.ReportListRepository;
-import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
@@ -45,7 +44,9 @@ interface AdminService{
     ReportListStore oneStore(Long id);
     Optional<ReportList> oneStroeReport(Long id);
     ReportList updateInitial(ReportList reportList);
-    List<Store> storeSearch(String searchWord);
+    List<ReportListStore> storeSearch(String searchWord);
+    Map<String, SalesVoucherUser> voucherSalesTotalChart();
+    List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
 }
 
 @Service
@@ -173,8 +174,18 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<Store> storeSearch(String searchWord) {
+    public List<ReportListStore> storeSearch(String searchWord) {
         return adminRepository.storeSearch(searchWord);
+    }
+
+    @Override
+    public Map<String, SalesVoucherUser> voucherSalesTotalChart() {
+        return adminRepository.voucherSalesTotalChart();
+    }
+
+    @Override
+    public List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord) {
+        return adminRepository.salesListSearch(useStatus,citySelect,searchWord);
     }
 
     @Override
