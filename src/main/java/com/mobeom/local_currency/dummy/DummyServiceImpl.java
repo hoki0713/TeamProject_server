@@ -2,6 +2,8 @@ package com.mobeom.local_currency.dummy;
 
 import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
+import com.mobeom.local_currency.rating.Rating;
+import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.sales.SalesRepository;
 import com.mobeom.local_currency.store.Store;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -24,6 +27,7 @@ interface DummyService {
 
     List<Favorites> createRandomFavorites();
 
+    List<Rating> createRandomRatingUijeongbu();
 }
 
 @Service
@@ -35,19 +39,21 @@ public class DummyServiceImpl implements DummyService{
     private final StoreRepository storeRepository;
     private final FavoritesRepository favoritesRepository;
     private final RandomFavoritesGenerator randomFavoritesGenerator;
+    private final RatingRepository ratingRepository;
 
     public DummyServiceImpl(UserRepository userRepository,
                             SalesRepository salesRepository,
                             LocalCurrencyVoucherRepository localCurrencyVoucherRepository,
                             StoreRepository storeRepository,
                             FavoritesRepository favoritesRepository,
-                            RandomFavoritesGenerator randomFavoritesGenerator) {
+                            RandomFavoritesGenerator randomFavoritesGenerator, RatingRepository ratingRepository) {
         this.userRepository = userRepository;
         this.salesRepository = salesRepository;
         this.localCurrencyVoucherRepository = localCurrencyVoucherRepository;
         this.storeRepository = storeRepository;
         this.favoritesRepository = favoritesRepository;
         this.randomFavoritesGenerator = randomFavoritesGenerator;
+        this.ratingRepository = ratingRepository;
     }
 
     @Override
@@ -141,5 +147,32 @@ public class DummyServiceImpl implements DummyService{
             }
         });
         return favoritesRepository.saveAll(favorites);
+    }
+
+    @Override
+    public List<Rating> createRandomRatingUijeongbu() {
+        List<User> allUsers = userRepository.findAll();
+        List<Store> allStores = storeRepository.findAll();
+        List<Store> uijeongbuStore = new ArrayList<>();
+        List<User> uijeongbuUsers = new ArrayList<>();
+        allUsers.forEach(user -> {
+            if(user.getDefaultAddr().split(" ")[1].equals("의정부시")) uijeongbuUsers.add(user);
+        });
+        allStores.forEach(store -> {
+            if(store.getLocalName().equals("의정부시")) uijeongbuStore.add(store);
+        });
+
+        List<Rating> resultRatings = new ArrayList<>();
+
+        uijeongbuUsers.forEach(uijeongbuUser -> {
+            for(int i = 0; i < (int)(Math.random()*100+20); i++) {
+                Collections.shuffle(uijeongbuStore);
+                Rating newRating = new Rating();
+                newRating.setUser(uijeongbuUser);
+                newRating.setStore(uijeongbuStore.get(0));
+                resultRatings.add(newRating);
+            }
+        });
+        return ratingRepository.saveAll(resultRatings);
     }
 }

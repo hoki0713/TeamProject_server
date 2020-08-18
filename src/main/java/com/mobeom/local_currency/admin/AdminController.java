@@ -9,7 +9,6 @@ import com.mobeom.local_currency.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -127,8 +126,8 @@ public class AdminController {
 
     // Emilia code
     @GetMapping("/userList/{pageNumber}")
-    public ResponseEntity<List<User>> getAllUsers(@PathVariable int pageNumber) {
-        List<User> userList = adminService.getAllUsers(pageNumber);
+    public ResponseEntity<UserPageVO> getAllUsers(@PathVariable int pageNumber) {
+        UserPageVO userList = adminService.getUserPage(pageNumber);
         return ResponseEntity.ok(userList);
     }
 

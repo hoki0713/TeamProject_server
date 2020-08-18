@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class User {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender_age", nullable = false)
     private String gender;
 
     @Column(name = "email", nullable = false)

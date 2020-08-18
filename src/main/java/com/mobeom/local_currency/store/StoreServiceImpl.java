@@ -22,9 +22,7 @@ import static java.util.stream.Collectors.toMap;
 interface StoreService extends JpaService<Store> {
 
 
-    Object getUi();
 
-    Object getMap(String clickedState);
 
     Optional<List<Store>> findAllStoreByName(String storeName);
 
@@ -33,6 +31,10 @@ interface StoreService extends JpaService<Store> {
     Object getSeveral(String searchWD);
 
     Object getStores(String s, String s1);
+
+    List<Store> findStoreBySearchWord(String searchWord);
+
+    Object getSome(String stateName, String category, int pageNow);
 }
 
 
@@ -76,14 +78,10 @@ public class StoreServiceImpl implements StoreService {
         return repository.existsById(Long.parseLong(id));
     }
 
-    @Override
-    public Object getUi() {
-        return repository.uiList();
-    }
 
     @Override
     public Object getMap(String clickedState) {
-        return (clickedState!="")?repository.findByLocal(clickedState):findAll();
+        return (clickedState.equals(""))?repository.findByLocal(clickedState):findAll();
     }
 
     @Override
@@ -125,5 +123,15 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public Object getStores(String s, String s1) {
         return repository.findByLatLng(s,s1);
+    }
+
+    @Override
+    public List<Store> findStoreBySearchWord(String searchWord) {
+        return repository.findSeveral(searchWord);
+    }
+
+    @Override
+    public Object getSome(String stateName, String category, int pageNow) {
+        return repository.findSome(stateName,category,pageNow);
     }
 }

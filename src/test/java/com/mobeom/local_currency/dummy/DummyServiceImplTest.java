@@ -28,7 +28,7 @@ class DummyServiceImplTest {
                 salesRepository,
                 localCurrencyVoucherRepository,
                 storeRepository,
-                favoritesRepository, randomFavoritesGenerator);
+                favoritesRepository, randomFavoritesGenerator, ratingRepository);
 
         User user = new User();
         user.setDefaultAddr("경기도 고양시 ");
