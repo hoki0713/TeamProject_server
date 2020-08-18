@@ -42,6 +42,8 @@ interface PostService {
     QuestionVO getOneQuestionById(long postId);
 
     Map<Long, QuestionVO> getAllQuestionsBySelectedOption(String selectedOption, String searchWord);
+
+
 }
 
 @Service

@@ -1,17 +1,17 @@
 package com.mobeom.local_currency.admin;
 
-
+import static com.mobeom.local_currency.rating.QRating.rating;
 import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.sales.QSales.sales;
 import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurrencyVoucher;
-import static com.mobeom.local_currency.recommend.QIndustry.industry;
+import static com.mobeom.local_currency.reportList.QReportList.reportList;
 
-import com.mobeom.local_currency.join.IndustryStore;
-import com.mobeom.local_currency.join.SalesVoucher;
-import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.join.ReportListStore;
+import com.mobeom.local_currency.join.SalesVoucherUser;
+import com.mobeom.local_currency.rating.Rating;
+import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.store.Store;
-import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -19,7 +19,6 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 interface CustomAdminRepository {
@@ -27,16 +26,16 @@ interface CustomAdminRepository {
      Map<String,Long> localTotalChart();
      Map<String,Long> userLocalGenderChart(String localSelect);
      Map<String,Integer> userAgeChart(String localSelect);
-     Map<?,?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate);
     Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Long> storeTypeLocal();
-    List<SalesVoucher> salesMonthChart();
-    Map<String,SalesVoucher> voucherNameChart(String voucherName,String  start,String end);
+    List<SalesVoucherUser> salesMonthChart();
+    Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String  start, String end);
     Map<String,Integer>  useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
     Map<String,Long> voucherSalesTotalChart();
     Map<String,Integer> useTotalLocalChart();
-    Map<String,List<Sales>> salesList();
-
+    Map<String, List<SalesVoucherUser>> salesList();
+    Map<String,List<ReportListStore>> reportList();
+    ReportListStore getOneStore(Long id);
 
 }
 
@@ -192,29 +191,6 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public Map<?, ?> joinDateChart(LocalDate joinStartDate,LocalDate joinEndDate) { //구현하지않을생각
-
-        LocalDate fixedEndDate = joinStartDate.plusMonths(1).minusDays(1);
-        for(int i=1;i<=3;i++){
-            Long a =query.selectFrom(user)
-                    .where(user.joinDate.between(joinStartDate,joinStartDate.plusDays(30)))
-                    .fetchCount();
-
-            List<?> userList = query.selectFrom(user)
-                    .where(user.joinDate.between(joinStartDate,joinStartDate.plusMonths(i)))
-                    .fetch();
-
-        }
-
-        Long b =query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinEndDate)).fetchCount();
-        List<?> userList = query.selectFrom(user).where(user.joinDate.between(joinStartDate,joinEndDate)).fetch();
-
-        return null;
-    }
-
-
-
-    @Override
     public Map<String,Long> storeLocalsChart(String localSelect) {
 
 
@@ -253,9 +229,9 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     }
 
     @Override
-    public List<SalesVoucher> salesMonthChart() {
+    public List<SalesVoucherUser> salesMonthChart() {
         return  query.select(Projections.fields
-                (SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
+                (SalesVoucherUser.class,sales.unitPrice.sum().as("unitPrice"),sales.salesDate))
                 .from(sales).groupBy(sales.salesDate.month()).fetch();
     }
 
@@ -263,15 +239,15 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
     @Override
-    public Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end) {
+    public Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end) {
 
-        Map<String,SalesVoucher> voucherMap = new HashMap<>();
+        Map<String, SalesVoucherUser> voucherMap = new HashMap<>();
 
         int startDate = Integer.parseInt(start);
         int endDate = Integer.parseInt(end);
 
         for(int i= startDate;i<=endDate;i++){
-            SalesVoucher monthTotal=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),
+            SalesVoucherUser monthTotal=  query.select(Projections.fields(SalesVoucherUser.class,sales.unitPrice.sum().as("unitPrice"),
                     localCurrencyVoucher.localCurrencyName))
                     .from(sales).where(sales.salesDate.stringValue().substring(0,7).like("2020-"+"%"+i)
                             .and(localCurrencyVoucher.localCurrencyName.like(voucherName+"%"))).fetchOne();
@@ -342,7 +318,7 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
 
 
         for(LocalName i : locals){
-        Long result=  query.select(Projections.fields(SalesVoucher.class,sales.unitPrice.sum().as("unitPrice"),
+        Long result=  query.select(Projections.fields(SalesVoucherUser.class,sales.unitPrice.sum().as("unitPrice"),
                     localCurrencyVoucher.localCurrencyName))
                     .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where(localCurrencyVoucher.localCurrencyName.like(i+"%"))
                     .fetchCount();
@@ -380,13 +356,54 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
     }
 
     @Override
-    public Map<String, List<Sales>> salesList() {
-        Map<String,List<Sales>> list = new HashMap<>();
+    public Map<String, List<SalesVoucherUser>> salesList() {
+        Map<String,List<SalesVoucherUser>> list = new HashMap<>();
 
-       // query.select(Projections.fields(sales.salesId))
+      List<SalesVoucherUser> result= query.select(Projections.fields(SalesVoucherUser.class,user.userId,user.name,
+                sales.salesId,localCurrencyVoucher.localCurrencyName,sales.currencyState,sales.salesDate,
+                sales.useDate,sales.cancelDate)).from(sales)
+                .innerJoin(user).on(user.userId.like(sales.user.userId))
+                .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
+                .on(localCurrencyVoucher.localCurrencyVoucherId.eq(sales.localCurrencyVoucher.localCurrencyVoucherId))
+                .limit(100).fetch();
 
-        return null;
+        list.put("sales",result);
+
+        return list;
     }
+
+    @Override
+    public Map<String, List<ReportListStore>> reportList() {
+        Map<String,List<ReportListStore>> result = new HashMap<>();
+
+       List<ReportListStore> reportLists =query.select(Projections.fields(ReportListStore.class,
+              store.id,store.storeName,store.address,store.mainCode
+       ,store.storePhone)).from(reportList)
+                .where(reportList.reportedCount.goe(3)).fetch();
+
+       result.put("report",reportLists);
+        return result;
+    }
+
+    @Override
+    public ReportListStore getOneStore(Long id) {
+
+        ReportListStore result = query.select(Projections.fields(ReportListStore.class,
+                store.storePhone,store.mainCode,store.address
+                ,store.storeName,store.id,store.storeType)).
+                from(store)
+                .where(store.id.eq(id)).fetchOne();
+
+       List<ReportListStore> ratingResult = query.select(Projections.fields(ReportListStore.class,
+                rating.starRating)).from(rating).where(rating.store.id.eq(id)).fetch();
+
+
+
+        return result;
+    }
+
+
+
 
 
 }

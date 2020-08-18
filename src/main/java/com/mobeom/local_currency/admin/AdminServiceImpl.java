@@ -1,12 +1,13 @@
 package com.mobeom.local_currency.admin;
 
 
-import com.mobeom.local_currency.join.SalesVoucher;
-import com.mobeom.local_currency.proxy.Box;
-import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.join.ReportListStore;
+import com.mobeom.local_currency.join.SalesVoucherUser;
+
+import com.mobeom.local_currency.reportList.ReportList;
+import com.mobeom.local_currency.reportList.ReportListRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
-import com.querydsl.core.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -24,19 +25,24 @@ interface AdminService{
     Map<String,Long> localTotalChart();
     Map<String,Long> userLocalGenderChart(String localSelect);
     Map<String,Integer> userAgeTotal(String localSelect);
-    Map<?,?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate);
+
     Map<String,Long> storeTypeChart();
-    List<SalesVoucher> salesMonthChart();
+    List<SalesVoucherUser> salesMonthChart();
     List<User> getAllUserList();
     Optional<User> findOneUser(String userId);
     Map<String,Integer> useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
-    Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end);
+    Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end);
     Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Integer> useTotalLocalChart();
 
     List<User> getAllUsers(int pageNumber);
 
     Map<String,Long> storeIndustryChartAll();
+    Map<String,List<SalesVoucherUser>> salesList();
+    Map<String, List<ReportListStore>> reportList();
+    ReportListStore oneStore(Long id);
+    Optional<ReportList> oneStroeReport(Long id);
+    ReportList updateInitial(ReportList reportList);
 }
 
 @Service
@@ -44,10 +50,13 @@ public class AdminServiceImpl implements AdminService{
 
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
+    private final ReportListRepository reportListRepository;
 
-    public AdminServiceImpl(AdminRepository adminRepository, UserRepository userRepository) {
+
+    public AdminServiceImpl(AdminRepository adminRepository, UserRepository userRepository, ReportListRepository reportListRepository) {
         this.adminRepository = adminRepository;
         this.userRepository = userRepository;
+        this.reportListRepository = reportListRepository;
     }
 
 
@@ -68,10 +77,6 @@ public class AdminServiceImpl implements AdminService{
 
 
 
-    @Override
-    public Map<?, ?> joinChart(LocalDate joinStartDate,LocalDate joinEndDate) {
-        return adminRepository.joinDateChart(joinStartDate,joinEndDate);
-    }
 
 
 
@@ -81,7 +86,7 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<SalesVoucher> salesMonthChart() {
+    public List<SalesVoucherUser> salesMonthChart() {
         return adminRepository.salesMonthChart();
     }
 
@@ -102,7 +107,7 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public Map<String,SalesVoucher> voucherNameChart(String voucherName,String start,String end) {
+    public Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end) {
         return adminRepository.voucherNameChart(voucherName,start,end);
     }
 
@@ -127,9 +132,40 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
+    public Map<String, List<SalesVoucherUser>> salesList() {
+        return adminRepository.salesList();
+    }
+
+    @Override
+    public Map<String, List<ReportListStore>> reportList() {
+        return adminRepository.reportList();
+    }
+
+    @Override
+    public ReportListStore oneStore(Long id) {
+        return adminRepository.getOneStore(id);
+    }
+
+    @Override
+    public Optional<ReportList> oneStroeReport(Long id) {
+        return reportListRepository.findByStoreId(id);
+    }
+
+    @Override
+    public ReportList updateInitial(ReportList reportList) {
+        return  reportListRepository.save(reportList);
+    }
+
+    @Override
     public Map<String,Long> storeLocalsChart(String localSelect) {
         return adminRepository.storeLocalsChart(localSelect);
     }
+
+
+
+
+
+
 
 
 
