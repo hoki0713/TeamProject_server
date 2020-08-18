@@ -78,8 +78,8 @@ public class RecommendServiceImpl implements RecommendService {
     public List<String> findUserBasedRecommend(String id) throws TasteException {
 
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
@@ -105,8 +105,9 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public List<String> findItemBasedRecommend(String id) throws TasteException {
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel
