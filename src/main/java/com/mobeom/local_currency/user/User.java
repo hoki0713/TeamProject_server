@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
