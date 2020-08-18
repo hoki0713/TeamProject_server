@@ -115,7 +115,7 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 .where(store.latitude.between(lat-0.045, lat+0.045))
                 .where(store.longitude.between(lng-0.06, lng+0.06))
                 .groupBy(rating.store.id)
-                .orderBy(rating.starRating.avg().desc(),store.searchResultCount.desc()).limit(200).fetch();
+                .orderBy(store.searchResultCount.desc()).limit(200).fetch();
     }//eunsong FindByMap when user Logined
 
     @Override
