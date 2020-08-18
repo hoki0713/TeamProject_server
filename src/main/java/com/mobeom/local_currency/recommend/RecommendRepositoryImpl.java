@@ -39,6 +39,13 @@ interface CustomRecommendRepository {
     List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng);
 
     List<IndustryStore> fetchedBestRatedStores(double lat, double lng);
+
+    List<IndustryStore> fetchedMostFavStoresByIndustry(String industryName, double lat, double lng);
+
+    List<IndustryStore> fetchedBestRatedStoresByIndustry(String industryName, double lat, double lng);
+
+//    IndustryStore fetchAvgRating(IndustryStore oneStore);
+
 }
 
 @Repository
@@ -121,10 +128,6 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .orderBy(genderAge.amount.sum().desc())
                 .limit(7).fetch();
     }
-//    SELECT age_group, industry_name, SUM(amount) AS total
-//    FROM consume
-//    GROUP BY age_group, industry_name
-//    ORDER BY total DESC
 
 
     @Override
@@ -193,6 +196,56 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
 
     }
+
+    @Override
+    public List<IndustryStore> fetchedMostFavStoresByIndustry(String searchIndustry, double lat, double lng) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address")
+        )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(favorites).on(store.id.eq(favorites.store.id)).fetchJoin()
+                .where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036),
+                        store.mainCode.eq(searchIndustry))
+                .groupBy(favorites.store).orderBy(favorites.store.count().desc()).limit(7).fetch();
+
+    }
+
+    @Override
+    public List<IndustryStore> fetchedBestRatedStoresByIndustry(String searchIndustry, double lat, double lng) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.storeName.as("storeName"),
+                store.mainCode.as("mainCode"),
+                industry.industryImageUrl.as("imgUrl"),
+                store.storeType.as("storeType"),
+                store.localName.as("localName"),
+                store.address.as("address"),
+                rating.starRating.avg().as("starRanking")
+        )).from(store).innerJoin(industry).on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id)).fetchJoin()
+                .where(store.latitude.between(lat - 0.027, lat + 0.027),
+                        store.longitude.between(lng - 0.036, lng + 0.036),
+                        store.mainCode.eq(searchIndustry))
+                .groupBy(rating.store.id).orderBy(rating.starRating.avg().desc()).limit(7).fetch();
+
+    }
+
+//    @Override
+//    public IndustryStore fetchAvgRating(IndustryStore oneStore) {
+//        return queryFactory.select(Projections.fields(IndustryStore.class, rating.starRating.avg().as("starRanking"))
+//                )
+//                .from(store)
+//                .leftJoin(rating).on(store.id.eq(rating.store.id))
+//                .groupBy(rating.store.id).fetchFirst();
+//    }
+
+
+
+
 
 
 }

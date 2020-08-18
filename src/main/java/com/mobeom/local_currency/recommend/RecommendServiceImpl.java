@@ -55,6 +55,10 @@ interface RecommendService {
     List<IndustryStore> findMostFavoriteStores(double lat, double lng);
 
     List<IndustryStore> findBestRatedStores(double lat, double lng);
+
+    Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
+
+    Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
 }
 
 @Service
@@ -182,8 +186,29 @@ public class RecommendServiceImpl implements RecommendService {
         for (GenderAge industryName : industryList) {
             result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
         }
+        System.out.println(result.get("학원"));
         return result;
     }
+
+    @Override
+    public Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
+        Map<String, List<IndustryStore>> result = new HashMap<>();
+        for (GenderAge industryName : industryList) {
+            result.put(industryName.getIndustryName(), recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
+        Map<String, List<IndustryStore>> result = new HashMap<>();
+        for (GenderAge industryName : industryList) {
+            result.put(industryName.getIndustryName(), recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));
+        }
+        return result;
+    }
+
+
 
     @Override
     public boolean isPresentFavorites(String id) {

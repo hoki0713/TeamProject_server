@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class LatLngVo {
 
-    private double latitude, longitude;
+    private double lat, lng;
 }
