@@ -79,7 +79,10 @@ public class StoreServiceImpl implements StoreService {
     }
 
 
-
+    @Override
+    public Object getMap(String clickedState) {
+        return (clickedState.equals(""))?repository.findByLocal(clickedState):findAll();
+    }
 
     @Override
     public Optional<List<Store>> findAllStoreByName(String storeName) {

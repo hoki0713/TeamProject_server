@@ -4,6 +4,7 @@ package com.mobeom.local_currency.admin;
 import com.mobeom.local_currency.join.SalesVoucher;
 import com.mobeom.local_currency.proxy.Box;
 import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.querydsl.core.Tuple;
@@ -34,7 +35,7 @@ interface AdminService{
     Map<String,Long> storeLocalsChart(String localSelect);
     Map<String,Integer> useTotalLocalChart();
 
-    List<User> getAllUsers(int pageNumber);
+    UserPageVO getUserPage(int pageNumber);
 
     Map<String,Long> storeIndustryChartAll();
 }
@@ -112,13 +113,26 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<User> getAllUsers(int pageNumber) {
-        List<User> resultUserList = new ArrayList<User>();
+    public UserPageVO getUserPage(int pageNumber) {
+        UserPageVO result = new UserPageVO();
+        List<RequestedUsersVO> users = new ArrayList<>();
         Page<User> pageUserList = userRepository.findAll(PageRequest.of(pageNumber, 20));
         pageUserList.forEach(user -> {
-            resultUserList.add(user);
+            RequestedUsersVO newUser = new RequestedUsersVO();
+            newUser.setId(user.getId());
+            newUser.setUserId(user.getUserId());
+            newUser.setName(user.getName());
+            newUser.setBirthDate(user.getBirthDate());
+            newUser.setGender(user.getGender());
+            newUser.setEmail(user.getEmail());
+            newUser.setJoinDate(user.getJoinDate());
+            newUser.setDefaultAddr(user.getDefaultAddr());
+            newUser.setOptionalAddr(user.getOptionalAddr());
+            users.add(newUser);
         });
-        return resultUserList;
+        result.setTotalPages(pageUserList.getTotalPages());
+        result.setUsers(users);
+        return result;
     }
 
     @Override

@@ -46,8 +46,9 @@ public class RecommendController {
     @PostMapping("/all/{id}")
     public Map<String, ?> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng){
         box.clear();
-        double lat = latLng.getLatitude();
-        double lng = latLng.getLongitude();
+        double lat = latLng.getLat();
+        double lng = latLng.getLng();
+        System.out.println(lat+lng);
 
         String[] industryName = {"일반휴게음식", "음료식품", "의원"};
         box.put("industryName", industryName);
@@ -61,6 +62,7 @@ public class RecommendController {
         box.put("bestRated", recommendService.findBestRatedStores(lat, lng));
 
         if (recommendService.fetchStoreIdByUserId(id) != null){
+            System.out.println(recommendService.fetchStoreIdByUserId(id));
             String favoriteIndustry = recommendService.fetchStoreIdByUserId(id).getMainCode();
             box.put("userFavBased", recommendService.findStoresByIndustry(favoriteIndustry, lat, lng));
             box.put("userFavStore", recommendService.fetchStoreIdByUserId(id).getStoreName());
@@ -68,6 +70,8 @@ public class RecommendController {
         else {
              box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
         }
+        System.out.println("유저의 즐겨찾기 가게"+box.get("userFavStore"));
+        System.out.println("유저 즐겨찾기 없을 때 메세지"+box.get("noFavorite"));
         return box.get();
     }
 
@@ -102,15 +106,15 @@ public class RecommendController {
     @GetMapping("/search/{gender}/{ageGroup}")
     public Map<String, List<GenderAge>> findIndustryByTag(@PathVariable String gender, @PathVariable int ageGroup) {
         System.out.println(gender + ageGroup);
-        if (gender.equals("null") && ageGroup == 0) {
+        if (gender.equals("none") && ageGroup == 100) {
             box.clear();
             System.out.println("몇개냐" + recommendService.findIndustryByTotal().size());
             box.put("searchResult", recommendService.findIndustryByTotal());
-        } else if (gender.equals("null")) {
+        } else if (gender.equals("none")) {
             box.clear();
             System.out.println("나이 몇개냐" + recommendService.findIndustryByAge(ageGroup).size());
             box.put("searchResult", recommendService.findIndustryByAge(ageGroup));
-        } else if (ageGroup == 0) {
+        } else if (ageGroup == 100) {
             box.clear();
             System.out.println("성별 몇개냐" + recommendService.findIndustryByGender(gender).size());
             box.put("searchResult", recommendService.findIndustryByGender(gender));
@@ -126,11 +130,14 @@ public class RecommendController {
     public Map<String, List<IndustryStore>> findStoresByIndustry(@PathVariable String gender, @PathVariable int ageGroup,
                                                                  @PathVariable int option,
                                                                  @RequestBody LatLngVo latLng) {
-        double lat = latLng.getLatitude();
-        double lng = latLng.getLongitude();
-        System.out.println("가게 리스트 입성" + latLng.getLatitude() + latLng.getLongitude());
+        double lat = latLng.getLat();
+        double lng = latLng.getLng();
+        System.out.println("가게 리스트 입성" + lat + lng);
         List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
-        return recommendService.findStoresByIndustryList(industryList, lat, lng);
+        if(option == 0) return recommendService.findStoresByIndustryList(industryList, lat, lng);
+        else if(option == 1) return recommendService.findMostFavStoresByIndustryList(industryList, lat, lng);
+        else return recommendService.findBestRatedStoresByIndustryList(industryList, lat, lng);
+
     }
 }
 
