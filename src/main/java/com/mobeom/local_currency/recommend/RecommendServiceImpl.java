@@ -79,8 +79,8 @@ public class RecommendServiceImpl implements RecommendService {
     public List<String> findUserBasedRecommend(String id) throws TasteException {
 
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
@@ -106,9 +106,8 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public List<String> findItemBasedRecommend(String id) throws TasteException {
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel
@@ -119,8 +118,7 @@ public class RecommendServiceImpl implements RecommendService {
         ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
 
         Long itemId = fetchStoreIdByUserId(id).getId();
-        System.out.println(itemId);
-        List<RecommendedItem> recommendations = recommender.mostSimilarItems(1213, 7);
+        List<RecommendedItem> recommendations = recommender.mostSimilarItems(itemId, 7);
 
         List<String> recommendItemIds = new ArrayList<>();
 
@@ -188,7 +186,6 @@ public class RecommendServiceImpl implements RecommendService {
         for (GenderAge industryName : industryList) {
             result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
         }
-        System.out.println(result.get("학원"));
         return result;
     }
 
