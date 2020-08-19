@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.sales;
 
+import com.mobeom.local_currency.user.User;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -15,6 +16,9 @@ public class RequestedPurchaseHistoryVO {
    private String paymentName;
    private String localCurrencyVoucherName;
    private String recipientEmail;
+   private long userId;
+   private String userStringId;
+   private String userName;
 
    public RequestedPurchaseHistoryVO(LocalDate salesDate,
                                      int unitPrice, LocalDate useDate,

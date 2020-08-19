@@ -6,7 +6,6 @@ import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
 import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.reportList.ReportListRepository;
-import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
@@ -45,9 +44,12 @@ interface AdminService{
     ReportListStore oneStore(Long id);
     Optional<ReportList> oneStroeReport(Long id);
     ReportList updateInitial(ReportList reportList);
-    List<Store> storeSearch(String searchWord);
 
-    UserPageVO getSearchedUsers(String selectedOption, String searchWord);
+    List<ReportListStore> storeSearch(String searchWord);
+    Map<String, SalesVoucherUser> voucherSalesTotalChart();
+    List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
+    
+
 }
 
 @Service
@@ -176,56 +178,65 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<Store> storeSearch(String searchWord) {
+    public List<ReportListStore> storeSearch(String searchWord) {
         return adminRepository.storeSearch(searchWord);
     }
 
     @Override
-    public UserPageVO getSearchedUsers(String selectedOption, String searchWord) {
-        UserPageVO result = new UserPageVO();
-        List<RequestedUsersVO> users = new ArrayList<>();
-        if(selectedOption.equals("userid")) {
-            Optional<User> searchedUser = userRepository.findByUserId(searchWord);
-            if(searchedUser.isPresent()) {
-                User user = searchedUser.get();
-                RequestedUsersVO newUser = new RequestedUsersVO();
-                newUser.setId(user.getId());
-                newUser.setUserId(user.getUserId());
-                newUser.setName(user.getName());
-                newUser.setBirthDate(user.getBirthDate());
-                newUser.setGender(user.getGender());
-                newUser.setEmail(user.getEmail());
-                newUser.setJoinDate(user.getJoinDate());
-                newUser.setDefaultAddr(user.getDefaultAddr());
-                newUser.setOptionalAddr(user.getOptionalAddr());
-                users.add(newUser);
-                result.setUsers(users);
-                result.setTotalPages(1);
-                result.setTotalUsers(0);
-                return result;
-            }
-        } else {
-            List<User> searchedUser = userRepository.findByUserName(searchWord);
-            searchedUser.forEach(user -> {
-                RequestedUsersVO newUser = new RequestedUsersVO();
-                newUser.setId(user.getId());
-                newUser.setUserId(user.getUserId());
-                newUser.setName(user.getName());
-                newUser.setBirthDate(user.getBirthDate());
-                newUser.setGender(user.getGender());
-                newUser.setEmail(user.getEmail());
-                newUser.setJoinDate(user.getJoinDate());
-                newUser.setDefaultAddr(user.getDefaultAddr());
-                newUser.setOptionalAddr(user.getOptionalAddr());
-                users.add(newUser);
-            });
-            result.setUsers(users);
-            result.setTotalUsers(searchedUser.size());
-            result.setTotalPages((int)Math.ceil(searchedUser.size()/20));
-            return result;
-        }
+    public Map<String, SalesVoucherUser> voucherSalesTotalChart() {
+        return adminRepository.voucherSalesTotalChart();
+    }
 
-        return null;
+    @Override
+    public List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord) {
+        return adminRepository.salesListSearch(useStatus,citySelect,searchWord);
+//=======
+//    public UserPageVO getSearchedUsers(String selectedOption, String searchWord) {
+//        UserPageVO result = new UserPageVO();
+//        List<RequestedUsersVO> users = new ArrayList<>();
+//        if(selectedOption.equals("userid")) {
+//            Optional<User> searchedUser = userRepository.findByUserId(searchWord);
+//            if(searchedUser.isPresent()) {
+//                User user = searchedUser.get();
+//                RequestedUsersVO newUser = new RequestedUsersVO();
+//                newUser.setId(user.getId());
+//                newUser.setUserId(user.getUserId());
+//                newUser.setName(user.getName());
+//                newUser.setBirthDate(user.getBirthDate());
+//                newUser.setGender(user.getGender());
+//                newUser.setEmail(user.getEmail());
+//                newUser.setJoinDate(user.getJoinDate());
+//                newUser.setDefaultAddr(user.getDefaultAddr());
+//                newUser.setOptionalAddr(user.getOptionalAddr());
+//                users.add(newUser);
+//                result.setUsers(users);
+//                result.setTotalPages(1);
+//                result.setTotalUsers(0);
+//                return result;
+//            }
+//        } else {
+//            List<User> searchedUser = userRepository.findByUserName(searchWord);
+//            searchedUser.forEach(user -> {
+//                RequestedUsersVO newUser = new RequestedUsersVO();
+//                newUser.setId(user.getId());
+//                newUser.setUserId(user.getUserId());
+//                newUser.setName(user.getName());
+//                newUser.setBirthDate(user.getBirthDate());
+//                newUser.setGender(user.getGender());
+//                newUser.setEmail(user.getEmail());
+//                newUser.setJoinDate(user.getJoinDate());
+//                newUser.setDefaultAddr(user.getDefaultAddr());
+//                newUser.setOptionalAddr(user.getOptionalAddr());
+//                users.add(newUser);
+//            });
+//            result.setUsers(users);
+//            result.setTotalUsers(searchedUser.size());
+//            result.setTotalPages((int)Math.ceil(searchedUser.size()/20));
+//            return result;
+//        }
+//
+//        return null;
+//>>>>>>> master
     }
 
     @Override
