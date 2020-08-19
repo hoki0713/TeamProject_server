@@ -1,7 +1,6 @@
 package com.mobeom.local_currency.admin;
 
 
-
 import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
 import com.mobeom.local_currency.reportList.ReportList;
@@ -21,39 +20,56 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-interface AdminService{
-    
-    Map<String,Long> localTotalChart();
-    Map<String,Long> userLocalGenderChart(String localSelect);
-    Map<String,Integer> userAgeTotal(String localSelect);
+interface AdminService {
 
-    Map<String,Long> storeTypeChart();
+    Map<String, Long> localTotalChart();
+
+    Map<String, Long> userLocalGenderChart(String localSelect);
+
+    Map<String, Integer> userAgeTotal(String localSelect);
+
+    Map<String, Long> storeTypeChart();
+
     List<SalesVoucherUser> salesMonthChart();
+
     List<User> getAllUserList();
+
     Optional<User> findOneUser(String userId);
-    Map<String,Integer> useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
+
+    Map<String, Integer> useLocalChart(String localName, LocalDate startDate, LocalDate endDate);
+
     Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end);
-    Map<String,Long> storeLocalsChart(String localSelect);
-    Map<String,Integer> useTotalLocalChart();
+
+    Map<String, Long> storeLocalsChart(String localSelect);
+
+    Map<String, Integer> useTotalLocalChart();
 
     UserPageVO getUserPage(int pageNumber);
 
-    Map<String,Long> storeIndustryChartAll();
-    Map<String,List<SalesVoucherUser>> salesList();
+    Map<String, Long> storeIndustryChartAll();
+
+    Map<String, List<SalesVoucherUser>> salesList();
+
     Map<String, List<ReportListStore>> reportList();
+
     ReportListStore oneStore(Long id);
+
     Optional<ReportList> oneStroeReport(Long id);
+
     ReportList updateInitial(ReportList reportList);
 
     List<ReportListStore> storeSearch(String searchWord);
-    Map<String, SalesVoucherUser> voucherSalesTotalChart();
-    List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
-    
 
+    Map<String, SalesVoucherUser> voucherSalesTotalChart();
+
+    List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
+
+
+    UserPageVO getSearchedUsers(String selectedOption, String searchWord);
 }
 
 @Service
-public class AdminServiceImpl implements AdminService{
+public class AdminServiceImpl implements AdminService {
 
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
@@ -68,8 +84,8 @@ public class AdminServiceImpl implements AdminService{
 
 
     @Override
-    public Map<String,Long> localTotalChart() {
-       return adminRepository.localTotalChart();
+    public Map<String, Long> localTotalChart() {
+        return adminRepository.localTotalChart();
     }
 
     @Override
@@ -81,10 +97,6 @@ public class AdminServiceImpl implements AdminService{
     public Map<String, Integer> userAgeTotal(String localSelect) {
         return adminRepository.userAgeChart(localSelect);
     }
-
-
-
-
 
 
     @Override
@@ -108,14 +120,14 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public Map<String,Integer> useLocalChart(String localName,LocalDate startDate,LocalDate endDate) {
+    public Map<String, Integer> useLocalChart(String localName, LocalDate startDate, LocalDate endDate) {
 
-        return adminRepository.useLocalChart(localName,startDate,endDate);
+        return adminRepository.useLocalChart(localName, startDate, endDate);
     }
 
     @Override
     public Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end) {
-        return adminRepository.voucherNameChart(voucherName,start,end);
+        return adminRepository.voucherNameChart(voucherName, start, end);
     }
 
     @Override
@@ -174,7 +186,7 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public ReportList updateInitial(ReportList reportList) {
-        return  reportListRepository.save(reportList);
+        return reportListRepository.save(reportList);
     }
 
     @Override
@@ -189,68 +201,60 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord) {
-        return adminRepository.salesListSearch(useStatus,citySelect,searchWord);
-//=======
-//    public UserPageVO getSearchedUsers(String selectedOption, String searchWord) {
-//        UserPageVO result = new UserPageVO();
-//        List<RequestedUsersVO> users = new ArrayList<>();
-//        if(selectedOption.equals("userid")) {
-//            Optional<User> searchedUser = userRepository.findByUserId(searchWord);
-//            if(searchedUser.isPresent()) {
-//                User user = searchedUser.get();
-//                RequestedUsersVO newUser = new RequestedUsersVO();
-//                newUser.setId(user.getId());
-//                newUser.setUserId(user.getUserId());
-//                newUser.setName(user.getName());
-//                newUser.setBirthDate(user.getBirthDate());
-//                newUser.setGender(user.getGender());
-//                newUser.setEmail(user.getEmail());
-//                newUser.setJoinDate(user.getJoinDate());
-//                newUser.setDefaultAddr(user.getDefaultAddr());
-//                newUser.setOptionalAddr(user.getOptionalAddr());
-//                users.add(newUser);
-//                result.setUsers(users);
-//                result.setTotalPages(1);
-//                result.setTotalUsers(0);
-//                return result;
-//            }
-//        } else {
-//            List<User> searchedUser = userRepository.findByUserName(searchWord);
-//            searchedUser.forEach(user -> {
-//                RequestedUsersVO newUser = new RequestedUsersVO();
-//                newUser.setId(user.getId());
-//                newUser.setUserId(user.getUserId());
-//                newUser.setName(user.getName());
-//                newUser.setBirthDate(user.getBirthDate());
-//                newUser.setGender(user.getGender());
-//                newUser.setEmail(user.getEmail());
-//                newUser.setJoinDate(user.getJoinDate());
-//                newUser.setDefaultAddr(user.getDefaultAddr());
-//                newUser.setOptionalAddr(user.getOptionalAddr());
-//                users.add(newUser);
-//            });
-//            result.setUsers(users);
-//            result.setTotalUsers(searchedUser.size());
-//            result.setTotalPages((int)Math.ceil(searchedUser.size()/20));
-//            return result;
-//        }
-//
-//        return null;
-//>>>>>>> master
+        return adminRepository.salesListSearch(useStatus, citySelect, searchWord);
     }
 
     @Override
-    public Map<String,Long> storeLocalsChart(String localSelect) {
-        return adminRepository.storeLocalsChart(localSelect);
+    public UserPageVO getSearchedUsers(String selectedOption, String searchWord) {
+
+        UserPageVO result = new UserPageVO();
+        List<RequestedUsersVO> users = new ArrayList<>();
+        if (selectedOption.equals("userid")) {
+            Optional<User> searchedUser = userRepository.findByUserId(searchWord);
+            if (searchedUser.isPresent()) {
+                User user = searchedUser.get();
+                RequestedUsersVO newUser = new RequestedUsersVO();
+                newUser.setId(user.getId());
+                newUser.setUserId(user.getUserId());
+                newUser.setName(user.getName());
+                newUser.setBirthDate(user.getBirthDate());
+                newUser.setGender(user.getGender());
+                newUser.setEmail(user.getEmail());
+                newUser.setJoinDate(user.getJoinDate());
+                newUser.setDefaultAddr(user.getDefaultAddr());
+                newUser.setOptionalAddr(user.getOptionalAddr());
+                users.add(newUser);
+                result.setUsers(users);
+                result.setTotalPages(1);
+                result.setTotalUsers(0);
+                return result;
+            }
+        } else {
+            List<User> searchedUser = userRepository.findByUserName(searchWord);
+            searchedUser.forEach(user -> {
+                RequestedUsersVO newUser = new RequestedUsersVO();
+                newUser.setId(user.getId());
+                newUser.setUserId(user.getUserId());
+                newUser.setName(user.getName());
+                newUser.setBirthDate(user.getBirthDate());
+                newUser.setGender(user.getGender());
+                newUser.setEmail(user.getEmail());
+                newUser.setJoinDate(user.getJoinDate());
+                newUser.setDefaultAddr(user.getDefaultAddr());
+                newUser.setOptionalAddr(user.getOptionalAddr());
+                users.add(newUser);
+            });
+            result.setUsers(users);
+            result.setTotalUsers(searchedUser.size());
+            result.setTotalPages((int) Math.ceil(searchedUser.size() / 20));
+            return result;
+        }
+        return null;
     }
 
-
-
-
-
-
-
-
-
+    @Override
+    public Map<String, Long> storeLocalsChart(String localSelect) {
+        return adminRepository.storeLocalsChart(localSelect);
+    }
 
 }
