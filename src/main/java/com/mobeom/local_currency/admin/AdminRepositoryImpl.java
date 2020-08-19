@@ -9,8 +9,12 @@ import static com.mobeom.local_currency.reportList.QReportList.reportList;
 
 import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
+import com.mobeom.local_currency.sales.PurchaseVO;
+import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.sales.SalesRepository;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.UserRepository;
+import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -29,13 +33,13 @@ interface CustomAdminRepository {
     List<SalesVoucherUser> salesMonthChart();
     Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String  start, String end);
     Map<String,Integer>  useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
-    Map<String,Long> voucherSalesTotalChart();
+    Map<String, SalesVoucherUser> voucherSalesTotalChart();
     Map<String,Integer> useTotalLocalChart();
     Map<String, List<SalesVoucherUser>> salesList();
     Map<String,List<ReportListStore>> reportList();
     ReportListStore getOneStore(Long id);
-    List<SalesVoucherUser> salesListSearch();
-    List<Store> storeSearch(String searchWord);
+    List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
+    List<ReportListStore>  storeSearch(String searchWord);
 
 
 }
@@ -46,11 +50,15 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     private final JPAQueryFactory query;
     private final UserRepository userRepository;
+    private final SalesRepository salesRepository;
+    private final LocalCurrencyVoucherRepository localCurrencyVoucherRepository;
 
-    public AdminRepositoryImpl(JPAQueryFactory query, UserRepository userRepository) {
+    public AdminRepositoryImpl(JPAQueryFactory query, UserRepository userRepository, SalesRepository salesRepository, LocalCurrencyVoucherRepository localCurrencyVoucherRepository) {
         super(Admin.class);
         this.query = query;
         this.userRepository = userRepository;
+        this.salesRepository = salesRepository;
+        this.localCurrencyVoucherRepository = localCurrencyVoucherRepository;
     }
 
 
@@ -311,18 +319,18 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
     }
 
     @Override
-    public Map<String, Long> voucherSalesTotalChart() {
+    public Map<String, SalesVoucherUser> voucherSalesTotalChart() {
 
-        Map<String,Long> voucherSales = new HashMap<>();
+        Map<String,SalesVoucherUser> voucherSales = new HashMap<>();
 
         LocalName[] locals = LocalName.values();
 
 
         for(LocalName i : locals){
-        Long result=  query.select(Projections.fields(SalesVoucherUser.class,sales.unitPrice.sum().as("unitPrice"),
+        SalesVoucherUser result=  query.select(Projections.fields(SalesVoucherUser.class,sales.unitPrice.sum().as("unitPrice"),
                     localCurrencyVoucher.localCurrencyName))
                     .from(sales).innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher).where(localCurrencyVoucher.localCurrencyName.like(i+"%"))
-                    .fetchCount();
+                    .fetchOne();
 
         voucherSales.put(i+"사랑상품권",result);
 
@@ -404,9 +412,9 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
     }
 
     @Override
-    public List<SalesVoucherUser> salesListSearch() {
-
-        List<SalesVoucherUser> searchResult= query.select(Projections.fields(SalesVoucherUser.class,user.userId,user.name,
+    public List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord) {
+        /*List<SalesVoucherUser> searchResult=
+                query.select(Projections.fields(SalesVoucherUser.class,user.userId,user.name,
                 sales.salesId,localCurrencyVoucher.localCurrencyName,sales.currencyState,sales.salesDate,
                 sales.useDate,sales.cancelDate)).from(sales)
                 .innerJoin(user).on(user.userId.like(sales.user.userId))
@@ -414,16 +422,40 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
                 .on(localCurrencyVoucher.localCurrencyVoucherId.eq
                         (sales.localCurrencyVoucher.localCurrencyVoucherId))
                 .where(localCurrencyVoucher.localCurrencyName.like("%"+"고양"+"%")
-                        .and(sales.currencyState.like("사용완료"))
-                        .and(user.userId.like("%"+"%"))).fetch();
-        System.out.println("나오는지"+searchResult.toString());
-        return searchResult;
+                        .and(sales.currencyState.like("사용완료"))).fetch();
+
+        System.out.println(searchResult.toString());*/
+        //LocalCurrencyVoucher findVoucher = localCurrencyVoucherRepository.findById((long)4).get();
+        List<Sales> salesList = salesRepository.findAll();
+        List<SalesVoucherUser> purchaseHistory = new ArrayList<>();
+        salesList.forEach(sales -> {
+            if(sales.getLocalCurrencyVoucher().getLocalName().split(" ")[1].equals(citySelect)
+                && sales.getCurrencyState().equals(useStatus) && sales.getUser().getUserId().equals(searchWord)) {
+                SalesVoucherUser purchase = new SalesVoucherUser();
+                purchase.setCurrencyState(sales.getCurrencyState());
+                purchase.setCancelDate(sales.getCancelDate());
+                purchase.setLocalCurrencyName(sales.getLocalCurrencyVoucher().getLocalCurrencyName());
+                purchase.setUnitPrice(sales.getUnitPrice());
+                purchase.setSalesDate(sales.getSalesDate());
+                purchase.setUseDate(sales.getUseDate());
+                purchase.setUserId(sales.getUser().getUserId());
+                purchaseHistory.add(purchase);
+            }
+        });
+
+
+
+        return purchaseHistory;
     }
 
     @Override
-    public List<Store> storeSearch(String searchWord) {
-        List<Store> storeSearchResult = query.select(store).from(store)
-                .where(store.storeName.like("%"+searchWord+"%")).fetch();
+    public List<ReportListStore> storeSearch(String searchWord) {
+        List<ReportListStore> storeSearchResult = query.select(Projections.fields(ReportListStore.class,
+                store.id,store.storeName,store.address,store.mainCode
+                ,store.storePhone)).from(reportList)
+                .where(reportList.reportedCount.goe(3).and(store.storeName.like("%"+searchWord+"%"))
+                        .or(store.address.like("%"+searchWord+"%"))).fetch();
+
         return storeSearchResult;
     }
 
