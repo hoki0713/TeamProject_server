@@ -169,10 +169,10 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override
     public Store fetchedFavoriteStoreByUserId(String id) {
         return queryFactory.select(Projections.fields(Store.class,
-                store.id, store.mainCode, store.storeName)).from(favorites)
-                .innerJoin(store).on(store.id.eq(favorites.store.id))
-                .innerJoin(user).on(user.id.eq(favorites.user.id)).fetchJoin()
-                .where(user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
+                store.id, store.mainCode, store.storeName)).from(store)
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
+                .fetchJoin()
+                .where(rating.user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
                         orderBy(store.searchResultCount.desc()).fetchFirst();
     }
 

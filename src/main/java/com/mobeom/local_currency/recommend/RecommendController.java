@@ -36,10 +36,15 @@ public class RecommendController {
     @GetMapping("/individualItem/{id}")
     public Map<String, ?> getIndividualItemRecommend(@PathVariable String id) throws TasteException {
         box.clear();
-        if(recommendService.isPresentFavorites(id)){
-            box.put("itemBased", recommendService.findRecommendStores(recommendService.findItemBasedRecommend(id)));
+
+
+        if(recommendService.findUserByUserIdInRating(id)){
+            if(recommendService.findItemBasedRecommend(id).size()!=0){
+                box.put("itemBased", recommendService.findRecommendStores(recommendService.findItemBasedRecommend(id)));
+                box.put("itemBasedStore", recommendService.fetchStoreIdByUserId(id).getStoreName());}
+            else{ box.put("noItemBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요."); }
         } else{
-            box.put("noItemBased", "즐겨찾기 데이터가 부족합니다. 더 많은 가맹점들을 즐겨찾기해주세요.");
+            box.put("noItemBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");
         };
         return box.get();
     }
@@ -107,7 +112,6 @@ public class RecommendController {
 
     @GetMapping("/search/{gender}/{ageGroup}")
     public Map<String, List<GenderAge>> findIndustryByTag(@PathVariable String gender, @PathVariable int ageGroup) {
-        System.out.println(gender + ageGroup);
         if (gender.equals("none") && ageGroup == 100) {
             box.clear();
             System.out.println("몇개냐" + recommendService.findIndustryByTotal().size());
@@ -134,7 +138,6 @@ public class RecommendController {
                                                                  @RequestBody LatLngVo latLng) {
         double lat = latLng.getLat();
         double lng = latLng.getLng();
-        System.out.println("가게 리스트 입성" + lat + lng);
         List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
         if(option == 1) return recommendService.findStoresByIndustryList(industryList, lat, lng);
         else if(option == 2) return recommendService.findMostFavStoresByIndustryList(industryList, lat, lng);
