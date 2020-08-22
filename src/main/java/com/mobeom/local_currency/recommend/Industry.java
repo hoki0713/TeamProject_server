@@ -1,12 +1,15 @@
 package com.mobeom.local_currency.recommend;
 
 
+import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.store.Store;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,6 +35,8 @@ public class Industry {
 
     @Column(name="industry_image_url", nullable = false)
     private String industryImageUrl;
+
+
 
 
 }

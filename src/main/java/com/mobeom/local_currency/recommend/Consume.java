@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Table(name="consume")
-public class GenderAge {
+public class Consume {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="consume_id", nullable = false)

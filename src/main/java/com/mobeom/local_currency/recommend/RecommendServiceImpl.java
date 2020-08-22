@@ -5,8 +5,8 @@ import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.store.Store;
-import com.mobeom.local_currency.user.UserRepository;
 import com.mysql.cj.jdbc.MysqlDataSource;
+import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -35,69 +35,65 @@ interface RecommendService {
 
     List<String> findItemBasedRecommend(String itemId) throws TasteException;
 
-    List<IndustryStore> findRecommendStores(List<String> recommendItemIds);
+    List<IndustryStore> findRecommendedStores(List<String> recommendItemIds);
 
-    List<GenderAge> findIndustryByGenderAndAge(String searchWord, int birthYear);
+    List<Consume> findIndustryByGenderAndAge(String searchWord, int birthYear);
 
-    List<GenderAge> findIndustryByAge(int age);
+    List<Consume> findIndustryByAge(int age);
 
-    List<GenderAge> findIndustryByGender(String gender);
+    List<Consume> findIndustryByGender(String gender);
 
-    List<GenderAge> findIndustryByTotal();
+    List<Consume> findIndustryByTotal();
 
-    Store fetchStoreIdByUserId(String id);
+    Store findOneRatedStore(String id);
+
+    Store findOneFavStore(String id);
 
     List<IndustryStore> findStoresByIndustry(String id, double lnt, double lng);
 
-    Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, double lnt, double lng);
+    Map<String, List<IndustryStore>> findStoresByIndustryList(List<Consume> industryList, double lnt, double lng);
 
-    List<IndustryStore> findMostFavoriteStores(double lat, double lng);
+    List<IndustryStore> findFavoriteStores(double lat, double lng);
 
     List<IndustryStore> findBestRatedStores(double lat, double lng);
 
-    Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
+    Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<Consume> industryList, double lat, double lng);
 
-    Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng);
+    Map<String, List<IndustryStore>> findFavStoresByIndustryList(List<Consume> industryList, double lat, double lng);
 
     boolean findUserByUserIdInRating(String id);
 }
 
 @Service
+@AllArgsConstructor
 public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
     private final RatingRepository ratingRepository;
     private final FavoritesRepository favoritesRepository;
 
-    public RecommendServiceImpl(RecommendRepository recommendRepository, UserRepository userRepository, RatingRepository ratingRepository, FavoritesRepository favoritesRepository) {
-        this.recommendRepository = recommendRepository;
-        this.ratingRepository = ratingRepository;
-        this.favoritesRepository = favoritesRepository;
-    }
 
 
     @Override
     public List<String> findUserBasedRecommend(String id) throws TasteException {
 
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
-        MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id", "store_id", "star_rating", null);
+        MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id",
+                "store_id", "star_rating", null);
 
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7,
-                similarity, model);
-        UserBasedRecommender recommender = new GenericUserBasedRecommender(
-                model, neighborhood, similarity);
+        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7, similarity, model);
+        UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
 
         List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 7);
 
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
-            recommendItemIds.add(Long.toString(recommendation.getItemID()));
-        }
+            recommendItemIds.add(Long.toString(recommendation.getItemID()));}
         System.out.println("유저 추천" + recommendItemIds.size());
 
         return recommendItemIds;
@@ -106,8 +102,8 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public List<String> findItemBasedRecommend(String id) throws TasteException {
         MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/mariadb?serverTimezone=UTC");
-        dataSource.setUser("root");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
+        dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
 
         MySQLJDBCDataModel model = new MySQLJDBCDataModel
@@ -117,96 +113,82 @@ public class RecommendServiceImpl implements RecommendService {
         ItemSimilarity similarity = new PearsonCorrelationSimilarity(model);
         ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
 
-        Long itemId = fetchStoreIdByUserId(id).getId();
+        Long itemId = findOneRatedStore(id).getId();
         List<RecommendedItem> recommendations = recommender.mostSimilarItems(itemId, 7);
 
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
-            recommendItemIds.add(Long.toString(recommendation.getItemID()));
-        }
+            recommendItemIds.add(Long.toString(recommendation.getItemID()));}
         System.out.println("아이템 추천" + recommendItemIds.size());
         return recommendItemIds;
     }
 
 
     @Override
-    public List<IndustryStore> findRecommendStores(List<String> recommendItemIds) {
+    public List<IndustryStore> findRecommendedStores(List<String> recommendItemIds) {
         List<IndustryStore> recommendList = new ArrayList<>();
         for (String StoreId : recommendItemIds) {
-            recommendList.add(recommendRepository.recommendStores(StoreId));
-        }
+            recommendList.add(recommendRepository.fetchRecommendedStores(StoreId));}
         System.out.println("추천된 최종결과 스토어의 갯수"+recommendList.size());
         return recommendList;
     }
 
     @Override
     public List<IndustryStore> findBestStores(double lat, double lng) {
-
-        return recommendRepository.fetchByBestStore(lat, lng);
+        return recommendRepository.fetchBestStore(lat, lng);
     }
 
 
     @Override
-    public List<GenderAge> findIndustryByGenderAndAge(String searchWord, int ageGroup) {
-        return recommendRepository.industryByGenderAndAge(searchWord, ageGroup);
+    public List<Consume> findIndustryByGenderAndAge(String searchWord, int ageGroup) {
+        return recommendRepository.fetchIndustryRankByGenderAndAge(searchWord, ageGroup);
     }
 
 
     @Override
-    public List<GenderAge> findIndustryByAge(int age) {
-        return recommendRepository.industryByAge(age);
-
+    public List<Consume> findIndustryByAge(int age) {
+        return recommendRepository.fetchIndustryRankByAge(age);
     }
 
     @Override
-    public List<GenderAge> findIndustryByGender(String gender) {
-        return recommendRepository.industryByGender(gender);
+    public List<Consume> findIndustryByGender(String gender) {
+        return recommendRepository.fetchIndustryRankByGender(gender);
     }
 
     @Override
-    public List<GenderAge> findIndustryByTotal() {
-        return recommendRepository.industryByTotal();
+    public List<Consume> findIndustryByTotal() {
+        return recommendRepository.fetchIndustryRankByTotal();
     }
 
-//    @Override
-//    public Map<String, List<IndustryStore>> fetchStores(String searchWord, int age, String town) {
-//        Map<String, List<IndustryStore>> resultList = new HashMap<>();
-//        for (GenderAge industryName : industryByGenderAndAge(searchWord, age)) {
-//            resultList.put("", recommendRepository.fetchStoreByIndustry(industryName.getIndustryName()));
-//        }
-//
-//        return resultList;
-//
-//    }
 
     @Override
-    public Map<String, List<IndustryStore>> findStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
+    public Map<String, List<IndustryStore>> findStoresByIndustryList(List<Consume> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
-        for (GenderAge industryName : industryList) {
+        for (Consume industryName : industryList) {
             result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
         }
         return result;
     }
 
     @Override
-    public Map<String, List<IndustryStore>> findMostFavStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
+    public Map<String, List<IndustryStore>> findFavStoresByIndustryList(List<Consume> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
-        for (GenderAge industryName : industryList) {
-            if(recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
+        for (Consume industryName : industryList) {
+            if(recommendRepository.fetchMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
             {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
-            else {result.put(industryName.getIndustryName(), recommendRepository.fetchedMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));}
+            else {result.put(industryName.getIndustryName(), recommendRepository.fetchMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));}
         }
         return result;
     }
 
     @Override
-    public Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<GenderAge> industryList, double lat, double lng) {
+    public Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<Consume> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
-        for (GenderAge industryName : industryList) {
-            if(recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
+        for (Consume industryName : industryList) {
+            if(recommendRepository.fetchBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
             {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
-            else {result.put(industryName.getIndustryName(), recommendRepository.fetchedBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));}
+            else {result.put(industryName.getIndustryName(), recommendRepository.fetchBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));}
         }
         return result;
     }
@@ -216,44 +198,39 @@ public class RecommendServiceImpl implements RecommendService {
     @Override
     public boolean isPresentFavorites(String id) {
         List<Favorites> favorites = favoritesRepository.findAllByUserId(Long.parseLong(id));
-        if (favorites.size() != 0) {
-            return true;
-        } else {
-            return false;
-        }
-
+        return favorites.size() != 0;
     }
 
     @Override
-    public Store fetchStoreIdByUserId(String id) {
-        return recommendRepository.fetchedFavoriteStoreByUserId(id);
-
+    public Store findOneRatedStore(String id) {
+        return recommendRepository.fetchRatedStore(id);
     }
 
     @Override
     public List<IndustryStore> findStoresByIndustry(String industry, double lat, double lng) {
         return recommendRepository.fetchStoreByIndustry(industry, lat, lng);
-
     }
 
     @Override
     public List<IndustryStore> findBestRatedStores(double lat, double lng) {
-
-        return recommendRepository.fetchedBestRatedStores(lat, lng);
+        return recommendRepository.fetchBestRatedStores(lat, lng);
     }
 
     @Override
-    public List<IndustryStore> findMostFavoriteStores(double lat, double lng) {
-
-        return recommendRepository.fetchedMostFavoriteStores(lat, lng);
+    public List<IndustryStore> findFavoriteStores(double lat, double lng) {
+        return recommendRepository.fetchMostFavoriteStores(lat, lng);
     }
 
     @Override
     public boolean findUserByUserIdInRating(String id){
         Optional<Long> ratingUser = Optional.ofNullable(ratingRepository.findByUserId(id));
         return ratingUser.isPresent();
-
     }
+
+    public Store findOneFavStore(String id){
+        return recommendRepository.fetchOneFavStore(id);
+    }
+
 
 
 }
