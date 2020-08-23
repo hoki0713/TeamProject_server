@@ -9,14 +9,16 @@ import static com.mobeom.local_currency.reportList.QReportList.reportList;
 
 import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
-import com.mobeom.local_currency.sales.PurchaseVO;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.sales.SalesRepository;
-import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +37,7 @@ interface CustomAdminRepository {
     Map<String,Integer>  useLocalChart(String localName,LocalDate startDate,LocalDate endDate);
     Map<String, SalesVoucherUser> voucherSalesTotalChart();
     Map<String,Integer> useTotalLocalChart();
-    Map<String, List<SalesVoucherUser>> salesList();
+    Page<SalesVoucherUser> salesList(Pageable pageable);
     Map<String,List<ReportListStore>> reportList();
     ReportListStore getOneStore(Long id);
     List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
@@ -129,7 +131,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     @Override
     public Map<String, Integer> userAgeChart(String localSelect) {
-        Map<String,Integer> userAge = new HashMap<>();
+        Map<String,Integer> userAge = new TreeMap<>();
 
         String formatDate= LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
         int date = Integer.parseInt(formatDate);
@@ -250,7 +252,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     @Override
     public Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end) {
 
-        Map<String, SalesVoucherUser> voucherMap = new HashMap<>();
+        Map<String, SalesVoucherUser> voucherMap = new TreeMap<>();
 
         int startDate = Integer.parseInt(start);
         int endDate = Integer.parseInt(end);
@@ -365,20 +367,24 @@ SELECT a.cancel_date,a.use_date,b.local_currency_name,a.sales_date,a.unit_price 
     }
 
     @Override
-    public Map<String, List<SalesVoucherUser>> salesList() {
-        Map<String,List<SalesVoucherUser>> list = new HashMap<>();
+    public Page<SalesVoucherUser> salesList(Pageable pageable) {
+        //Map<String,List<SalesVoucherUser>> list = new HashMap<>();
 
-      List<SalesVoucherUser> result= query.select(Projections.fields(SalesVoucherUser.class,user.userId,user.name,
+
+        JPQLQuery result = query.select(Projections.fields(SalesVoucherUser.class,user.userId,user.name,
                 sales.salesId,localCurrencyVoucher.localCurrencyName,sales.currencyState,sales.salesDate,
                 sales.useDate,sales.cancelDate)).from(sales)
                 .innerJoin(user).on(user.userId.like(sales.user.userId))
                 .innerJoin(sales.localCurrencyVoucher,localCurrencyVoucher)
                 .on(localCurrencyVoucher.localCurrencyVoucherId.eq(sales.localCurrencyVoucher.localCurrencyVoucherId))
-                .limit(100).fetch();
+                .limit(100);
 
-        list.put("sales",result);
+      List resultSalesList= getQuerydsl().applyPagination(pageable,result).fetch();
 
-        return list;
+
+        //list.put("sales",resultSalesList);
+
+        return new PageImpl<SalesVoucherUser>(resultSalesList,pageable,result.fetchCount());
     }
 
     @Override

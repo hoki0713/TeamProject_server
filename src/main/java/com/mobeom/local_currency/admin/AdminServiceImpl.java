@@ -5,11 +5,14 @@ import com.mobeom.local_currency.join.ReportListStore;
 import com.mobeom.local_currency.join.SalesVoucherUser;
 import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.reportList.ReportListRepository;
+import com.mobeom.local_currency.sales.Sales;
+import com.mobeom.local_currency.sales.SalesRepository;
 import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +51,7 @@ interface AdminService {
 
     Map<String, Long> storeIndustryChartAll();
 
-    Map<String, List<SalesVoucherUser>> salesList();
+    SalesPageVO salesList(int pageNumber);
 
     Map<String, List<ReportListStore>> reportList();
 
@@ -74,12 +77,14 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
     private final ReportListRepository reportListRepository;
+    private final SalesRepository salesRepository;
 
 
-    public AdminServiceImpl(AdminRepository adminRepository, UserRepository userRepository, ReportListRepository reportListRepository) {
+    public AdminServiceImpl(AdminRepository adminRepository, UserRepository userRepository, ReportListRepository reportListRepository, SalesRepository salesRepository) {
         this.adminRepository = adminRepository;
         this.userRepository = userRepository;
         this.reportListRepository = reportListRepository;
+        this.salesRepository = salesRepository;
     }
 
 
@@ -165,8 +170,26 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Map<String, List<SalesVoucherUser>> salesList() {
-        return adminRepository.salesList();
+    public SalesPageVO salesList(int pageNumber) {
+                SalesPageVO list = new SalesPageVO();
+                List<SalesVoucherUser> salesList = new ArrayList<>();
+                Page<Sales> pageSalesList = salesRepository.findAll(PageRequest.of(pageNumber,50));
+                     pageSalesList.forEach(sales->{
+                    SalesVoucherUser result = new SalesVoucherUser();
+                    result.setCurrencyState(sales.getCurrencyState());
+                    result.setLocalCurrencyName(sales.getLocalCurrencyVoucher().getLocalCurrencyName());
+                    result.setUserId(sales.getUser().getUserId());
+                    result.setUnitPrice(sales.getUnitPrice());
+                    result.setSalesDate(sales.getSalesDate());
+                    result.setUseDate(sales.getUseDate());
+                    result.setCancelDate(sales.getCancelDate());
+                    salesList.add(result);
+                });
+
+                     list.setTotalPages(pageSalesList.getTotalPages());
+                     list.setSalesList(salesList);
+
+        return list;
     }
 
     @Override
@@ -193,6 +216,7 @@ public class AdminServiceImpl implements AdminService {
     public List<ReportListStore> storeSearch(String searchWord) {
         return adminRepository.storeSearch(searchWord);
     }
+
 
     @Override
     public Map<String, SalesVoucherUser> voucherSalesTotalChart() {

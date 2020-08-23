@@ -61,7 +61,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
 
         List<Post> list = queryFactory.select(Projections.fields(Post.class,post.postTitle,
                 post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
-                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
+                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).orderBy(post.postId.desc()).fetch();
 
         return list;
     }
