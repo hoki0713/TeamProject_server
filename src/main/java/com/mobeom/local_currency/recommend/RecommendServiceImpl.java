@@ -1,6 +1,5 @@
 package com.mobeom.local_currency.recommend;
 
-import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
 import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.rating.RatingRepository;
@@ -8,7 +7,9 @@ import com.mobeom.local_currency.store.Store;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import lombok.AllArgsConstructor;
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.model.jdbc.ConnectionPoolDataSource;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
+import org.apache.mahout.cf.taste.impl.model.jdbc.ReloadFromJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
@@ -22,12 +23,11 @@ import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Component
 interface RecommendService {
-
-    boolean isPresentFavorites(String id);
 
     List<IndustryStore> findBestStores(double lnt, double lng);
 
@@ -69,8 +69,6 @@ interface RecommendService {
 public class RecommendServiceImpl implements RecommendService {
     private final RecommendRepository recommendRepository;
     private final RatingRepository ratingRepository;
-    private final FavoritesRepository favoritesRepository;
-
 
 
     @Override
@@ -80,20 +78,20 @@ public class RecommendServiceImpl implements RecommendService {
         dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
         dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
-
         MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id",
                 "store_id", "star_rating", null);
-
-        UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7, similarity, model);
-        UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+        ReloadFromJDBCDataModel fastModel= new ReloadFromJDBCDataModel(model);
+        UserSimilarity similarity = new PearsonCorrelationSimilarity(fastModel);
+        UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7, similarity, fastModel);
+        UserBasedRecommender recommender = new GenericUserBasedRecommender(fastModel, neighborhood, similarity);
 
         List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 7);
 
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
-            recommendItemIds.add(Long.toString(recommendation.getItemID()));}
+            recommendItemIds.add(Long.toString(recommendation.getItemID()));
+        }
         System.out.println("유저 추천" + recommendItemIds.size());
 
         return recommendItemIds;
@@ -105,13 +103,12 @@ public class RecommendServiceImpl implements RecommendService {
         dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
         dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
-
         MySQLJDBCDataModel model = new MySQLJDBCDataModel
                 (dataSource, "rating", "user_id",
                         "store_id", "star_rating", null);
-
-        ItemSimilarity similarity = new PearsonCorrelationSimilarity(model);
-        ItemBasedRecommender recommender = new GenericItemBasedRecommender(model, similarity);
+        ReloadFromJDBCDataModel fastModel = new ReloadFromJDBCDataModel(model);
+        ItemSimilarity similarity = new PearsonCorrelationSimilarity(fastModel);
+        ItemBasedRecommender recommender = new GenericItemBasedRecommender(fastModel, similarity);
 
         Long itemId = findOneRatedStore(id).getId();
         List<RecommendedItem> recommendations = recommender.mostSimilarItems(itemId, 7);
@@ -119,24 +116,37 @@ public class RecommendServiceImpl implements RecommendService {
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
-            recommendItemIds.add(Long.toString(recommendation.getItemID()));}
+            recommendItemIds.add(Long.toString(recommendation.getItemID()));
+        }
         System.out.println("아이템 추천" + recommendItemIds.size());
         return recommendItemIds;
     }
 
 
     @Override
+    @Transactional
     public List<IndustryStore> findRecommendedStores(List<String> recommendItemIds) {
+
         List<IndustryStore> recommendList = new ArrayList<>();
         for (String StoreId : recommendItemIds) {
-            recommendList.add(recommendRepository.fetchRecommendedStores(StoreId));}
-        System.out.println("추천된 최종결과 스토어의 갯수"+recommendList.size());
+            IndustryStore stores = recommendRepository.fetchRecommendedStores(StoreId);
+            stores.setImgUrl(recommendRepository.fetchImg(stores));
+            recommendList.add(stores);
+        }
+        System.out.println("추천된 최종결과 스토어의 갯수" + recommendList.size());
         return recommendList;
     }
 
     @Override
+    @Transactional
     public List<IndustryStore> findBestStores(double lat, double lng) {
-        return recommendRepository.fetchBestStore(lat, lng);
+        List<IndustryStore> list = recommendRepository.fetchBestStore(lat, lng);
+        List<IndustryStore> result = new ArrayList<>();
+        for (IndustryStore store : list) {
+            store.setImgUrl(recommendRepository.fetchImg(store));
+            result.add(store);
+        }
+        return result;
     }
 
 
@@ -175,9 +185,11 @@ public class RecommendServiceImpl implements RecommendService {
     public Map<String, List<IndustryStore>> findFavStoresByIndustryList(List<Consume> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (Consume industryName : industryList) {
-            if(recommendRepository.fetchMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
-            {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
-            else {result.put(industryName.getIndustryName(), recommendRepository.fetchMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));}
+            if (recommendRepository.fetchMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng).size() == 0) {
+                result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
+            } else {
+                result.put(industryName.getIndustryName(), recommendRepository.fetchMostFavStoresByIndustry(industryName.getIndustryName(), lat, lng));
+            }
         }
         return result;
     }
@@ -186,25 +198,26 @@ public class RecommendServiceImpl implements RecommendService {
     public Map<String, List<IndustryStore>> findBestRatedStoresByIndustryList(List<Consume> industryList, double lat, double lng) {
         Map<String, List<IndustryStore>> result = new HashMap<>();
         for (Consume industryName : industryList) {
-            if(recommendRepository.fetchBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng).size()==0)
-            {result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));}
-            else {result.put(industryName.getIndustryName(), recommendRepository.fetchBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));}
+            if (recommendRepository.fetchBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng).size() == 0) {
+                result.put(industryName.getIndustryName(), recommendRepository.fetchStoreByIndustry(industryName.getIndustryName(), lat, lng));
+            } else {
+                result.put(industryName.getIndustryName(), recommendRepository.fetchBestRatedStoresByIndustry(industryName.getIndustryName(), lat, lng));
+            }
         }
         return result;
     }
 
 
-
-    @Override
-    public boolean isPresentFavorites(String id) {
-        List<Favorites> favorites = favoritesRepository.findAllByUserId(Long.parseLong(id));
-        return favorites.size() != 0;
-    }
-
     @Override
     public Store findOneRatedStore(String id) {
         return recommendRepository.fetchRatedStore(id);
     }
+
+    @Override
+    public Store findOneFavStore(String id) {
+        return recommendRepository.fetchOneFavStore(id);
+    }
+
 
     @Override
     public List<IndustryStore> findStoresByIndustry(String industry, double lat, double lng) {
@@ -222,15 +235,10 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
-    public boolean findUserByUserIdInRating(String id){
+    public boolean findUserByUserIdInRating(String id) {
         Optional<Long> ratingUser = Optional.ofNullable(ratingRepository.findByUserId(id));
         return ratingUser.isPresent();
     }
-
-    public Store findOneFavStore(String id){
-        return recommendRepository.fetchOneFavStore(id);
-    }
-
 
 
 }

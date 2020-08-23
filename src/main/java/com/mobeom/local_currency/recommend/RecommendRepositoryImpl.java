@@ -45,7 +45,7 @@ interface CustomRecommendRepository {
 
     List<IndustryStore> fetchBestRatedStoresByIndustry(String industryName, double lat, double lng);
 
-
+    String fetchImg(IndustryStore store);
 
 //    IndustryStore fetchAvgRating(IndustryStore oneStore);
 
@@ -76,12 +76,9 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeTypeCode,
                 store.storeType,
                 store.mainCode,
-                store.searchResultCount,
-                industry.industryImageUrl.as("imgUrl"))
+                store.searchResultCount)
         )
-                .from(store).innerJoin(industry)
-                .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.id.eq(Long.valueOf(searchWord))).fetchFirst();
+                .from(store).where(store.id.eq(Long.valueOf(searchWord))).fetchFirst();
 
     }
 
@@ -133,7 +130,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     @Override //성별 및 연령 입력시 대분류 안내
     public List<Consume> fetchIndustryRankByGenderAndAge(String gender, int ageGroup) {
         return queryFactory.selectFrom(consume).where(consume.genderCode.eq(gender), consume.ageGroup.eq(ageGroup))
-                .orderBy(consume.amount.sum().desc()).limit(7).fetch();
+                .orderBy(consume.amount.desc()).limit(7).fetch();
     }
 
 
@@ -279,8 +276,8 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
     }
 
-    public String fetchImg(Store store){
-        return queryFactory.select(industry.industryImageUrl).where(industry.mainCode.eq(store.getMainCode())).fetchFirst();
+    public String fetchImg(IndustryStore store){
+        return queryFactory.select(industry.industryImageUrl).from(industry).where(industry.mainCode.eq(store.getMainCode())).fetchFirst();
     }
 
 //    @Override
@@ -288,7 +285,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 //        return queryFactory.select(Projections.fields(IndustryStore.class, rating.starRating.avg().as("starRanking"))
 //                )
 //                .from(store)
-//                .leftJoin(rating).on(store.id.eq(rating.store.id))
+//                .rightJoin(rating).on(store.id.eq(rating.store.id))
 //                .groupBy(rating.store.id).fetchFirst();
 //    }
 
