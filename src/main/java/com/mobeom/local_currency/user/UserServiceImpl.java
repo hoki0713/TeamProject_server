@@ -31,8 +31,6 @@ interface UserService {
 
     Optional<User> findUserForResetPassword(String userId, String name, String email);
 
-    Page<User> getAllUsers();
-
 }
 
 @Service
@@ -89,10 +87,4 @@ public class UserServiceImpl implements UserService {
         Optional<User> findUser = userRepository.findByUserIdNameEmail(userId, name, email);
         return findUser;
     }
-
-    @Override
-    public Page<User> getAllUsers() {
-        return userRepository.findAll(PageRequest.of(0,20));
-    }
-
 }

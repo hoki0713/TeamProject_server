@@ -2,18 +2,21 @@ package com.mobeom.local_currency.dummy;
 
 import com.mobeom.local_currency.favorites.Favorites;
 import com.mobeom.local_currency.favorites.FavoritesRepository;
+import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.sales.SalesRepository;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 
 class DummyServiceImplTest {
+    @Disabled
     @Test
     void createRandomFavorites() {
         FavoritesRepository favoritesRepository = Mockito.mock(FavoritesRepository.class);
@@ -22,6 +25,7 @@ class DummyServiceImplTest {
         LocalCurrencyVoucherRepository localCurrencyVoucherRepository = Mockito.mock(LocalCurrencyVoucherRepository.class);
         StoreRepository storeRepository = Mockito.mock(StoreRepository.class);
         RandomFavoritesGenerator randomFavoritesGenerator = Mockito.mock(RandomFavoritesGenerator.class);
+        RatingRepository ratingRepository = Mockito.mock(RatingRepository.class);
 
         DummyServiceImpl dummyService = new DummyServiceImpl(
                 userRepository,
