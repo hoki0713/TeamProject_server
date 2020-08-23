@@ -44,8 +44,6 @@ class UserControllerTest {
 
         ResponseEntity<User> result = userController.idCheck("abc");
 
-
-        
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
@@ -95,6 +93,7 @@ class UserControllerTest {
 
         ResponseEntity<User> result = userController.getOneInfo("1");
 
+        verify(userService).findUser(1L);
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(user, result.getBody());
     }
@@ -112,15 +111,17 @@ class UserControllerTest {
     void isUpdateUserOk() {
         User user = new User();
         User requestUser = new User();
-        requestUser.setPassword("changePW");
-        requestUser.setDefaultAddr("changeDefaultAddr");
-        requestUser.setOptionalAddr("changeOptionalAddr");
-        requestUser.setEmail("changeEmail");
+        requestUser.setDefaultAddr("dAddr");
+        requestUser.setOptionalAddr("oAddr");
+        requestUser.setPassword("newPW");
+        requestUser.setEmail("newEmail");
         when(userService.findUser(1L)).thenReturn(Optional.of(user));
         when(userService.update(user)).thenReturn(user);
 
         ResponseEntity<User> result = userController.updateUser("1", requestUser);
 
+        verify(userService).findUser(1L);
+        verify(userService).update(user);
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(user, result.getBody());
     }
@@ -142,6 +143,7 @@ class UserControllerTest {
 
         ResponseEntity<User> result = userController.deleteUser("1");
 
+        verify(userService).delete(user);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
 
@@ -206,6 +208,7 @@ class UserControllerTest {
 
         ResponseEntity<User> result = userController.create(requestUser);
 
+        verify(userService).createUser(requestUser);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
 
@@ -222,25 +225,20 @@ class UserControllerTest {
     @Test
     void isFindIdOk() {
         User user = new User();
-        User requestUser = new User();
-        requestUser.setName("userName");
-        requestUser.setEmail("userEmail");
-        when(userService.findUserbyNameAndEmail(requestUser.getName(), requestUser.getEmail())).thenReturn(Optional.of(user));
+        when(userService.findUserbyNameAndEmail("userName", "userEmail")).thenReturn(Optional.of(user));
 
-        ResponseEntity<User> result = userController.findId(requestUser.getName(), requestUser.getEmail());
+        ResponseEntity<User> result = userController.findId("userName", "userEmail");
 
+        verify(userService).findUserbyNameAndEmail("userName", "userEmail");
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(user, result.getBody());
     }
 
     @Test
     void isFindIdNotFound() {
-        User requestUser = new User();
-        requestUser.setName("userName");
-        requestUser.setEmail("userEmail");
-        when(userService.findUserbyNameAndEmail(requestUser.getName(), requestUser.getEmail())).thenReturn(Optional.empty());
+        when(userService.findUserbyNameAndEmail("wrongName", "wrongEmail")).thenReturn(Optional.empty());
 
-        ResponseEntity<User> result = userController.findId(requestUser.getName(), requestUser.getEmail());
+        ResponseEntity<User> result = userController.findId("wrongName", "wrongEmail");
 
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
@@ -248,42 +246,37 @@ class UserControllerTest {
     @Test
     void isCheckUserForResetPasswordOk() {
         User user = new User();
-        User requestUser = new User();
-        requestUser.setUserId("userId");
-        requestUser.setName("userName");
-        requestUser.setEmail("userEmail");
         when(userService.findUserForResetPassword(
-                requestUser.getUserId(),
-                requestUser.getName(),
-                requestUser.getEmail())
-        ).thenReturn(Optional.of(user));
+                "userId",
+                "userName",
+                "userEmail")).thenReturn(Optional.of(user));
 
         ResponseEntity<User> result = userController.checkUserForResetPassword(
-                requestUser.getUserId(),
-                requestUser.getName(),
-                requestUser.getEmail()
+                "userId",
+                "userName",
+                "userEmail"
         );
 
+        verify(userService).findUserForResetPassword(
+                "userId",
+                "userName",
+                "userEmail");
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(user, result.getBody());
     }
 
     @Test
     void isCheckUserForResetPasswordNotFound() {
-        User requestUser = new User();
-        requestUser.setUserId("userId");
-        requestUser.setName("userName");
-        requestUser.setEmail("userEmail");
         when(userService.findUserForResetPassword(
-                requestUser.getUserId(),
-                requestUser.getName(),
-                requestUser.getEmail())
+                "userId",
+                "userName",
+                "userEmail")
         ).thenReturn(Optional.empty());
 
         ResponseEntity<User> result = userController.checkUserForResetPassword(
-                requestUser.getUserId(),
-                requestUser.getName(),
-                requestUser.getEmail()
+                "userId",
+                "userName",
+                "userEmail"
         );
 
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
