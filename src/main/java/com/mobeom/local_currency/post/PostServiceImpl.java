@@ -3,15 +3,15 @@ package com.mobeom.local_currency.post;
 
 import com.mobeom.local_currency.board.Board;
 import com.mobeom.local_currency.board.BoardRepository;
+import com.mobeom.local_currency.join.NoticeVo;
+import com.mobeom.local_currency.join.QuestionVO;
+import com.mobeom.local_currency.join.ReviewRatingVO;
 import com.mobeom.local_currency.rating.Rating;
 import com.mobeom.local_currency.rating.RatingRepository;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 
@@ -19,17 +19,23 @@ import java.util.*;
 
 @Component
 interface PostService {
-    List<Post>  postNoticeList();
+    List<Post> postNoticeList();
+
     Optional<Post> onePost(long postId);
+
     Post insertNotice(NoticeVo notice);
+
     Post updatePost(Post notice);
-    List<Post> noticeSearch(String searchWord,String category);
+
+    List<Post> noticeSearch(String searchWord, String category);
+
     List<Post> inquiryList();
-    Post createReview(String storeId, ReviewVO review);
 
-    Map<Long, ReviewVO> getAllReviewsByUserId(long userId);
+    Post createReview(String storeId, ReviewRatingVO review);
 
-    ReviewVO getOneReviewById(long postId);
+    Map<Long, ReviewRatingVO> getAllReviewsByUserId(long userId);
+
+    ReviewRatingVO getOneReviewById(long postId);
 
     Post findPost(long reviewId);
 
@@ -42,7 +48,6 @@ interface PostService {
     QuestionVO getOneQuestionById(long postId);
 
     Map<Long, QuestionVO> getAllQuestionsBySelectedOption(String selectedOption, String searchWord);
-
 
 }
 
@@ -68,7 +73,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<Post> postNoticeList() {
-         //pageable = PageRequest.of(0,5);
         return postRepository.postList();
     }
 
@@ -81,7 +85,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post insertNotice(NoticeVo notice) {
         Optional<User> user = userRepository.findById(notice.getUserId());
-        Optional<Board> board = boardRepository.findById((long)2);
+        Optional<Board> board = boardRepository.findById((long) 2);
 
         Post insertNotice = new Post();
         insertNotice.setCategory(notice.getCategory());
@@ -101,7 +105,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<Post> noticeSearch(String searchWord, String category) {
-        return postRepository.noticeSearch(searchWord,category);
+        return postRepository.noticeSearch(searchWord, category);
     }
 
     @Override
@@ -110,7 +114,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post createReview(String storeId, ReviewVO review) {
+    public Post createReview(String storeId, ReviewRatingVO review) {
         Optional<Store> store = storeRepository.findById(Long.parseLong(storeId));
         Optional<User> user = userRepository.findById(review.getUserId());
         Optional<Board> board = boardRepository.findById((long) 3);
@@ -134,23 +138,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Map<Long, ReviewVO> getAllReviewsByUserId(long userId) {
-        Map<Long, ReviewVO> resultMap = new HashMap<>();
-        List<Post> usersReviews = postRepository.findAllPostsByUserIdAndBoardId(userId, (long)3);
+    public Map<Long, ReviewRatingVO> getAllReviewsByUserId(long userId) {
+        Map<Long, ReviewRatingVO> resultMap = new HashMap<>();
+        List<Post> usersReviews = postRepository.findAllPostsByUserIdAndBoardId(userId, (long) 3);
         usersReviews.forEach(review -> {
-           ReviewVO oneReview = new ReviewVO();
-           oneReview.setStoreId(review.getRating().getStore().getId());
-           oneReview.setStoreName(review.getRating().getStore().getStoreName());
-           oneReview.setContents(review.getContents());
-           oneReview.setStarRating(review.getRating().getStarRating());
-           resultMap.put(review.getPostId(), oneReview);
+            ReviewRatingVO oneReview = new ReviewRatingVO();
+            oneReview.setStoreId(review.getRating().getStore().getId());
+            oneReview.setStoreName(review.getRating().getStore().getStoreName());
+            oneReview.setContents(review.getContents());
+            oneReview.setStarRating(review.getRating().getStarRating());
+            resultMap.put(review.getPostId(), oneReview);
         });
         return resultMap;
     }
 
     @Override
-    public ReviewVO getOneReviewById(long postId) {
-        ReviewVO resultReview = new ReviewVO();
+    public ReviewRatingVO getOneReviewById(long postId) {
+        ReviewRatingVO resultReview = new ReviewRatingVO();
         Optional<Post> findOne = postRepository.findById(postId);
         Post review = findOne.get();
         resultReview.setStoreName(review.getRating().getStore().getStoreName());
@@ -191,7 +195,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Map<Long, QuestionVO> getAllQuestionsByUserId(long userId) {
         Map<Long, QuestionVO> resultMap = new HashMap<>();
-        List<Post> usersQuestions = postRepository.findAllPostsByUserIdAndBoardId(userId, (long)1);
+        List<Post> usersQuestions = postRepository.findAllPostsByUserIdAndBoardId(userId, (long) 1);
         usersQuestions.forEach(question -> {
             QuestionVO oneQuestion = new QuestionVO();
             oneQuestion.setPostTitle(question.getPostTitle());
@@ -218,9 +222,9 @@ public class PostServiceImpl implements PostService {
     public Map<Long, QuestionVO> getAllQuestionsBySelectedOption(String selectedOption, String searchWord) {
         Map<Long, QuestionVO> resultMap = new HashMap<>();
         List<Post> questions = new ArrayList<>();
-        if(searchWord.equals("undefined") || searchWord.equals("")) {
-            if(selectedOption.equals("all")) {
-                questions.addAll(postRepository.findAllByBoardId((long)1));
+        if (searchWord.equals("undefined") || searchWord.equals("")) {
+            if (selectedOption.equals("all")) {
+                questions.addAll(postRepository.findAllByBoardId((long) 1));
             } else {
                 questions.addAll(postRepository.findAllByBoardIdAndCommentYn((long) 1, selectedOption));
             }
@@ -241,6 +245,4 @@ public class PostServiceImpl implements PostService {
         });
         return resultMap;
     }
-
-
 }

@@ -3,11 +3,7 @@ package com.mobeom.local_currency.post;
 import static com.mobeom.local_currency.post.QPost.post;
 
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
@@ -15,13 +11,14 @@ import java.util.*;
 
 
 interface CustomPostRepository {
-    Post findByPostId(long postId);
-    List<Post> inquiryList();
-    List<Post>  postList();
-    List<Post> noticeSearch(String searchWord,String category);
-    List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId);
 
-    Post findOnePostByReviewId(long reviewId);
+    List<Post> inquiryList();
+
+    List<Post> postList();
+
+    List<Post> noticeSearch(String searchWord, String category);
+
+    List<Post> findAllPostsByUserIdAndBoardId(long userId, long boardId);
 
     List<Post> findAllByBoardId(long boardId);
 
@@ -41,16 +38,10 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         this.queryFactory = queryFactory;
     }
 
-    @Override
-    public Post findByPostId(long postId) {
-        Post findOne = queryFactory.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
-        return findOne;
-    }
-
 
     @Override
     public List<Post> inquiryList() {
-        List<Post> resultList = queryFactory.selectFrom(post).where(post.category.like("%"+"문의"+"%")).fetch();
+        List<Post> resultList = queryFactory.selectFrom(post).where(post.category.like("%" + "문의" + "%")).fetch();
 
         return resultList;
     }
@@ -58,29 +49,26 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     @Override
 
     public List<Post> postList() {
-
-        List<Post> list = queryFactory.select(Projections.fields(Post.class,post.postTitle,
-                post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
-                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
-
+        List<Post> list = queryFactory.select(Projections.fields(Post.class, post.postTitle,
+                post.category, post.comment, post.contents, post.postId, post.regDate, post.readCount)).from(post)
+                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).orderBy(post.postId.desc()).fetch();
         return list;
     }
 
     @Override
-    public List<Post> noticeSearch(String searchWord,String category) {
-        List<Post> result =null;
-        if(searchWord.equals("")){
-             result =queryFactory.select(post).from(post).where(post.category.like("%"+category+"%")
-                     .and(post.noticeYn.eq(true).and(post.deleteYn.isFalse()))).fetch();
-        }else if(category.equals("")){
-           result = queryFactory.select(Projections.fields(Post.class,post.postTitle,
-                    post.category,post.comment,post.contents,post.postId,post.regDate,post.readCount)).from(post)
+    public List<Post> noticeSearch(String searchWord, String category) {
+        List<Post> result = null;
+        if (searchWord.equals("")) {
+            result = queryFactory.select(post).from(post).where(post.category.like("%" + category + "%")
+                    .and(post.noticeYn.eq(true).and(post.deleteYn.isFalse()))).fetch();
+        } else if (category.equals("")) {
+            result = queryFactory.select(Projections.fields(Post.class, post.postTitle,
+                    post.category, post.comment, post.contents, post.postId, post.regDate, post.readCount)).from(post)
                     .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
-        }
-        else{
-              result= queryFactory.select(post).from(post).where(post.category.like("%"+category+"%")
-                      .and(post.noticeYn.eq(true).and(post.deleteYn.isFalse()))
-                    .and(post.contents.like("%"+searchWord+"%").or(post.postTitle.like("%"+searchWord+"%"))))
+        } else {
+            result = queryFactory.select(post).from(post).where(post.category.like("%" + category + "%")
+                    .and(post.noticeYn.eq(true).and(post.deleteYn.isFalse()))
+                    .and(post.contents.like("%" + searchWord + "%").or(post.postTitle.like("%" + searchWord + "%"))))
                     .fetch();
         }
 
@@ -94,11 +82,6 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
                         .where(post.board.boardId.eq(boardId), post.user.id.eq(userId))
                         .fetch();
         return resultList;
-    }
-
-    @Override
-    public Post findOnePostByReviewId(long reviewId) {
-        return queryFactory.selectFrom(post).where(post.postId.eq(reviewId)).fetchOne();
     }
 
     @Override
@@ -136,8 +119,5 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
                     ).fetch();
         }
     }
-
-
-
 
 }

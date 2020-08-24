@@ -4,7 +4,6 @@ import static com.mobeom.local_currency.voucher.QLocalCurrencyVoucher.localCurre
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.hibernate.criterion.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 

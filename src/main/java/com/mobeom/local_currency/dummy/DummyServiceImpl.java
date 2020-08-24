@@ -133,7 +133,6 @@ public class DummyServiceImpl implements DummyService{
             String[] splitUserAddress = user.getDefaultAddr().split(" ");
             String targetAddress = splitUserAddress[0]+" "+splitUserAddress[1];
             if(targetAddress.equals("경기도 의정부시") || targetAddress.equals("경기도 고양시")) {
-                //System.out.println(user.getId()+"/"+user.getDefaultAddr());
                 if(randomFavoritesGenerator.hasFavorites()) {
                     int numOfFavorites = RandomFavoritesGenerator.getRandomNumOfFavorites();
                     List<Store> findAllStoreByUserDefaultAddr = storeRepository.findAllStoreByUserDefaultAddr(splitUserAddress[1]);

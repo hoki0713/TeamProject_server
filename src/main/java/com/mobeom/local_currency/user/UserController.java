@@ -1,19 +1,20 @@
 package com.mobeom.local_currency.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    UserService userService;
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping(value = "/idCheck/{userId}")
     public ResponseEntity<User> idCheck(@PathVariable String userId) {
@@ -123,14 +124,4 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    // 삭제할거
-    @GetMapping("/test")
-    public ResponseEntity<Page<User>> getAllUsers() {
-        System.out.println("test 들어옴");
-        Page<User> userList = userService.getAllUsers();
-        System.out.println(userList);
-        return ResponseEntity.ok(userList);
-    }
-
 }

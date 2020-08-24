@@ -1,9 +1,10 @@
 package com.mobeom.local_currency.sales;
 
 
+import com.mobeom.local_currency.join.NewSalesVo;
+import com.mobeom.local_currency.join.RequestedPurchaseHistoryVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
-import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

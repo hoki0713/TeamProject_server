@@ -1,6 +1,7 @@
 package com.mobeom.local_currency.rating;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mobeom.local_currency.post.Post;
 import com.mobeom.local_currency.store.Store;
 import com.mobeom.local_currency.user.User;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import javax.persistence.*;
 public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rating_id", nullable = false) private Long recommendId;
+    @Column(name = "rating_id", nullable = false) private Long ratingId;
 
     @JsonIgnore
     @ManyToOne
@@ -34,5 +35,8 @@ public class Rating {
     @Column(name= "star_rating", nullable = false)
     private int starRating;
 
+    @OneToOne (mappedBy = "rating")
+    @JoinColumn
+    private Post post;
 
 }
