@@ -56,6 +56,10 @@ public class StoreController {
         logger.info("getStoreList()");
         box.clear();
         Object results = storeService.getSome(stateName, category, pageNow,limitSize);
+        System.out.println("stateName"+stateName+"\ncategory: "+category+
+                "\npageNow: "+pageNow+"\nlimitSize: "+limitSize);
+
+
         if (results != null) {
             box.put("msg", "success");
             box.put("list", results);
@@ -97,6 +101,14 @@ public class StoreController {
         List<Store> storeList = storeService.findStoreBySearchWord(searchWord);
         return ResponseEntity.ok(storeList);
     }
+
+    @GetMapping("/chatbotSearch/{searchWD}/{pageNow}")
+    public ResponseEntity<Object> chatbotSearchStore(@PathVariable String searchWD, @PathVariable int pageNow){
+        logger.info("chatbotSearchStore()");
+        Object storeList = storeService.getChatbotStore(searchWD,pageNow);
+        return ResponseEntity.ok(storeList);
+
+    }//챗봇 가맹점 찾기
 
 
 }
