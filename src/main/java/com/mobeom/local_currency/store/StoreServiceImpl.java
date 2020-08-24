@@ -23,13 +23,7 @@ interface StoreService extends JpaService<Store> {
 
     List<Store> findStoreBySearchWord(String searchWord);
 
-<<<<<<< HEAD
-    Object getSome(String stateName, String category, int pageNow,int limitSize);
-
-    Object getChatbotStore(String searchWD, int pageNow);
-=======
     Object getSome(String stateName, String category, int pageNow, int limitSize);
->>>>>>> master
 }
 
 
@@ -90,10 +84,5 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public Object getSome(String stateName, String category, int pageNow, int limitSize) {
         return repository.findSome(stateName, category, pageNow, limitSize);
-    }
-
-    @Override
-    public Object getChatbotStore(String searchWD, int pageNow) {
-        return repository.chatbotFindStore(searchWD,pageNow);
     }
 }

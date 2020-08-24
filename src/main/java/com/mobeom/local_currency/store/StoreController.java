@@ -51,15 +51,7 @@ public class StoreController {
                                   @PathVariable(name = "pageNow") int pageNow,
                                   @PathVariable(name = "limitSize") int limitSize) {
         box.clear();
-<<<<<<< HEAD
-        Object results = storeService.getSome(stateName, category, pageNow,limitSize);
-        System.out.println("stateName"+stateName+"\ncategory: "+category+
-                "\npageNow: "+pageNow+"\nlimitSize: "+limitSize);
-
-
-=======
         Object results = storeService.getSome(stateName, category, pageNow, limitSize);
->>>>>>> master
         if (results != null) {
             box.put("msg", "success");
             box.put("list", results);
@@ -95,17 +87,4 @@ public class StoreController {
         List<Store> storeList = storeService.findStoreBySearchWord(searchWord);
         return ResponseEntity.ok(storeList);
     }
-<<<<<<< HEAD
-
-    @GetMapping("/chatbotSearch/{searchWD}/{pageNow}")
-    public ResponseEntity<Object> chatbotSearchStore(@PathVariable String searchWD, @PathVariable int pageNow){
-        logger.info("chatbotSearchStore()");
-        Object storeList = storeService.getChatbotStore(searchWD,pageNow);
-        return ResponseEntity.ok(storeList);
-
-    }//챗봇 가맹점 찾기
-
-
-=======
->>>>>>> master
 }

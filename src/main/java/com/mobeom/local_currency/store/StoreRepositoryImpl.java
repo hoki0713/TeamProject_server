@@ -22,13 +22,7 @@ interface IStoreRepository {
 
     List<IndustryStore> findByLatLng(String s, String s1);
 
-<<<<<<< HEAD
-    Object findSome(String stateName, String category, int pageNow,int limitSize);
-
-    Object chatbotFindStore(String searchWD, int pageNow);
-=======
     Object findSome(String stateName, String category, int pageNow, int limitSize);
->>>>>>> master
 }
 
 @Repository
@@ -110,30 +104,6 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 .orderBy(store.id.asc())
                 .offset(pageNow)
                 .limit(limitSize).fetch();
-    }
-
-    @Override
-    public Object chatbotFindStore(String searchWD, int pageNow) {
-
-
-        return queryFactory.select(Projections.fields(IndustryStore.class,
-                store.id,
-                store.storeName,
-                store.storePhone,
-                store.address,
-                store.latitude,
-                store.longitude,
-                store.storeTypeCode,
-                store.storeType,
-                store.mainCode,
-                store.searchResultCount,
-                industry.industryImageUrl.as("imgUrl")))
-                .from(store).innerJoin(industry)
-                .on(store.storeTypeCode.eq(industry.industryCode))
-                .groupBy(store.id)
-                .orderBy(store.id.asc())
-                .offset(pageNow)
-                .limit(10).fetch();
     }
 
     @Override
