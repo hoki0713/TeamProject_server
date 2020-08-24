@@ -78,15 +78,16 @@ public class RecommendServiceImpl implements RecommendService {
         dataSource.setUrl("jdbc:mysql://localhost:3306/teamproject?serverTimezone=UTC");
         dataSource.setUser("mariadb");
         dataSource.setPassword("mariadb");
-        MySQLJDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rating", "user_id",
-                "store_id", "star_rating", null);
-        ReloadFromJDBCDataModel fastModel= new ReloadFromJDBCDataModel(model);
-        UserSimilarity similarity = new PearsonCorrelationSimilarity(fastModel);
+        MySQLJDBCDataModel model = new MySQLJDBCDataModel
+                (dataSource, "rating", "user_id",
+                        "store_id", "star_rating", null);
+        ReloadFromJDBCDataModel fastModel= new ReloadFromJDBCDataModel(model); // 다음 유저의 즐겨찾기 데이터가 없을시 최근 디비에 갔다온 유저 데이터가 나오는 버그 발생.
+        UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
         UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7, similarity, fastModel);
         UserBasedRecommender recommender = new GenericUserBasedRecommender(fastModel, neighborhood, similarity);
 
         List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 7);
-
+        System.out.println("추천기 사이즈"+recommendations.size());
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {

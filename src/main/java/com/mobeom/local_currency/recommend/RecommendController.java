@@ -71,7 +71,7 @@ public class RecommendController {
             box.put("userFavStore", recommendService.findOneFavStore(id).getStoreName());
         }
         else {
-             box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
+             box.put("noFavorite", "즐겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
         }
         return box.get();
     }
