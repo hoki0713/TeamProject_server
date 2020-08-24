@@ -1,6 +1,0 @@
-CREATE TABLE board
-(
-    `board_id`    INT           NOT NULL    AUTO_INCREMENT,
-    `board_name`  VARCHAR(20)    NOT NULL,
-    PRIMARY KEY (board_id)
-)DEFAULT CHARACTER SET UTF8 COLLATE UTF8_GENERAL_CI;

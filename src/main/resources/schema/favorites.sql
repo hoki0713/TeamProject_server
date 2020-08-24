@@ -1,6 +1,6 @@
 CREATE TABLE `favorites` (
                         `id` INT(11) NOT NULL AUTO_INCREMENT,
-                        `user_id` INT,
-                        `store_id` INT,
+                        `user_id` int,
+                        `store_id` int,
                         PRIMARY KEY (`id`)
-)DEFAULT CHARACTER SET UTF8 COLLATE UTF8_GENERAL_CI;
+)DEFAULT CHARSET=UTF8;
