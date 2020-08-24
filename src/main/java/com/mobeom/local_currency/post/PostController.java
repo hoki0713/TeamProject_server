@@ -1,7 +1,8 @@
 package com.mobeom.local_currency.post;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import com.mobeom.local_currency.join.NoticeVo;
+import com.mobeom.local_currency.join.QuestionVO;
+import com.mobeom.local_currency.join.ReviewRatingVO;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,26 +28,23 @@ public class PostController {
     }
 
     @GetMapping("/post/{postId}")
-    public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId){
-       Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
-        return oneNotice.isPresent()? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
-
+    public ResponseEntity<Optional<Post>> oneNoticePost(@PathVariable String postId) {
+        Optional<Post> oneNotice = postService.onePost(Long.parseLong(postId));
+        return oneNotice.isPresent() ? ResponseEntity.ok(oneNotice) : ResponseEntity.notFound().build();
 
     }
 
     @GetMapping("/postlist")
-    public ResponseEntity<List<Post>> postList(){
-        //Page<Post> a=postRepository.findAll(PageRequest.of(1,5));
+    public ResponseEntity<List<Post>> postList() {
         List<Post> list = postService.postNoticeList();
 
         return ResponseEntity.ok(list);
     }
 
     @PostMapping("/notice/create")
-    public Post noticeCreate(@RequestBody NoticeVo notice){
+    public Post noticeCreate(@RequestBody NoticeVo notice) {
         return postService.insertNotice(notice);
     }
-
 
 
     @PatchMapping("/update/{postId}")
@@ -65,54 +63,54 @@ public class PostController {
     }
 
     @DeleteMapping("/delete/{postId}")
-    public void deleteNotice(@PathVariable String postId){
+    public void deleteNotice(@PathVariable String postId) {
         Optional<Post> findOne = postService.onePost(Long.parseLong(postId));
         Post deletePost = findOne.get();
-        if(findOne.isPresent()){
+        if (findOne.isPresent()) {
             deletePost.setDeleteYn(true);
         }
         postService.updatePost(deletePost);
     }
 
     @GetMapping("/inquiry/all")
-    public ResponseEntity<List<Post>> inquiryList(){
+    public ResponseEntity<List<Post>> inquiryList() {
         List<Post> inquirys = postService.inquiryList();
         return ResponseEntity.ok(inquirys);
     }
 
     @PatchMapping("/replies/{postId}")
-    public Post repliesCreate(@PathVariable String postId,@RequestBody Post updateComment){
+    public Post repliesCreate(@PathVariable String postId, @RequestBody Post updateComment) {
         Optional<Post> findPost = postService.onePost(Long.parseLong(postId));
         Post repliesPost = findPost.get();
-        if(findPost.isPresent()){
+        if (findPost.isPresent()) {
             repliesPost.setComment(updateComment.getComment());
             postService.updatePost(repliesPost);
         }
         return repliesPost;
     }
-  
-  
+
+
     @PostMapping("/reviews/{storeId}")
     public ResponseEntity<Post> createReview(@PathVariable String storeId,
-                                             @RequestBody ReviewVO review) {
+                                             @RequestBody ReviewRatingVO review) {
         Post userReview = postService.createReview(storeId, review);
         return ResponseEntity.ok(userReview);
     }
 
     @GetMapping("/reviews/{userId}")
-    public ResponseEntity<Map<Long, ReviewVO>> getAllReviewsByUserId(@PathVariable String userId) {
-        Map<Long,ReviewVO> reviews = postService.getAllReviewsByUserId(Long.parseLong(userId));
+    public ResponseEntity<Map<Long, ReviewRatingVO>> getAllReviewsByUserId(@PathVariable String userId) {
+        Map<Long, ReviewRatingVO> reviews = postService.getAllReviewsByUserId(Long.parseLong(userId));
         return ResponseEntity.ok(reviews);
     }
 
     @GetMapping("/reviews/detail/{reviewId}")
-    public ResponseEntity<ReviewVO> getOneReviewById(@PathVariable String reviewId) {
-        ReviewVO review = postService.getOneReviewById(Long.parseLong(reviewId));
+    public ResponseEntity<ReviewRatingVO> getOneReviewById(@PathVariable String reviewId) {
+        ReviewRatingVO review = postService.getOneReviewById(Long.parseLong(reviewId));
         return ResponseEntity.ok(review);
     }
 
     @PatchMapping("/reviews/{reviewId}")
-    public ResponseEntity<Post> updateReview(@PathVariable String reviewId, @RequestBody ReviewVO review) {
+    public ResponseEntity<Post> updateReview(@PathVariable String reviewId, @RequestBody ReviewRatingVO review) {
         Post selectPost = postService.findPost(Long.parseLong(reviewId));
         Optional.ofNullable(review.getContents()).ifPresent(contents -> selectPost.setContents(contents));
         Optional.ofNullable(review.getStarRating()).ifPresent(rating -> selectPost.getRating().setStarRating(rating));
@@ -135,7 +133,7 @@ public class PostController {
 
     @GetMapping("/questions/{userId}")
     public ResponseEntity<Map<Long, QuestionVO>> getAllQuestionsByUserId(@PathVariable String userId) {
-        Map<Long,QuestionVO> questions = postService.getAllQuestionsByUserId(Long.parseLong(userId));
+        Map<Long, QuestionVO> questions = postService.getAllQuestionsByUserId(Long.parseLong(userId));
         return ResponseEntity.ok(questions);
     }
 
@@ -164,15 +162,15 @@ public class PostController {
     public ResponseEntity<Map<Long, QuestionVO>> getAllQuestionsBySelectedOption(@RequestParam String selectedOption,
                                                                                  @RequestParam String searchWord) {
 
-        Map<Long,QuestionVO> questions = postService.getAllQuestionsBySelectedOption(selectedOption, searchWord);
+        Map<Long, QuestionVO> questions = postService.getAllQuestionsBySelectedOption(selectedOption, searchWord);
         return ResponseEntity.ok(questions);
     }
 
     @GetMapping("/notice/search")
     public List<Post> noticeSearch(@RequestParam("searchWord") String searchWord,
-                                   @RequestParam("categorySelect") String category){
+                                   @RequestParam("categorySelect") String category) {
 
-        return postService.noticeSearch(searchWord,category);
+        return postService.noticeSearch(searchWord, category);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.mobeom.local_currency.post;
+package com.mobeom.local_currency.join;
 
 import lombok.Data;
 
@@ -15,5 +15,4 @@ public class QuestionVO {
     private LocalDate regDate;
     private LocalDate modiDate;
     private boolean noticeYn;
-    private int starRating;
 }

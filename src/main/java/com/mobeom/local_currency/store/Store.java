@@ -1,5 +1,7 @@
 package com.mobeom.local_currency.store;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mobeom.local_currency.admin.Industry;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,6 +32,12 @@ public class Store {
     @Column(name = "longitude", nullable = false) private double longitude;
 
     @Column(name = "search_result_count",nullable = false) private int searchResultCount;
+
+    @JsonIgnore
+    @JoinColumn
+    @ManyToOne
+    private Industry industry;
+
 
     public Store(){}
     @Builder

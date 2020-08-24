@@ -8,6 +8,7 @@ import com.mobeom.local_currency.reportList.ReportListRepository;
 import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -42,8 +43,6 @@ interface AdminService {
 
     Map<String, Long> storeLocalsChart(String localSelect);
 
-    Map<String, Integer> useTotalLocalChart();
-
     UserPageVO getUserPage(int pageNumber);
 
     Map<String, Long> storeIndustryChartAll();
@@ -62,25 +61,15 @@ interface AdminService {
 
     Map<String, SalesVoucherUser> voucherSalesTotalChart();
 
-    List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord);
-
-
     UserPageVO getSearchedUsers(String selectedOption, String searchWord);
 }
 
-@Service
+@Service @AllArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
     private final ReportListRepository reportListRepository;
-
-
-    public AdminServiceImpl(AdminRepository adminRepository, UserRepository userRepository, ReportListRepository reportListRepository) {
-        this.adminRepository = adminRepository;
-        this.userRepository = userRepository;
-        this.reportListRepository = reportListRepository;
-    }
 
 
     @Override
@@ -128,11 +117,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end) {
         return adminRepository.voucherNameChart(voucherName, start, end);
-    }
-
-    @Override
-    public Map<String, Integer> useTotalLocalChart() {
-        return adminRepository.useTotalLocalChart();
     }
 
     @Override
@@ -197,11 +181,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Map<String, SalesVoucherUser> voucherSalesTotalChart() {
         return adminRepository.voucherSalesTotalChart();
-    }
-
-    @Override
-    public List<SalesVoucherUser> salesListSearch(String useStatus, String citySelect, String searchWord) {
-        return adminRepository.salesListSearch(useStatus, citySelect, searchWord);
     }
 
     @Override

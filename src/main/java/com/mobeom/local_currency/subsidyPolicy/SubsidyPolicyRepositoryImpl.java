@@ -8,8 +8,6 @@ import javax.sql.DataSource;
 
 interface ISubsidyPolicyRepository{}
 
-
-
 @Repository
 public class SubsidyPolicyRepositoryImpl extends QuerydslRepositorySupport implements ISubsidyPolicyRepository {
     private final JPAQueryFactory queryFactory;

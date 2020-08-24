@@ -52,7 +52,7 @@ public class Post {
     private Board board;
 
     @JsonIgnore
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name="rating_id")
     private Rating rating;
 
