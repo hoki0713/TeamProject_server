@@ -102,5 +102,13 @@ public class StoreController {
     public ResponseEntity<List<IndustryStore>> chatbotRecoMain(@PathVariable String lat, @PathVariable String lng){
         return ResponseEntity.ok(storeService.getChatbotRecoMain(lat,lng));
     }
-    
+    @GetMapping("/chatbotRank/{stateName}")
+    public ResponseEntity<List<IndustryStore>> chatbotRank(@PathVariable String stateName){
+        return ResponseEntity.ok(storeService.getChatbotRank(stateName));
+    }
+
+    @GetMapping("/chatbotStarRank/{stateName}")
+    public ResponseEntity<List<IndustryStore>> chatbotStarRank(@PathVariable String stateName){
+        return ResponseEntity.ok(storeService.getChatbotStarRank(stateName));
+    }
 }

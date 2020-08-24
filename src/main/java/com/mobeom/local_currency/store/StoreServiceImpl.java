@@ -30,6 +30,10 @@ interface StoreService extends JpaService<Store> {
     int getChatbotSearchCount(String searchWord);
 
     List<IndustryStore> getChatbotRecoMain(String lat, String lng);
+
+    List<IndustryStore> getChatbotRank(String stateName);
+
+    List<IndustryStore> getChatbotStarRank(String stateName);
 }
 
 
@@ -105,6 +109,16 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public List<IndustryStore> getChatbotRecoMain(String lat, String lng) {
         return repository.findChatbotRecoMain(lat,lng);
+    }
+
+    @Override
+    public List<IndustryStore> getChatbotRank(String stateName) {
+        return repository.findChatbotRank(stateName);
+    }
+
+    @Override
+    public List<IndustryStore> getChatbotStarRank(String stateName) {
+        return repository.findChatbotStarRank(stateName);
     }
 
 

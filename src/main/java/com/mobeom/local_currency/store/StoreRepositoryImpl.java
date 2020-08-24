@@ -29,6 +29,10 @@ interface IStoreRepository {
     int findChatbotSearchCount(String searchWord);
 
     List<IndustryStore> findChatbotRecoMain(String lat, String lng);
+
+    List<IndustryStore> findChatbotRank(String stateName);
+
+    List<IndustryStore> findChatbotStarRank(String stateName);
 }
 
 @Repository
@@ -170,6 +174,55 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
                 .where(store.longitude.between(longitude - 0.06, longitude + 0.06))
                 .groupBy(rating.store.id)
                 .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+    }
+
+    @Override
+    public List<IndustryStore> findChatbotRank(String stateName) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                rating.starRating.avg().as("starRanking"),
+                industry.industryImageUrl.as("imgUrl")
+        )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
+                .fetchJoin()
+                .where(store.address.like("%"+stateName+"%"))
+                .groupBy(rating.store.id)
+                .orderBy(store.searchResultCount.desc()).limit(50).fetch();
+    }
+
+    @Override
+    public List<IndustryStore> findChatbotStarRank(String stateName) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                rating.starRating.avg().as("starRanking"),
+                industry.industryImageUrl.as("imgUrl")
+        )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
+                .fetchJoin()
+                .where(store.address.like("%"+stateName+"%"))
+                .groupBy(rating.store.id)
+                .orderBy(rating.starRating.avg().desc())
+                .limit(50).fetch();
     }
 
     @Override
