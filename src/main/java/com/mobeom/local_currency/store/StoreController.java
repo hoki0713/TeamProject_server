@@ -1,5 +1,7 @@
 package com.mobeom.local_currency.store;
 
+import com.mobeom.local_currency.admin.Industry;
+import com.mobeom.local_currency.join.IndustryStore;
 import com.mobeom.local_currency.proxy.Box;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class StoreController {
     private final StoreService storeService;
-
     @Autowired
     Box box;
 
@@ -87,4 +89,18 @@ public class StoreController {
         List<Store> storeList = storeService.findStoreBySearchWord(searchWord);
         return ResponseEntity.ok(storeList);
     }
+
+    @GetMapping("/chatbotSearch/{searchWord}/{pageSize}")
+    public ResponseEntity<Map<?,?>> chatbotSearch(@PathVariable String searchWord, @PathVariable int pageSize){
+        box.clear();
+        box.put("list",storeService.getChatbotSearch(searchWord,pageSize));
+        box.put("count",storeService.getChatbotSearchCount(searchWord));
+        return ResponseEntity.ok(box.get());
+    }
+
+    @GetMapping("/chatbotRecoMain/{lat}/{lng}")
+    public ResponseEntity<List<IndustryStore>> chatbotRecoMain(@PathVariable String lat, @PathVariable String lng){
+        return ResponseEntity.ok(storeService.getChatbotRecoMain(lat,lng));
+    }
+    
 }

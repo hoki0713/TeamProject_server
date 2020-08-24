@@ -1,10 +1,10 @@
 package com.mobeom.local_currency.store;
 
 
-import com.mobeom.local_currency.proxy.Box;
-import com.mobeom.local_currency.proxy.JpaService;
 import com.mobeom.local_currency.admin.IndustryRepository;
-import com.mobeom.local_currency.reportList.ReportListRepository;
+import com.mobeom.local_currency.join.IndustryStore;
+import com.mobeom.local_currency.proxy.JpaService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +24,12 @@ interface StoreService extends JpaService<Store> {
     List<Store> findStoreBySearchWord(String searchWord);
 
     Object getSome(String stateName, String category, int pageNow, int limitSize);
+
+    Object getChatbotSearch(String searchWord, int pageSize);
+
+    int getChatbotSearchCount(String searchWord);
+
+    List<IndustryStore> getChatbotRecoMain(String lat, String lng);
 }
 
 
@@ -85,4 +91,21 @@ public class StoreServiceImpl implements StoreService {
     public Object getSome(String stateName, String category, int pageNow, int limitSize) {
         return repository.findSome(stateName, category, pageNow, limitSize);
     }
+
+    @Override
+    public Object getChatbotSearch(String searchWord, int pageSize) {
+        return repository.findChatbotSearch(searchWord,pageSize);
+    }
+
+    @Override
+    public int getChatbotSearchCount(String searchWord) {
+        return repository.findChatbotSearchCount(searchWord);
+    }
+
+    @Override
+    public List<IndustryStore> getChatbotRecoMain(String lat, String lng) {
+        return repository.findChatbotRecoMain(lat,lng);
+    }
+
+
 }
