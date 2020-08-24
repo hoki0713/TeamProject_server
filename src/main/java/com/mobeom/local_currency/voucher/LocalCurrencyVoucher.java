@@ -1,5 +1,6 @@
 package com.mobeom.local_currency.voucher;
 
+import com.mobeom.local_currency.rating.Rating;
 import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,5 +30,8 @@ public class LocalCurrencyVoucher {
 
     @Column(name = "voucher_value")
     private int voucherValue;
+
+    @OneToMany(mappedBy = "local_currency_voucher", cascade = CascadeType.ALL)
+    private List<Sales> salesList;
 
 }

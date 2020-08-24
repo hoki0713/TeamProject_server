@@ -1,8 +1,17 @@
 package com.mobeom.local_currency.store;
 
+import com.amazonaws.services.codebuild.model.Report;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mobeom.local_currency.favorites.Favorites;
+import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.rating.Rating;
+import com.mobeom.local_currency.recommend.Industry;
+import com.mobeom.local_currency.reportList.ReportList;
+import com.mobeom.local_currency.user.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity @Getter @Setter @ToString
 @Table(name = "store")
@@ -30,6 +39,15 @@ public class Store {
     @Column(name = "longitude", nullable = false) private double longitude;
 
     @Column(name = "search_result_count",nullable = false) private int searchResultCount;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Rating> ratingList;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Favorites> favoritesList;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<ReportList> reportList;
 
     public Store(){}
     @Builder

@@ -1,10 +1,9 @@
 package com.mobeom.local_currency.recommend;
 
 import static com.mobeom.local_currency.store.QStore.store;
-import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
+import static com.mobeom.local_currency.recommend.QConsume.consume;
 import static com.mobeom.local_currency.recommend.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
-import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.rating.QRating.rating;
 
 
@@ -20,29 +19,33 @@ import javax.sql.DataSource;
 import java.util.List;
 
 interface CustomRecommendRepository {
-    IndustryStore recommendStores(String searchWord);
+    IndustryStore fetchRecommendedStores(String searchWord);
 
-    List<IndustryStore> fetchByBestStore(double lat, double lng);
+    List<IndustryStore> fetchBestStore(double lat, double lng);
 
     List<IndustryStore> fetchStoreByIndustry(String searchIndustry, double lat, double lng);
 
-    List<GenderAge> industryByGenderAndAge(String gender, int ageGroup);
+    List<Consume> fetchIndustryRankByGenderAndAge(String gender, int ageGroup);
 
-    List<GenderAge> industryByAge(int age);
+    List<Consume> fetchIndustryRankByAge(int age);
 
-    List<GenderAge> industryByGender(String gender);
+    List<Consume> fetchIndustryRankByGender(String gender);
 
-    List<GenderAge> industryByTotal();
+    List<Consume> fetchIndustryRankByTotal();
 
-    Store fetchedFavoriteStoreByUserId(String id);
+    Store fetchRatedStore(String id);
 
-    List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng);
+    Store fetchOneFavStore(String id);
 
-    List<IndustryStore> fetchedBestRatedStores(double lat, double lng);
+    List<IndustryStore> fetchMostFavoriteStores(double lat, double lng);
 
-    List<IndustryStore> fetchedMostFavStoresByIndustry(String industryName, double lat, double lng);
+    List<IndustryStore> fetchBestRatedStores(double lat, double lng);
 
-    List<IndustryStore> fetchedBestRatedStoresByIndustry(String industryName, double lat, double lng);
+    List<IndustryStore> fetchMostFavStoresByIndustry(String industryName, double lat, double lng);
+
+    List<IndustryStore> fetchBestRatedStoresByIndustry(String industryName, double lat, double lng);
+
+    String fetchImg(IndustryStore store);
 
 //    IndustryStore fetchAvgRating(IndustryStore oneStore);
 
@@ -55,14 +58,14 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
 
     RecommendRepositoryImpl(JPAQueryFactory queryFactory, DataSource dataSource) {
-        super(GenderAge.class);
+        super(Consume.class);
         this.queryFactory = queryFactory;
         this.dataSource = dataSource;
     }
 
 
     @Override //mahout을 통한 가맹점 추천
-    public IndustryStore recommendStores(String searchWord) {
+    public IndustryStore fetchRecommendedStores(String searchWord) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -73,17 +76,14 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
                 store.storeTypeCode,
                 store.storeType,
                 store.mainCode,
-                store.searchResultCount,
-                industry.industryImageUrl.as("imgUrl"))
+                store.searchResultCount)
         )
-                .from(store).innerJoin(industry)
-                .on(store.storeTypeCode.eq(industry.industryCode))
-                .fetchJoin().where(store.id.eq(Long.valueOf(searchWord))).fetchFirst();
+                .from(store).where(store.id.eq(Long.valueOf(searchWord))).fetchFirst();
 
     }
 
     @Override //단순 가맹점 추천(서치 순)
-    public List<IndustryStore> fetchByBestStore(double lat, double lng) {
+    public List<IndustryStore> fetchBestStore(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -128,57 +128,64 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override //성별 및 연령 입력시 대분류 안내
-    public List<GenderAge> industryByGenderAndAge(String gender, int ageGroup) {
-        return queryFactory.selectFrom(genderAge).where(genderAge.genderCode.eq(gender), genderAge.ageGroup.eq(ageGroup))
-                .orderBy(genderAge.amount.desc()).limit(7).fetch();
+    public List<Consume> fetchIndustryRankByGenderAndAge(String gender, int ageGroup) {
+        return queryFactory.selectFrom(consume).where(consume.genderCode.eq(gender), consume.ageGroup.eq(ageGroup))
+                .orderBy(consume.amount.desc()).limit(7).fetch();
     }
 
 
     @Override // 연령으로 대분류 추천
-    public List<GenderAge> industryByAge(int age) {
-        return queryFactory.select(Projections.fields(GenderAge.class, genderAge.ageGroup,
-                genderAge.industryName)).from(genderAge)
-                .where(genderAge.ageGroup.eq(age))
-                .groupBy(genderAge.ageGroup, genderAge.industryName)
-                .orderBy(genderAge.amount.sum().desc())
+    public List<Consume> fetchIndustryRankByAge(int age) {
+        return queryFactory.select(Projections.fields(Consume.class, consume.ageGroup,
+                consume.industryName)).from(consume)
+                .where(consume.ageGroup.eq(age))
+                .groupBy(consume.ageGroup, consume.industryName)
+                .orderBy(consume.amount.sum().desc())
                 .limit(7).fetch();
     }
 
 
     @Override
-    public List<GenderAge> industryByGender(String gender) {
-        return queryFactory.select(Projections.fields(GenderAge.class, genderAge.genderCode,
-                genderAge.industryName)).from(genderAge)
-                .where(genderAge.genderCode.eq(gender))
-                .groupBy(genderAge.genderCode, genderAge.industryName)
-                .orderBy(genderAge.amount.sum().desc())
+    public List<Consume> fetchIndustryRankByGender(String gender) {
+        return queryFactory.select(Projections.fields(Consume.class, consume.genderCode,
+                consume.industryName)).from(consume)
+                .where(consume.genderCode.eq(gender))
+                .groupBy(consume.genderCode, consume.industryName)
+                .orderBy(consume.amount.sum().desc())
                 .limit(7).fetch();
 
     }
 
     @Override
-    public List<GenderAge> industryByTotal() {
-        return queryFactory.select(Projections.fields(GenderAge.class,
-                genderAge.industryName)).from(genderAge)
-                .groupBy(genderAge.industryName)
-                .orderBy(genderAge.amount.sum().desc())
+    public List<Consume> fetchIndustryRankByTotal() {
+        return queryFactory.select(Projections.fields(Consume.class,
+                consume.industryName)).from(consume)
+                .groupBy(consume.industryName)
+                .orderBy(consume.amount.sum().desc())
                 .limit(7).fetch();
     }
 
 
     @Override
-    public Store fetchedFavoriteStoreByUserId(String id) {
+    public Store fetchRatedStore(String id) {
         return queryFactory.select(Projections.fields(Store.class,
-                store.id, store.mainCode, store.storeName)).from(store)
-                .innerJoin(rating).on(store.id.eq(rating.store.id))
-                .fetchJoin()
-                .where(rating.user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시")).
-                        orderBy(store.searchResultCount.desc()).fetchFirst();
+                store.id, store.storeName)).from(store)
+                .innerJoin(rating).on(rating.store.id.eq(store.id))
+                .where(rating.user.id.eq(Long.valueOf(id)), store.localName.eq("의정부시"))
+                        .fetchFirst();
+    }
+
+    @Override
+    public Store fetchOneFavStore(String id){
+        return queryFactory.select(Projections.fields(Store.class,
+                store.id, store.storeName, store.mainCode)).from(store)
+                .innerJoin(favorites).on(store.id.eq(favorites.store.id))
+                .where(favorites.user.id.eq(Long.parseLong(id))).fetchFirst();
     }
 
 
     @Override
-    public List<IndustryStore> fetchedBestRatedStores(double lat, double lng) {
+    public List<IndustryStore> fetchBestRatedStores(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -201,7 +208,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override
-    public List<IndustryStore> fetchedMostFavoriteStores(double lat, double lng) {
+    public List<IndustryStore> fetchMostFavoriteStores(double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -223,7 +230,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override
-    public List<IndustryStore> fetchedMostFavStoresByIndustry(String searchIndustry, double lat, double lng) {
+    public List<IndustryStore> fetchMostFavStoresByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -246,7 +253,7 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
     }
 
     @Override
-    public List<IndustryStore> fetchedBestRatedStoresByIndustry(String searchIndustry, double lat, double lng) {
+    public List<IndustryStore> fetchBestRatedStoresByIndustry(String searchIndustry, double lat, double lng) {
         return queryFactory.select(Projections.fields(IndustryStore.class,
                 store.id,
                 store.storeName,
@@ -269,12 +276,16 @@ public class RecommendRepositoryImpl extends QuerydslRepositorySupport implement
 
     }
 
+    public String fetchImg(IndustryStore store){
+        return queryFactory.select(industry.industryImageUrl).from(industry).where(industry.mainCode.eq(store.getMainCode())).fetchFirst();
+    }
+
 //    @Override
 //    public IndustryStore fetchAvgRating(IndustryStore oneStore) {
 //        return queryFactory.select(Projections.fields(IndustryStore.class, rating.starRating.avg().as("starRanking"))
 //                )
 //                .from(store)
-//                .leftJoin(rating).on(store.id.eq(rating.store.id))
+//                .rightJoin(rating).on(store.id.eq(rating.store.id))
 //                .groupBy(rating.store.id).fetchFirst();
 //    }
 
