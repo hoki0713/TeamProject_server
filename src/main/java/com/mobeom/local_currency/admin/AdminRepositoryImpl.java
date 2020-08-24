@@ -14,7 +14,11 @@ import com.mobeom.local_currency.sales.SalesRepository;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.time.LocalDate;
@@ -43,8 +47,6 @@ interface CustomAdminRepository {
     Map<String, SalesVoucherUser> voucherSalesTotalChart();
 
     Map<String, Integer> useTotalLocalChart();
-
-    Map<String, List<SalesVoucherUser>> salesList();
 
     Map<String, List<ReportListStore>> reportList();
 
@@ -134,7 +136,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
     @Override
     public Map<String, Integer> userAgeChart(String localSelect) {
-        Map<String, Integer> userAge = new HashMap<>();
+        Map<String, Integer> userAge = new TreeMap<>();
 
         String formatDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
         int date = Integer.parseInt(formatDate);
@@ -282,7 +284,7 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
     @Override
     public Map<String, SalesVoucherUser> voucherNameChart(String voucherName, String start, String end) {
 
-        Map<String, SalesVoucherUser> voucherMap = new HashMap<>();
+        Map<String, SalesVoucherUser> voucherMap = new TreeMap<>();
 
         int startDate = Integer.parseInt(start);
         int endDate = Integer.parseInt(end);
@@ -371,23 +373,6 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
 
         return result;
-    }
-
-    @Override
-    public Map<String, List<SalesVoucherUser>> salesList() {
-        Map<String, List<SalesVoucherUser>> list = new HashMap<>();
-
-        List<SalesVoucherUser> result = query.select(Projections.fields(SalesVoucherUser.class, user.userId, user.name,
-                sales.salesId, localCurrencyVoucher.localCurrencyName, sales.currencyState, sales.salesDate,
-                sales.useDate, sales.cancelDate)).from(sales)
-                .innerJoin(user).on(user.userId.like(sales.user.userId))
-                .innerJoin(sales.localCurrencyVoucher, localCurrencyVoucher)
-                .on(localCurrencyVoucher.localCurrencyVoucherId.eq(sales.localCurrencyVoucher.localCurrencyVoucherId))
-                .limit(100).fetch();
-
-        list.put("sales", result);
-
-        return list;
     }
 
     @Override

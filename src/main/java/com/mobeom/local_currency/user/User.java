@@ -1,6 +1,8 @@
 package com.mobeom.local_currency.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.rating.Rating;
 import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,4 +60,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Sales> salesList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Rating> ratingList;
 }

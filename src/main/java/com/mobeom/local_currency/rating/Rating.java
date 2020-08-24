@@ -20,7 +20,7 @@ import javax.persistence.*;
 public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rating_id", nullable = false) private Long recommendId;
+    @Column(name = "rating_id", nullable = false) private Long ratingId;
 
     @JsonIgnore
     @ManyToOne

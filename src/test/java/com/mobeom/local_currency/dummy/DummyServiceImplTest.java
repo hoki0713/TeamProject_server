@@ -9,7 +9,11 @@ import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Disabled;
+=======
+import com.mobeom.local_currency.rating.RatingRepository;
+>>>>>>> 1e517724e7cb659af524ff863ec8766a1f5e3fbc
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

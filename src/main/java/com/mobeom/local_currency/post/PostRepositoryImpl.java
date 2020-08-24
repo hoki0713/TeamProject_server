@@ -11,7 +11,6 @@ import java.util.*;
 
 
 interface CustomPostRepository {
-    Post findByPostId(long postId);
 
     List<Post> inquiryList();
 
@@ -39,12 +38,6 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
         this.queryFactory = queryFactory;
     }
 
-    @Override
-    public Post findByPostId(long postId) {
-        Post findOne = queryFactory.selectFrom(post).where(post.postId.eq(postId)).fetchOne();
-        return findOne;
-    }
-
 
     @Override
     public List<Post> inquiryList() {
@@ -56,11 +49,9 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Cus
     @Override
 
     public List<Post> postList() {
-
         List<Post> list = queryFactory.select(Projections.fields(Post.class, post.postTitle,
                 post.category, post.comment, post.contents, post.postId, post.regDate, post.readCount)).from(post)
-                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).fetch();
-
+                .where(post.noticeYn.eq(true).and(post.deleteYn.isFalse())).orderBy(post.postId.desc()).fetch();
         return list;
     }
 

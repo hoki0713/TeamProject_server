@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admins")
@@ -73,15 +70,13 @@ public class AdminController {
 
     @GetMapping("/currency/month/total")
     public ResponseEntity<Map<String, Integer>> currencySalesMonthTotalChart() {
-
-        Map<String, Integer> result = new HashMap<>();
+        Map<String, Integer> result = new TreeMap<>();
         List<SalesVoucherUser> monthList = adminService.salesMonthChart();
         monthList.forEach(sales -> {
             String year = sales.getSalesDate().toString().split("-")[0];
             String month = sales.getSalesDate().toString().split("-")[1];
             result.put(year + "-" + month, sales.getUnitPrice());
         });
-
         return ResponseEntity.ok(result);
     }
 
@@ -114,7 +109,6 @@ public class AdminController {
         return adminService.useLocalChart(localName, start_date, end_date);
     }
 
-
     // Emilia code
     @GetMapping("/userList/{pageNumber}")
     public ResponseEntity<UserPageVO> getAllUsers(@PathVariable int pageNumber) {
@@ -140,9 +134,10 @@ public class AdminController {
         return adminService.storeIndustryChartAll();
     }
 
-    @GetMapping("/sales/list")
-    public Map<String, List<SalesVoucherUser>> salesList() {
-        return adminService.salesList();
+    @GetMapping("/sales/list/{pageNumber}")
+    public SalesPageVO salesList(@PathVariable int pageNumber) {
+        SalesPageVO salesList = adminService.salesList(pageNumber);
+        return salesList;
     }
 
     @GetMapping("/report/list")

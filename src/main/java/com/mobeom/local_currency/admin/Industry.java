@@ -1,12 +1,15 @@
 package com.mobeom.local_currency.admin;
 
 
+import com.mobeom.local_currency.post.Post;
+import com.mobeom.local_currency.store.Store;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
