@@ -12,7 +12,6 @@ interface CustomFavoritesRepository {
 
     List<Favorites> findAllByUserId(long userId);
 
-
 }
 
 public class FavoritesRepositoryImpl extends QuerydslRepositorySupport implements CustomFavoritesRepository {
@@ -29,7 +28,6 @@ public class FavoritesRepositoryImpl extends QuerydslRepositorySupport implement
         List<Favorites> favorites = queryFactory.selectFrom(qFavorites).where(qFavorites.user.id.eq(userId)).fetch();
         return favorites;
     }
-
 
 
 }

@@ -1,13 +1,11 @@
 package com.mobeom.local_currency.voucher;
 
-import com.mobeom.local_currency.sales.Sales;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
 
 @NoArgsConstructor
 @ToString

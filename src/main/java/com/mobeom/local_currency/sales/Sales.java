@@ -52,6 +52,4 @@ public class Sales {
     @ManyToOne
     @JoinColumn(name = "local_currency_voucher_id")
     private LocalCurrencyVoucher localCurrencyVoucher;
-
-
 }

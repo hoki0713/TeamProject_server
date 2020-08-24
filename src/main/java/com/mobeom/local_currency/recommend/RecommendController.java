@@ -25,37 +25,46 @@ public class RecommendController {
     @GetMapping("/individualUser/{id}")
     public Map<String, ?> getIndividualUserRecommend(@PathVariable String id) throws TasteException {
         box.clear();
-        if(recommendService.findUserByUserIdInRating(id)){
-            if(recommendService.findUserBasedRecommend(id).size() !=0){
+        if (recommendService.findUserByUserIdInRating(id)) {
+            if (recommendService.findUserBasedRecommend(id).size() != 0) {
                 box.put("userBased", recommendService.findRecommendStores(recommendService.findUserBasedRecommend(id)));
-            } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");};
-        } else {box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");}
+            } else {
+                box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");
+            }
+            ;
+        } else {
+            box.put("noUserBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");
+        }
 
         return box.get();
     }
+
     @GetMapping("/individualItem/{id}")
     public Map<String, ?> getIndividualItemRecommend(@PathVariable String id) throws TasteException {
         box.clear();
 
 
-        if(recommendService.findUserByUserIdInRating(id)){
-            if(recommendService.findItemBasedRecommend(id).size()!=0){
+        if (recommendService.findUserByUserIdInRating(id)) {
+            if (recommendService.findItemBasedRecommend(id).size() != 0) {
                 box.put("itemBased", recommendService.findRecommendStores(recommendService.findItemBasedRecommend(id)));
-                box.put("itemBasedStore", recommendService.fetchStoreIdByUserId(id).getStoreName());}
-            else{ box.put("noItemBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요."); }
-        } else{
+                box.put("itemBasedStore", recommendService.fetchStoreIdByUserId(id).getStoreName());
+            } else {
+                box.put("noItemBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");
+            }
+        } else {
             box.put("noItemBased", "별점 데이터가 부족합니다. 더 많은 가맹점들을 평가해주세요.");
-        };
+        }
+        ;
         return box.get();
     }
 
 
     @PostMapping("/all/{id}")
-    public Map<String, ?> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng){
+    public Map<String, ?> getAllRecommend(@PathVariable String id, @RequestBody LatLngVo latLng) {
         box.clear();
         double lat = latLng.getLat();
         double lng = latLng.getLng();
-        System.out.println(lat+lng);
+        System.out.println(lat + lng);
 
         String[] industryName = {"일반휴게음식", "음료식품", "의원"};
         box.put("industryName", industryName);
@@ -68,22 +77,18 @@ public class RecommendController {
         box.put("mostFavorites", recommendService.findMostFavoriteStores(lat, lng));
         box.put("bestRated", recommendService.findBestRatedStores(lat, lng));
 
-        if (recommendService.fetchStoreIdByUserId(id) != null){
+        if (recommendService.fetchStoreIdByUserId(id) != null) {
             System.out.println(recommendService.fetchStoreIdByUserId(id));
             String favoriteIndustry = recommendService.fetchStoreIdByUserId(id).getMainCode();
             box.put("userFavBased", recommendService.findStoresByIndustry(favoriteIndustry, lat, lng));
             box.put("userFavStore", recommendService.fetchStoreIdByUserId(id).getStoreName());
+        } else {
+            box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
         }
-        else {
-             box.put("noFavorite", "줄겨찾기 데이터가 없습니다. 즐겨찾는 가맹점을 등록해보세요.");
-        }
-        System.out.println("유저의 즐겨찾기 가게"+box.get("userFavStore"));
-        System.out.println("유저 즐겨찾기 없을 때 메세지"+box.get("noFavorite"));
+        System.out.println("유저의 즐겨찾기 가게" + box.get("userFavStore"));
+        System.out.println("유저 즐겨찾기 없을 때 메세지" + box.get("noFavorite"));
         return box.get();
     }
-
-
-
 
 
     @GetMapping("/tag/{gender}/{birthYear}")
@@ -105,7 +110,7 @@ public class RecommendController {
         box.put("byGenderAge", recommendService.findIndustryByGenderAndAge(gender, ageGroup));
         box.put("byGender", recommendService.findIndustryByGender(gender));
         box.put("byAge", recommendService.findIndustryByAge(ageGroup));
-        box.put("userAgeGroup", ageGroup );
+        box.put("userAgeGroup", ageGroup);
         box.put("userGenderKor", userGender);
         return box.get();
     }
@@ -139,8 +144,8 @@ public class RecommendController {
         double lat = latLng.getLat();
         double lng = latLng.getLng();
         List<GenderAge> industryList = findIndustryByTag(gender, ageGroup).get("searchResult");
-        if(option == 1) return recommendService.findStoresByIndustryList(industryList, lat, lng);
-        else if(option == 2) return recommendService.findMostFavStoresByIndustryList(industryList, lat, lng);
+        if (option == 1) return recommendService.findStoresByIndustryList(industryList, lat, lng);
+        else if (option == 2) return recommendService.findMostFavStoresByIndustryList(industryList, lat, lng);
         else return recommendService.findBestRatedStoresByIndustryList(industryList, lat, lng);
 
     }

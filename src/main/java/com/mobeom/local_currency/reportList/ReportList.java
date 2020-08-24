@@ -17,7 +17,7 @@ public class ReportList {
     private Long id;
 
     @JsonIgnore
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name="store_id")
     private Store store;
 

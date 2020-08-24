@@ -1,4 +1,4 @@
-package com.mobeom.local_currency.post;
+package com.mobeom.local_currency.join;
 
 import lombok.Data;
 

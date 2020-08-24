@@ -1,4 +1,4 @@
-package com.mobeom.local_currency.recommend;
+package com.mobeom.local_currency.admin;
 
 
 import lombok.Getter;
@@ -32,6 +32,5 @@ public class Industry {
 
     @Column(name="industry_image_url", nullable = false)
     private String industryImageUrl;
-
 
 }

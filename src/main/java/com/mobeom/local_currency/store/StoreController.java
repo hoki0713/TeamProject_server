@@ -19,24 +19,21 @@ import java.util.Optional;
 @AllArgsConstructor
 public class StoreController {
     private final StoreService storeService;
-    static Logger logger = LoggerFactory.getLogger(StoreController.class);
 
-    @Autowired Box box;
-
+    @Autowired
+    Box box;
 
 
     @GetMapping("/fromAddr/{lat}/{lng}")
-    public Map<?,?> getStoreByAddr(@PathVariable String lat, @PathVariable String lng){
-        logger.info("getStoreByAddr()");
+    public Map<?, ?> getStoreByAddr(@PathVariable String lat, @PathVariable String lng) {
         box.clear();
-        box.put("list", storeService.getStores(lat,lng));
+        box.put("list", storeService.getStores(lat, lng));
         return box.get();
-    }// 좌표근처 가맹점 찾기
+    }
 
 
     @GetMapping("/realTimeSearch/{searchWD}")
-    public Map<?,?>  realTimeSearch(@PathVariable String searchWD){
-        logger.info("realTimeSearch()  "+"searchWD:"+searchWD);
+    public Map<?, ?> realTimeSearch(@PathVariable String searchWD) {
         Object results = storeService.getSeveral(searchWD);
         box.clear();
         if (results != null) {
@@ -46,33 +43,32 @@ public class StoreController {
             box.put("msg", "fail");
         }
         return box.get();
-    }// eunsong findBestRoute addStore search
+    }
 
     @GetMapping("/getSome/{stateName}/{category}/{pageNow}/{limitSize}")
-    public Map<?,?> getStoreList(@PathVariable(name = "stateName") String stateName,
-                                 @PathVariable(name = "category") String category,
-                                 @PathVariable(name = "pageNow") int pageNow,
-                                 @PathVariable(name = "limitSize") int limitSize){
-        logger.info("getStoreList()");
+    public Map<?, ?> getStoreList(@PathVariable(name = "stateName") String stateName,
+                                  @PathVariable(name = "category") String category,
+                                  @PathVariable(name = "pageNow") int pageNow,
+                                  @PathVariable(name = "limitSize") int limitSize) {
         box.clear();
-        Object results = storeService.getSome(stateName, category, pageNow,limitSize);
+        Object results = storeService.getSome(stateName, category, pageNow, limitSize);
         if (results != null) {
             box.put("msg", "success");
             box.put("list", results);
-            box.put("count",storeService.count());
+            box.put("count", storeService.count());
         } else {
             box.put("msg", "fail");
         }
 
         return box.get();
-    }// eunsong MerchanList //have to add pagenation
+    }
 
 
     @GetMapping("/findStore/{storeName}")
     public ResponseEntity<Map<Long, SearchStoreVO>> findStoreByName(@PathVariable String storeName) {
         Map<Long, SearchStoreVO> resultStores = new HashMap<>();
         Optional<List<Store>> storeList = storeService.findAllStoreByName(storeName);
-        if(storeList.isPresent()) {
+        if (storeList.isPresent()) {
             storeList.get().forEach(store -> {
                 SearchStoreVO storeInfo = new SearchStoreVO();
                 storeInfo.setStoreName(store.getStoreName());
@@ -86,17 +82,9 @@ public class StoreController {
         }
     }
 
-    @GetMapping("/getStores/{localName}")
-    public ResponseEntity<Map<Long,StoresVO>> getAllStoresByLocalName (@PathVariable String localName) {
-        Map<Long,StoresVO> storesMap = storeService.getAllStoresByLocalName(localName.trim());
-        return ResponseEntity.ok(storesMap);
-    }
-
     @GetMapping("/searchStore/{searchWord}")
     public ResponseEntity<List<Store>> searchStore(@PathVariable String searchWord) {
         List<Store> storeList = storeService.findStoreBySearchWord(searchWord);
         return ResponseEntity.ok(storeList);
     }
-
-
 }

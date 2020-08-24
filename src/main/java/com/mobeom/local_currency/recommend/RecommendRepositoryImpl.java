@@ -2,9 +2,8 @@ package com.mobeom.local_currency.recommend;
 
 import static com.mobeom.local_currency.store.QStore.store;
 import static com.mobeom.local_currency.recommend.QGenderAge.genderAge;
-import static com.mobeom.local_currency.recommend.QIndustry.industry;
+import static com.mobeom.local_currency.admin.QIndustry.industry;
 import static com.mobeom.local_currency.favorites.QFavorites.favorites;
-import static com.mobeom.local_currency.user.QUser.user;
 import static com.mobeom.local_currency.rating.QRating.rating;
 
 

@@ -1,11 +1,11 @@
 package com.mobeom.local_currency.sales;
 
-import com.mobeom.local_currency.voucher.LocalCurrencyVoucher;
+import com.mobeom.local_currency.join.NewSalesVo;
+import com.mobeom.local_currency.join.RequestedPurchaseHistoryVO;
 import com.mobeom.local_currency.voucher.LocalCurrencyVoucherRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

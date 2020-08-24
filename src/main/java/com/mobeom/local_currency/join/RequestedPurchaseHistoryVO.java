@@ -1,4 +1,4 @@
-package com.mobeom.local_currency.sales;
+package com.mobeom.local_currency.join;
 
 import com.mobeom.local_currency.user.User;
 import lombok.Data;
