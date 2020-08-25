@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Component
 interface SubsidyPolicyService extends JpaService<SubsidyPolicy> {
+   Object getFitPolicy(int userAge, boolean children);
 }
 
 @Service
@@ -46,5 +47,10 @@ public class SubsidyPolicyServiceImpl implements SubsidyPolicyService{
     @Override
     public boolean exists(String id) {
         return repository.existsById(Long.parseLong(id));
+    }
+
+    @Override
+    public Object getFitPolicy(int userAge, boolean children) {
+        return repository.findFitPolicy(userAge,children);
     }
 }
