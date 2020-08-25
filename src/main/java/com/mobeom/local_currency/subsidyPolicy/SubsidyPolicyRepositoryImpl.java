@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import static com.mobeom.local_currency.subsidyPolicy.QSubsidyPolicy.subsidyPolicy;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 interface ISubsidyPolicyRepository{
     Object findFitPolicy(int userAge, boolean children);
@@ -30,11 +29,13 @@ public class SubsidyPolicyRepositoryImpl extends QuerydslRepositorySupport imple
         if(children){
             result =queryFactory.select(subsidyPolicy)
                     .from(subsidyPolicy)
+                    .where(subsidyPolicy.condiAge.eq(0).or(subsidyPolicy.condiAge.eq(userAge)))
                     .fetch();
         }else {
             result =queryFactory.select(subsidyPolicy)
                     .from(subsidyPolicy)
                     .where(subsidyPolicy.condiChildrenAge.eq(0))
+                    .where(subsidyPolicy.condiAge.eq(userAge))
                     .fetch();
         }
              return result;
