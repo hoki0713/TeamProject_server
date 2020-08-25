@@ -25,19 +25,19 @@ public class SubsidyPolicyRepositoryImpl extends QuerydslRepositorySupport imple
 
     @Override
     public Object findFitPolicy(int userAge, boolean children) {
-            Object result;
-        if(children){
-            result =queryFactory.select(subsidyPolicy)
+        Object result;
+        if (children) {
+            result = queryFactory.select(subsidyPolicy)
                     .from(subsidyPolicy)
                     .where(subsidyPolicy.condiAge.eq(0).or(subsidyPolicy.condiAge.eq(userAge)))
                     .fetch();
-        }else {
-            result =queryFactory.select(subsidyPolicy)
+        } else {
+            result = queryFactory.select(subsidyPolicy)
                     .from(subsidyPolicy)
                     .where(subsidyPolicy.condiChildrenAge.eq(0))
                     .where(subsidyPolicy.condiAge.eq(userAge))
                     .fetch();
         }
-             return result;
+        return result;
     }
 }
