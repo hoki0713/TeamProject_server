@@ -80,7 +80,7 @@ public class RecommendServiceImpl implements RecommendService {
                 (dataSource, "rating", "user_id",
                         "store_id", "star_rating", null);
         ReloadFromJDBCDataModel fastModel= new ReloadFromJDBCDataModel(model); // 다음 유저의 즐겨찾기 데이터가 없을시 최근 디비에 갔다온 유저 데이터가 나오는 버그 발생.
-        UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
+        UserSimilarity similarity = new PearsonCorrelationSimilarity(fastModel);
         UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.7, similarity, fastModel);
         UserBasedRecommender recommender = new GenericUserBasedRecommender(fastModel, neighborhood, similarity);
 
