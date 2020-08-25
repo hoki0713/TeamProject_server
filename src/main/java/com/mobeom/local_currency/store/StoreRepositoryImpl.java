@@ -23,11 +23,20 @@ interface IStoreRepository {
     List<IndustryStore> findByLatLng(String s, String s1);
 
     Object findSome(String stateName, String category, int pageNow, int limitSize);
+
+    Object findChatbotSearch(String searchWord, int pageSize);
+
+    int findChatbotSearchCount(String searchWord);
+
+    List<IndustryStore> findChatbotRecoMain(String lat, String lng);
+
+    List<IndustryStore> findChatbotRank(String stateName);
+
+    List<IndustryStore> findChatbotStarRank(String stateName);
 }
 
 @Repository
 public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IStoreRepository {
-
     private final JPAQueryFactory queryFactory;
 
     public StoreRepositoryImpl(JPAQueryFactory queryFactory) {
@@ -107,9 +116,118 @@ public class StoreRepositoryImpl extends QuerydslRepositorySupport implements IS
     }
 
     @Override
+    public Object findChatbotSearch(String searchWord, int pageSize) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                industry.industryImageUrl.as("imgUrl")))
+                .from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .groupBy(store.id)
+                .orderBy(store.id.asc())
+                .where(store.storeName.like("%" + searchWord + "%"))
+                .limit(pageSize).fetch();
+    }
+
+    @Override
+    public int findChatbotSearchCount(String searchWord) {
+        return (int)queryFactory.select(store.count())
+                .from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .groupBy(store.id)
+                .orderBy(store.id.asc())
+                .where(store.storeName.like("%" + searchWord + "%"))
+                .fetchCount();
+
+    }
+
+    @Override
+    public List<IndustryStore> findChatbotRecoMain(String lat, String lng) {
+        double latitude = Double.parseDouble(lat);
+        double longitude = Double.parseDouble(lng);
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                rating.starRating.avg().as("starRanking"),
+                industry.industryImageUrl.as("imgUrl")
+        )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
+                .fetchJoin()
+                .where(store.latitude.between(latitude - 0.045, latitude + 0.045))
+                .where(store.longitude.between(longitude - 0.06, longitude + 0.06))
+                .groupBy(rating.store.id)
+                .orderBy(store.searchResultCount.desc()).limit(10).fetch();
+    }
+
+    @Override
+    public List<IndustryStore> findChatbotRank(String stateName) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                rating.starRating.avg().as("starRanking"),
+                industry.industryImageUrl.as("imgUrl")
+        )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
+                .fetchJoin()
+                .where(store.address.like("%"+stateName+"%"))
+                .groupBy(rating.store.id)
+                .orderBy(store.searchResultCount.desc()).limit(50).fetch();
+    }
+
+    @Override
+    public List<IndustryStore> findChatbotStarRank(String stateName) {
+        return queryFactory.select(Projections.fields(IndustryStore.class,
+                store.id,
+                store.storeName,
+                store.storePhone,
+                store.address,
+                store.latitude,
+                store.longitude,
+                store.storeTypeCode,
+                store.storeType,
+                store.mainCode,
+                store.searchResultCount,
+                rating.starRating.avg().as("starRanking"),
+                industry.industryImageUrl.as("imgUrl")
+        )).from(store).innerJoin(industry)
+                .on(store.storeTypeCode.eq(industry.industryCode))
+                .innerJoin(rating).on(store.id.eq(rating.store.id))
+                .fetchJoin()
+                .where(store.address.like("%"+stateName+"%"))
+                .groupBy(rating.store.id)
+                .orderBy(rating.starRating.avg().desc())
+                .limit(50).fetch();
+    }
+
+    @Override
     public List<Store> findAllStoreByUserDefaultAddr(String defaultAddr) {
-        QStore qStore = QStore.store;
-        List<Store> resultList = queryFactory.selectFrom(qStore).where(qStore.localName.like(defaultAddr)).fetch();
+        List<Store> resultList = queryFactory.selectFrom(store).where(store.localName.like(defaultAddr)).fetch();
         return resultList;
     }
 }
