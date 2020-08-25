@@ -251,6 +251,8 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
             storeType.put(type.toString() + "업", result);
         }
 
+
+
         return storeType;
 
     }
@@ -269,6 +271,9 @@ public class AdminRepositoryImpl extends QuerydslRepositorySupport implements Cu
 
             storeResult.put(type.toString() + "업", result);
         }
+
+//        Long count = query.select(store.count()).from(store).fetchOne();
+//        storeResult.put("storeTotalCount",count);
 
         return storeResult;
     }

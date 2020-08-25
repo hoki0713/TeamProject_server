@@ -130,14 +130,18 @@ public class AdminController {
     }
 
     @GetMapping("/store/chart-all")
-    public Map<String, Long> storeIndustryChartAll() {
-        return adminService.storeIndustryChartAll();
+    public Map<String, ?> storeIndustryChartAll() {
+        box.put("storeTotalCount",adminService.getStoreCount());
+        box.put("storeChartAll",adminService.storeIndustryChartAll());
+        return box.get();
     }
 
     @GetMapping("/sales/list/{pageNumber}")
-    public SalesPageVO salesList(@PathVariable int pageNumber) {
+    public Map<String, ?> salesList(@PathVariable int pageNumber) {
         SalesPageVO salesList = adminService.salesList(pageNumber);
-        return salesList;
+        box.put("salesList", salesList);
+        box.put("salesCount", adminService.getSalesCount());
+        return box.get();
     }
 
     @GetMapping("/report/list")
@@ -153,7 +157,7 @@ public class AdminController {
 
     @GetMapping("/store/report/initialization/{id}")
     public ReportList reportInitial(@PathVariable String id) {
-        Optional<ReportList> result = adminService.oneStroeReport(Long.parseLong(id));
+        Optional<ReportList> result = adminService.oneStoreReport(Long.parseLong(id));
         ReportList updateReport = result.get();
         updateReport.setReportedCount(0);
         adminService.updateInitial(updateReport);

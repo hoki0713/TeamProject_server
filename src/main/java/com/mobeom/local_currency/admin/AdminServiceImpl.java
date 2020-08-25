@@ -7,6 +7,7 @@ import com.mobeom.local_currency.reportList.ReportList;
 import com.mobeom.local_currency.reportList.ReportListRepository;
 import com.mobeom.local_currency.sales.Sales;
 import com.mobeom.local_currency.sales.SalesRepository;
+import com.mobeom.local_currency.store.StoreRepository;
 import com.mobeom.local_currency.user.RequestedUsersVO;
 import com.mobeom.local_currency.user.User;
 import com.mobeom.local_currency.user.UserRepository;
@@ -56,7 +57,7 @@ interface AdminService {
 
     ReportListStore oneStore(Long id);
 
-    Optional<ReportList> oneStroeReport(Long id);
+    Optional<ReportList> oneStoreReport(Long id);
 
     ReportList updateInitial(ReportList reportList);
 
@@ -65,6 +66,9 @@ interface AdminService {
     Map<String, SalesVoucherUser> voucherSalesTotalChart();
 
     UserPageVO getSearchedUsers(String selectedOption, String searchWord);
+
+    int getSalesCount();
+    int getStoreCount();
 }
 
 @Service @AllArgsConstructor
@@ -74,6 +78,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final ReportListRepository reportListRepository;
     private final SalesRepository salesRepository;
+    private final StoreRepository storeRepository;
 
     @Override
     public Map<String, Long> localTotalChart() {
@@ -185,7 +190,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Optional<ReportList> oneStroeReport(Long id) {
+    public Optional<ReportList> oneStoreReport(Long id) {
         return reportListRepository.findByStoreId(id);
     }
 
@@ -251,6 +256,16 @@ public class AdminServiceImpl implements AdminService {
             return result;
         }
         return null;
+    }
+
+    @Override
+    public int getSalesCount() {
+        return (int)salesRepository.count();
+    }
+
+    @Override
+    public int getStoreCount() {
+        return (int)storeRepository.count();
     }
 
     @Override
