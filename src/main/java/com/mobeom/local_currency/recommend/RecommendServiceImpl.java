@@ -87,13 +87,11 @@ public class RecommendServiceImpl implements RecommendService {
         UserBasedRecommender recommender = new GenericUserBasedRecommender(fastModel, neighborhood, similarity);
 
         List<RecommendedItem> recommendations = recommender.recommend(Long.parseLong(id), 7);
-        System.out.println("추천기 사이즈"+recommendations.size());
         List<String> recommendItemIds = new ArrayList<>();
 
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("유저 추천" + recommendItemIds.size());
 
         return recommendItemIds;
     }
@@ -119,7 +117,6 @@ public class RecommendServiceImpl implements RecommendService {
         for (RecommendedItem recommendation : recommendations) {
             recommendItemIds.add(Long.toString(recommendation.getItemID()));
         }
-        System.out.println("아이템 추천" + recommendItemIds.size());
         return recommendItemIds;
     }
 
@@ -134,7 +131,6 @@ public class RecommendServiceImpl implements RecommendService {
             stores.setImgUrl(recommendRepository.fetchImg(stores));
             recommendList.add(stores);
         }
-        System.out.println("추천된 최종결과 스토어의 갯수" + recommendList.size());
         return recommendList;
     }
 
